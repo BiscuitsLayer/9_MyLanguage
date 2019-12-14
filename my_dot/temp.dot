@@ -1,0 +1,210 @@
+digraph G {
+fontsize = 50
+94481044471936[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472064[label = "$main", style = "filled", fillcolor = "bisque"]
+94481044471936 -> 94481044472064
+94481044472064[label = "$main", style = "filled", fillcolor = "bisque"]
+94481044472256[label = ",", style = "filled", fillcolor = "violet"]
+94481044472064 -> 94481044472256
+94481044472256[label = ",", style = "filled", fillcolor = "violet"]
+94481044472064[label = "$main", style = "filled", fillcolor = "bisque"]
+94481044472320[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472064 -> 94481044472320
+94481044472320[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472448[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044472320 -> 94481044472448
+94481044472448[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044472512[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044472448 -> 94481044472512
+94481044472512[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044472448[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044472768[label = "5", style = "filled", fillcolor = "darkseagreen2"]
+94481044472448 -> 94481044472768
+94481044472768[label = "5", style = "filled", fillcolor = "darkseagreen2"]
+94481044472320[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472832[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472320 -> 94481044472832
+94481044472832[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472960[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044472832 -> 94481044472960
+94481044472960[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044473024[label = "c", style = "filled", fillcolor = "indianred1"]
+94481044472960 -> 94481044473024
+94481044473024[label = "c", style = "filled", fillcolor = "indianred1"]
+94481044472960[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044473280[label = "5", style = "filled", fillcolor = "darkseagreen2"]
+94481044472960 -> 94481044473280
+94481044473280[label = "5", style = "filled", fillcolor = "darkseagreen2"]
+94481044472832[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473344[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044472832 -> 94481044473344
+94481044473344[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473472[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044473344 -> 94481044473472
+94481044473472[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044473536[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044473472 -> 94481044473536
+94481044473536[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044473472[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044473792[label = "1", style = "filled", fillcolor = "darkseagreen2"]
+94481044473472 -> 94481044473792
+94481044473792[label = "1", style = "filled", fillcolor = "darkseagreen2"]
+94481044473344[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473856[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473344 -> 94481044473856
+94481044473856[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473984[label = "if", style = "filled", fillcolor = "springgreen"]
+94481044473856 -> 94481044473984
+94481044473984[label = "if", style = "filled", fillcolor = "springgreen"]
+94481044474304[label = "15", style = "filled", fillcolor = "darkseagreen2"]
+94481044473984 -> 94481044474304
+94481044474304[label = "15", style = "filled", fillcolor = "darkseagreen2"]
+94481044473984[label = "if", style = "filled", fillcolor = "springgreen"]
+94481044474368[label = "else", style = "filled", fillcolor = "springgreen"]
+94481044473984 -> 94481044474368
+94481044474368[label = "else", style = "filled", fillcolor = "springgreen"]
+94481044474560[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044474368 -> 94481044474560
+94481044474560[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044474880[label = "15", style = "filled", fillcolor = "darkseagreen2"]
+94481044474560 -> 94481044474880
+94481044474880[label = "15", style = "filled", fillcolor = "darkseagreen2"]
+94481044474368[label = "else", style = "filled", fillcolor = "springgreen"]
+94481044475072[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044474368 -> 94481044475072
+94481044475072[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044475392[label = "14", style = "filled", fillcolor = "darkseagreen2"]
+94481044475072 -> 94481044475392
+94481044475392[label = "14", style = "filled", fillcolor = "darkseagreen2"]
+94481044473856[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475456[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044473856 -> 94481044475456
+94481044475456[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475584[label = "scan", style = "filled", fillcolor = "steelblue1"]
+94481044475456 -> 94481044475584
+94481044475584[label = "scan", style = "filled", fillcolor = "steelblue1"]
+94481044475712[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044475584 -> 94481044475712
+94481044475712[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044475456[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475776[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475456 -> 94481044475776
+94481044475776[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475904[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044475776 -> 94481044475904
+94481044475904[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044475968[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044475904 -> 94481044475968
+94481044475968[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044475904[label = "=", style = "filled", fillcolor = "aquamarine"]
+94481044476224[label = "c", style = "filled", fillcolor = "indianred1"]
+94481044475904 -> 94481044476224
+94481044476224[label = "c", style = "filled", fillcolor = "indianred1"]
+94481044475776[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476288[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044475776 -> 94481044476288
+94481044476288[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476416[label = "$keks", style = "filled", fillcolor = "bisque"]
+94481044476288 -> 94481044476416
+94481044476416[label = "$keks", style = "filled", fillcolor = "bisque"]
+94481044476608[label = ",", style = "filled", fillcolor = "violet"]
+94481044476416 -> 94481044476608
+94481044476608[label = ",", style = "filled", fillcolor = "violet"]
+94481044476736[label = ",", style = "filled", fillcolor = "violet"]
+94481044476608 -> 94481044476736
+94481044476736[label = ",", style = "filled", fillcolor = "violet"]
+94481044476800[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044476736 -> 94481044476800
+94481044476800[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044476608[label = ",", style = "filled", fillcolor = "violet"]
+94481044476672[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044476608 -> 94481044476672
+94481044476672[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044476288[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476864[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476288 -> 94481044476864
+94481044476864[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044471936[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476928[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044471936 -> 94481044476928
+94481044476928[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044477056[label = "$keks", style = "filled", fillcolor = "bisque"]
+94481044476928 -> 94481044477056
+94481044477056[label = "$keks", style = "filled", fillcolor = "bisque"]
+94481044477248[label = ",", style = "filled", fillcolor = "violet"]
+94481044477056 -> 94481044477248
+94481044477248[label = ",", style = "filled", fillcolor = "violet"]
+94481044477376[label = ",", style = "filled", fillcolor = "violet"]
+94481044477248 -> 94481044477376
+94481044477376[label = ",", style = "filled", fillcolor = "violet"]
+94481044477440[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044477376 -> 94481044477440
+94481044477440[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044477248[label = ",", style = "filled", fillcolor = "violet"]
+94481044477312[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477248 -> 94481044477312
+94481044477312[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477056[label = "$keks", style = "filled", fillcolor = "bisque"]
+94481044477504[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044477056 -> 94481044477504
+94481044477504[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044477632[label = "while", style = "filled", fillcolor = "olivedrab1"]
+94481044477504 -> 94481044477632
+94481044477632[label = "while", style = "filled", fillcolor = "olivedrab1"]
+94481044478208[label = "-", style = "filled", fillcolor = "orchid2"]
+94481044477632 -> 94481044478208
+94481044478208[label = "-", style = "filled", fillcolor = "orchid2"]
+94481044477760[label = "+", style = "filled", fillcolor = "gold"]
+94481044478208 -> 94481044477760
+94481044477760[label = "+", style = "filled", fillcolor = "gold"]
+94481044477952[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477760 -> 94481044477952
+94481044477952[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477760[label = "+", style = "filled", fillcolor = "gold"]
+94481044478144[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477760 -> 94481044478144
+94481044478144[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044478208[label = "-", style = "filled", fillcolor = "orchid2"]
+94481044478400[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044478208 -> 94481044478400
+94481044478400[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044477632[label = "while", style = "filled", fillcolor = "olivedrab1"]
+94481044478592[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044477632 -> 94481044478592
+94481044478592[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044478720[label = "+", style = "filled", fillcolor = "gold"]
+94481044478592 -> 94481044478720
+94481044478720[label = "+", style = "filled", fillcolor = "gold"]
+94481044478912[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044478720 -> 94481044478912
+94481044478912[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044478720[label = "+", style = "filled", fillcolor = "gold"]
+94481044479040[label = "^", style = "filled", fillcolor = "ivory"]
+94481044478720 -> 94481044479040
+94481044479040[label = "^", style = "filled", fillcolor = "ivory"]
+94481044479104[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044479040 -> 94481044479104
+94481044479104[label = "b", style = "filled", fillcolor = "indianred1"]
+94481044479040[label = "^", style = "filled", fillcolor = "ivory"]
+94481044479168[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044479040 -> 94481044479168
+94481044479168[label = "a", style = "filled", fillcolor = "darkolivegreen1"]
+94481044477504[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044479232[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044477504 -> 94481044479232
+94481044479232[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044479360[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044479232 -> 94481044479360
+94481044479360[label = "print", style = "filled", fillcolor = "steelblue1"]
+94481044479680[label = "1", style = "filled", fillcolor = "darkseagreen2"]
+94481044479360 -> 94481044479680
+94481044479680[label = "1", style = "filled", fillcolor = "darkseagreen2"]
+94481044479232[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044479744[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044479232 -> 94481044479744
+94481044479744[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476928[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044479808[label = ";", style = "filled", fillcolor = "khaki1"]
+94481044476928 -> 94481044479808
+94481044479808[label = ";", style = "filled", fillcolor = "khaki1"]
+}

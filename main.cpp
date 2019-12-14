@@ -8,7 +8,6 @@
 //TODO Прогнать через валгринд, убедиться в том, что пустые узлы освобождаются
 //TODO Дописать в грамматику функции (математические)
 //TODO Добавить [] в процессор
-//TODO Передавать в функцию аргументы
 //TODO Сделать константы, наконец, неизменными!
 //TODO Файл с синтаксисом
 //TODO Выделить весь фронтэнд в либу
@@ -27,7 +26,7 @@ const int EXTRA_BUF_SIZE = 1;
 #define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../program.my_lang"
+#define INPUTFILE "../my_programs/program1.my_lang"
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
 
 struct Variable_t {
@@ -66,6 +65,7 @@ enum LangCommands {
     ELSE,
     EQUAL,
     SEMICOLON,
+    COMMA,
     OPEN_PARENTHESIS,
     CLOSE_PARENTHESIS,
     OPEN_BRACE,
@@ -99,6 +99,7 @@ const char *LangCommands[] = {
         "else",
         "=",
         ";",
+        ",",
         "(",
         ")",
         "{",
@@ -117,6 +118,7 @@ typedef struct Node {
 typedef struct {
     char *name = nullptr;
     type_t type = 0;
+    size_t line_num = 0;
 } Elem_t;
 
 namespace Tree {
@@ -129,7 +131,14 @@ namespace Tree {
 namespace Dot {
     void PrintTree (Node *node);
     void PrintNode (FILE *writefile, Node *node);
-    char *MakeNodeLabel(Node *node);
+    char *MakeNodeLabel (Node *node);
+    char *MakeNodeColor (Node *node);
+    char *MakeNodeShape (Node *node);
+}
+
+namespace AST {
+    void PrintTree (Node *node);
+    void PrintNode (FILE *writefile, Node *node);
 }
 
 namespace Tokens {
@@ -173,6 +182,7 @@ int main () {
 
     Node *root = RD::GetG (tokens);
     Dot::PrintTree (root);
+    AST::PrintTree (root);
     Tree::FreeNode (root);
     return 0;
 }
@@ -233,58 +243,214 @@ void Tree::FreeNode (Node *node) {
 }
 
 void Dot::PrintTree (Node *node) {
-    FILE *dot_writefile = fopen ("../temp.dot", "w");
+    FILE *dot_writefile = fopen ("../my_dot/temp.dot", "w");
     fprintf (dot_writefile,"digraph G {\nfontsize = 50\n");
     Dot::PrintNode (dot_writefile, node);
     fprintf (dot_writefile, "}");
     fclose (dot_writefile);
-    system ("dot -Tpng /home/biscuitslayer/CLionProjects/9_MyLanguage/temp.dot -o/home/biscuitslayer/CLionProjects/9_MyLanguage/temp.png");
+    system ("dot -Tpng /home/biscuitslayer/CLionProjects/9_MyLanguage/my_dot/temp.dot -o/home/biscuitslayer/CLionProjects/9_MyLanguage/my_dot/temp.png");
 }
 
 void Dot::PrintNode (FILE *writefile, Node *node) {
     if (node == nullptr)
         return;
-    char *str = Dot::MakeNodeLabel(node);
+    char *label = Dot::MakeNodeLabel (node);
+    char *color = Dot::MakeNodeColor (node);
     if (node->left) {
-        char *str1 = Dot::MakeNodeLabel (node->left);
-        fprintf (writefile, "%zu[label = \"%s\"]\n%zu[label = \"%s\"]\n", node, str, node->left, str1);
+        char *label1 = Dot::MakeNodeLabel (node->left);
+        char *color1 = Dot::MakeNodeColor (node->left);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color, node->left, label1, color1);
         fprintf (writefile, "%zu -> %zu\n", node, node->left);
         PrintNode (writefile, node->left);
-        free (str1);
+        free (label1);
     }
     if (node->right) {
-        char *str2 = Dot::MakeNodeLabel (node->right);
-        fprintf (writefile, "%zu[label = \"%s\"]\n%zu[label = \"%s\"]\n", node, str, node->right, str2);
+        char *label2 = Dot::MakeNodeLabel (node->right);
+        char *color2 = Dot::MakeNodeColor (node->right);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color, node->right, label2, color2);
         fprintf (writefile, "%zu -> %zu\n", node, node->right);
         PrintNode (writefile, node->right);
-        free (str2);
+        free (label2);
     }
     if (!node->left && !node->right) {
-        fprintf (writefile, "%zu[label = \"%s\"]\n", node, str);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color);
     }
-    free (str);
+    free (label);
 }
 
 char *Dot::MakeNodeLabel (Node *node) {
-    char *str = (char *) calloc (STR_LEN, sizeof (char));
+    char *label = (char *) calloc (STR_LEN, sizeof (char));
     if (node->type == TYPE_NUM) {
-        sprintf (str, NUM_T_FORMAT, node->data);
+        sprintf (label, NUM_T_FORMAT, node->data);
     } else if (node->type == TYPE_VAR) {
-        sprintf (str, "%s", vars[(int)node->data].name);
+        sprintf (label, "%s", vars[(int)node->data].name);
     } else if (node->type == TYPE_CONST) {
-        sprintf (str, "%s", consts[(int)node->data].name);
+        sprintf (label, "%s", consts[(int)node->data].name);
     } else if (node->type == TYPE_FUNC) {
-        sprintf (str, "%s", funcs[(int)node->data].name);
+        sprintf (label, "$%s", funcs[(int)node->data].name);
     } else if (node->type == TYPE_OP) {
-        sprintf (str, "%s", Operations[(int)node->data]);
+        sprintf (label, "%s", Operations[(int)node->data]);
     } else if (node->type == TYPE_SYS) {
-        sprintf (str, "%s", LangCommands[(int)node->data]);
+        sprintf (label, "%s", LangCommands[(int)node->data]);
     } else if (node->type == TYPE_UNDEF) {
-        sprintf (str, "UNDEF");
+        sprintf (label, "UNDEF");
         printf ("Error! Undefined command\n");
-        //exit (1);
+#ifdef NDEBUG
+        exit (1);
+#endif
     }
-    return str;
+    return label;
+}
+
+char *Dot::MakeNodeColor (Node *node) {
+    char *color = (char *) calloc (STR_LEN, sizeof (char));
+    if (node->type == TYPE_NUM) {
+        sprintf (color, "darkseagreen2");
+    } else if (node->type == TYPE_VAR) {
+        sprintf (color, "darkolivegreen1");
+    } else if (node->type == TYPE_CONST) {
+        sprintf (color, "indianred1");
+    } else if (node->type == TYPE_FUNC) {
+        sprintf (color, "bisque");
+    } else if (node->type == TYPE_OP) {
+        switch ((int)node->data) {
+            case OP_SUM: {
+                sprintf (color, "gold");
+                break;
+            }
+            case OP_SUB: {
+                sprintf (color, "orchid2");
+                break;
+            }
+            case OP_MUL: {
+                sprintf (color, "pink");
+                break;
+            }
+            case OP_DIV: {
+                sprintf (color, "peachpuff");
+                break;
+            }
+            case OP_POW: {
+                sprintf (color, "ivory");
+                break;
+            }
+        }
+    } else if (node->type == TYPE_SYS) {
+        switch ((int)node->data) {
+            case VAR: {
+                sprintf (color, "yellow");
+                break;
+            }
+            case CONST: {
+                sprintf (color, "yellow");
+                break;
+            }
+            case FUNCTION: {
+                sprintf (color, "yellow");
+                break;
+            }
+            case PRINT: {
+                sprintf (color, "steelblue1");
+                break;
+            }
+            case SCAN: {
+                sprintf (color, "steelblue1");
+                break;
+            }
+            case IF: {
+                sprintf (color, "springgreen");
+                break;
+            }
+            case WHILE: {
+                sprintf (color, "olivedrab1");
+                break;
+            }
+            case ELSE: {
+                sprintf (color, "springgreen");
+                break;
+            }
+            case EQUAL: {
+                sprintf (color, "aquamarine");
+                break;
+            }
+            case SEMICOLON: {
+                sprintf (color, "khaki1");
+                break;
+            }
+            case COMMA: {
+                sprintf (color, "violet");
+                break;
+            }
+            case OPEN_PARENTHESIS: {
+                sprintf (color, "wheat1");
+                break;
+            }
+            case CLOSE_PARENTHESIS: {
+                sprintf (color, "wheat1");
+                break;
+            }
+            case OPEN_BRACE: {
+                sprintf (color, "plum1");
+                break;
+            }
+            case CLOSE_BRACE: {
+                sprintf (color, "plum1");
+                break;
+            }
+        }
+    } else if (node->type == TYPE_UNDEF) {
+        sprintf (color, "firebrick1");
+        printf ("Error! Undefined command\n");
+#ifdef NDEBUG
+        exit (1);
+#endif
+    }
+    return color;
+}
+
+char *Dot::MakeNodeShape (Node *node) {
+    char *shape = (char *) calloc (STR_LEN, sizeof (char));
+    if (node->type == TYPE_NUM) {
+        sprintf (shape, NUM_T_FORMAT, node->data);
+    } else if (node->type == TYPE_VAR) {
+        sprintf (shape, "%s", vars[(int)node->data].name);
+    } else if (node->type == TYPE_CONST) {
+        sprintf (shape, "%s", consts[(int)node->data].name);
+    } else if (node->type == TYPE_FUNC) {
+        sprintf (shape, "$%s", funcs[(int)node->data].name);
+    } else if (node->type == TYPE_OP) {
+        sprintf (shape, "%s", Operations[(int)node->data]);
+    } else if (node->type == TYPE_SYS) {
+        sprintf (shape, "%s", LangCommands[(int)node->data]);
+    } else if (node->type == TYPE_UNDEF) {
+        sprintf (shape, "UNDEF");
+        printf ("Error! Undefined command\n");
+#ifdef NDEBUG
+        exit (1);
+#endif
+    }
+    return shape;
+}
+
+void AST::PrintTree (Node *node) {
+    FILE *ast_writefile = fopen ("../my_ast/temp.ast", "w");
+    AST::PrintNode (ast_writefile, node);
+    fclose (ast_writefile);
+}
+
+void AST::PrintNode (FILE *writefile, Node *node) {
+    fprintf (writefile, "{ ");
+    char *label = Dot::MakeNodeLabel (node);
+    fprintf (writefile, "%s ", label);
+    if (node->left)
+        AST::PrintNode (writefile, node->left);
+    else
+        fprintf (writefile, "{ nil } ");
+    if (node->right)
+        AST::PrintNode (writefile, node->right);
+    else
+        fprintf (writefile, "{ nil } ");
+    fprintf (writefile, "} ");
 }
 
 Elem_t *Tokens::Tokenization (FILE *readfile) {
@@ -294,8 +460,9 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
     program[file_info.st_size] = EOF;
     fread (program, sizeof (char), file_info.st_size, readfile);
     Elem_t *tokens = nullptr;
-    tokens = (Elem_t *) calloc(file_info.st_size, sizeof(Elem_t));
+    tokens = (Elem_t *) calloc (file_info.st_size, sizeof(Elem_t));
     char *s = program;
+    size_t line_num = 1;
     while (*s != EOF) {
         (tokens[idx].name) = s;
         while (!isspace(*s) && *s != EOF) {
@@ -305,10 +472,13 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
             *s = '\0';
             break;
         } else {
+            if (*s == '\n')
+                ++line_num;
             *s = '\0';
         }
         ++s;
         if (strcmp (tokens[idx].name, "") != 0) {
+            tokens[idx].line_num = line_num;
             Tokens::TokenHandle (tokens); //Предварительная обработка токена
             ++idx; //Переход к следующему токену
         }
@@ -349,7 +519,7 @@ void Tokens::TokenHandle (Elem_t *tokens) {
         Tokens::FuncSearch (tokens[idx].name, true);
         return;
     } else if (tokens[idx].type == TYPE_UNDEF) {
-        printf ("Unknown token \"%s\"\n", tokens[idx].name);
+        printf ("Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
         exit (1);
     }
 }
@@ -455,20 +625,37 @@ Node *RD::GetF (Elem_t *tokens) {
 
 Node *RD::GetArgs (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
+    Node *ans = node;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
+
+    node->left = Tree::NodeInit ();
+    node->left->type = TYPE_SYS;
+    node->left->data = COMMA;
+    node = node->left;
+
     while (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) != 0) {
-        ++idx;
-        //КОСТЫЛЬ ПОТОМУ ЧТО ХОЧУ СПАТЬ
+        node->right = RD::GetID (tokens);
+        if (strcmp (tokens[idx].name, LangCommands[COMMA]) == 0) {
+            node->left = Tree::NodeInit();
+            node->left->type = TYPE_SYS;
+            node->left->data = COMMA;
+            node = node->left;
+            ++idx;
+        }
     }
     ++idx;
-    return node;
+    return ans;
 }
 
 Node *RD::GetAs (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
     Node *ans = node;
     node->left = RD::GetID (tokens);
+    if (node->left->type == TYPE_CONST && strcmp(tokens[idx - 2].name, LangCommands[CONST]) != 0) {
+        printf ("Error! Can't change constants (line %d)\n", tokens[idx].line_num);
+        exit (2);
+    }
     assert (strcmp (tokens[idx].name, LangCommands[EQUAL]) == 0);
     node->data = EQUAL;
     node->type = TYPE_SYS;
@@ -574,7 +761,7 @@ Node *RD::GetP (Elem_t *tokens) {
     } else if (isalpha (tokens[idx].name[0])) {
         node = RD::GetID (tokens);
     } else {
-        printf ("Unknown token \"%s\"\n", tokens[idx].name);
+        printf ("Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
         exit (1);
     }
     return node;
@@ -607,6 +794,9 @@ Node *RD::GetOp (Elem_t *tokens) {
     else if (strcmp (tokens[idx].name, LangCommands[SCAN]) == 0) {
         node = RD::GetScan (tokens);
     }
+    else if (strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0) {
+        node = RD::GetFCall (tokens);
+    }
     else if (strcmp (tokens[idx].name, LangCommands[OPEN_BRACE]) == 0) {
         Node *base = node;
         node->data = OPEN_BRACE;
@@ -636,10 +826,25 @@ Node *RD::GetOp (Elem_t *tokens) {
         node = RD::GetAs (tokens);
     }
     else {
-        printf ("Error! Unknown operator \"%s\"\n", tokens[idx].name);
+        printf ("Error! Unknown operator \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
         exit (1);
     }
     return node;
+}
+
+Node *RD::GetFCall (Elem_t *tokens) {
+    Node *node = Tree::NodeInit ();
+    Node *base = node;
+    node->type = TYPE_FUNC;
+    assert (strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0);
+    ++idx;
+    node->data = Tokens::FuncSearch (tokens[idx].name);
+    ++idx;
+    node->left = Tree::NodeInit ();
+    node->left = RD::GetArgs (tokens);
+    assert (strcmp (tokens[idx].name, LangCommands[SEMICOLON]) == 0);
+    ++idx;
+    return base;
 }
 
 Node *RD::GetIf (Elem_t *tokens) {

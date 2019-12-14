@@ -1,14 +1,17 @@
-function main ( 3 5 ) {
+function main ( ) {
     var a = 5 ;
+    const c = 5 ;
+    const b = 1 ;
     if ( 15 )
         print ( 15 ) ;
     else
         print ( 14 ) ;
     scan ( a ) ;
+    a = c ;
+    function keks ( a , b ) ;
 }
 
-function keks ( 1 1 ) {
-    const b = 1 ;
+function keks ( a , b ) {
     while ( a + a - b )
         print ( a + b ^ a ) ;
     print ( 1 ) ;
