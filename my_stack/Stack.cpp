@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
-#include "StackLib.h"
+#include "Stack.h"
 
 #define _NAME_OF_ARG_(ARG) #ARG
 #define RE std::runtime_error

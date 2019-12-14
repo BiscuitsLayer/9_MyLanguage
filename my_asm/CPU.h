@@ -1,4 +1,4 @@
-#include "../my_stack/StackLib.h"
+#include "../my_stack/Stack.h"
 #include <cmath>
 //#include <TXLin.h>
 

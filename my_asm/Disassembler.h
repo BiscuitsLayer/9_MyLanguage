@@ -1,4 +1,4 @@
-#include "../my_stack/LabelLib.h"
+#include "../my_stack/Label.h"
 #include <cmath>
 #include <cstdio>
 #include <cstring>

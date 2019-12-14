@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sys/stat.h>
-#include "../my_stack/LabelLib.h"
+#include "../my_stack/Label.h"
 
 const int STRLEN = 5;
 const int BUF_EXTRA_SIZE = 2;

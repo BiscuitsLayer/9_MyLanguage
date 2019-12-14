@@ -3,15 +3,14 @@ function main ( ) {
     const c = 5 ;
     const b = 1 ;
     if ( 15 )
-        print ( 15 ) ;
+        print ( 15 * 15 * 14 / 2 ) ;
     else
         print ( 14 ) ;
     scan ( a ) ;
-    a = c ;
-    function keks ( a , b ) ;
+    a = call keks ( a + 5 , b ) ;
 }
 
-function keks ( a , b ) {
+function keks ( var a , var b ) {
     while ( a + a - b )
         print ( a + b ^ a ) ;
     print ( 1 ) ;
