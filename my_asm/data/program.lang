@@ -1,0 +1,26 @@
+#define COMMA ,
+#define COLON :
+#define ARG(code) CPU->data[CPU->it += code]
+#define IF(cond, code) CPU->ax = StackPop(&CPU->stk); CPU->bx = StackPop(&CPU->stk); StackPush(&CPU->stk COMMA (CPU->bx)); \
+StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); StackPush(&CPU->stk COMMA (CPU->ax)); if (cond) code; else CPU->it += 1
+#define GOTO(code) CPU->it = code - 1
+#define POW(num1, num2) pow(num1, num2)
+#define SQRT(code) sqrt(code)
+#define AX CPU->ax
+#define BX CPU->bx
+#define CX CPU->cx
+#define DX CPU->dx
+#define PRINT(code) int num = code; printf("%d.%d\n" COMMA (int)(num / pow(10 COMMA ACCURACY)) COMMA (num % (int)pow(10 COMMA ACCURACY)))
+#define PUSH(code) StackPush(&CPU->stk COMMA (code))
+#define POP StackPop(&CPU->stk)
+#define SAVELOC StackPush(&CPU->func COMMA CPU->it)
+#define RETLOC CPU->it = StackPop(&CPU->func) + 1
+#define DO(op1, op2) op1; op2
+#define EXIT exit(0)
+/*
+#define DRAW_OPEN txCreateWindow (WindowXSize, WindowYSize, true); txSetFillColor (BG_COLOR); txClear (); txSetColor (AXIS_COLOR); \
+                            txLine (0, CenterDeltaY, WindowXSize, CenterDeltaY); txLine (CenterDeltaX, 0, CenterDeltaX, WindowYSize);
+#define DRAW for (int idx = 0; idx < 2 * PARABOLA_SIZE; idx += 2) { txSetColor(PARABOLA_COLOR); txSetPixel(CPU->RAM[idx] + CenterDeltaX, CenterDeltaY - CPU->RAM[idx + 1]); \
+                            txLine (CPU->RAM[idx] + CenterDeltaX, CenterDeltaY - CPU->RAM[idx + 1], CPU->RAM[idx - 2] + CenterDeltaX, CenterDeltaY - CPU->RAM[idx - 1]); }
+#define DRAW_CLOSE txRedrawWindow (); sleep (5000);
+*/
