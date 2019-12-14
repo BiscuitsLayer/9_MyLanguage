@@ -1,0 +1,15 @@
+function main ( 3 5 ) {
+    var a = 5 ;
+    if ( 15 )
+        print ( 15 ) ;
+    else
+        print ( 14 ) ;
+    scan ( a ) ;
+}
+
+function keks ( 1 1 ) {
+    const b = 1 ;
+    while ( a + a - b )
+        print ( a + b ^ a ) ;
+    print ( 1 ) ;
+}
