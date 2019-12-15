@@ -19,7 +19,7 @@ const size_t BUF_EXTRA_SIZE = 2;
 #define DEF_CMD(name, num, code) CMD_##name = num,
 
 enum Commands {
-#include "data/program.operations"
+#include "data/program.commands"
 };
 
 #undef DEF_CMD

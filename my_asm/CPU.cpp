@@ -15,13 +15,6 @@ void CPUMain () {
 
     LoadData (&CPU, program_code, program_len); //Загрузка машинного кода в процессор
 
-    /*//Вывод машинного кода, принятого процессором
-    printf ("PROGRAM LOADED:\n");
-    for (int i = 0; i < program_len; ++i)
-        printf ("%d ", CPU.data[i]);
-    printf ("\nEND OF PROGRAM\n");
-    */
-
     DataHandle (&CPU, program_len); //Исполнение машинного кода
     fclose (program_code);
 }
@@ -36,8 +29,9 @@ void DataHandle (CPU_t *CPU, size_t program_len) {
         switch (CPU->data[CPU->it]) { //Обработка машинного кода
             #include "data/program.lang"
             #define DEF_CMD(name, num, code) case CMD_##name COLON { code; break; }
-            #include "data/program.operations"
-            #undef DEF_CMD
+            #include "data/program.commands"
+
+#undef DEF_CMD
         }
     }
 }

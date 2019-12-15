@@ -7,6 +7,7 @@ StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); Stac
 #define SCAN double num; scanf ("%lg" COMMA &num); int num1 = num * pow(10 COMMA ACCURACY); StackPush(&CPU->stk COMMA num1)
 #define POW(num1, num2) pow(num1, num2)
 #define SQRT(code) sqrt(code)
+#define RAM(code) CPU->RAM[(code)]
 #define AX CPU->ax
 #define BX CPU->bx
 #define CX CPU->cx
@@ -14,8 +15,8 @@ StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); Stac
 #define PRINT(code) int num = code; printf("%d.%d\n" COMMA (int)(num / pow(10 COMMA ACCURACY)) COMMA (num % (int)pow(10 COMMA ACCURACY)))
 #define PUSH(code) StackPush(&CPU->stk COMMA (code))
 #define POP StackPop(&CPU->stk)
-#define SAVELOC StackPush(&CPU->func COMMA CPU->it)
 #define RETLOC CPU->it = StackPop(&CPU->func) + 1
+#define SAVELOC StackPush(&CPU->func COMMA CPU->it)
 #define DO(op1, op2) op1; op2
 #define EXIT exit(0)
 /*

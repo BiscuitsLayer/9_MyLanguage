@@ -58,22 +58,40 @@ void ReadUserInput (FILE *user_input, char **input_start) {
         sscanf (commands_list[i], "%s", command);
 
         //Проверка на команду PUSH
-        //char sub[STR_LEN];
-        //strncpy (sub, command, 4);
         if (strcmp (command, "PUSH") == 0) {
-            char reg_name = ' ';
-            sscanf (commands_list[i], "%*s %cX", &reg_name);
-            if (isdigit (reg_name) || (reg_name == '-'))
-                ++special;
-            else
+            if (commands_list[i][PUSH_LEN + 2] == 'X') {
                 commands_list[i][PUSH_LEN] = '_';
+            }
+            else if (commands_list[i][PUSH_LEN + 1] == '[' && commands_list[i][PUSH_LEN + 3] == 'X') {
+                char reg_name = commands_list[i][PUSH_LEN + 2];
+                sprintf (commands_list[i], "PUSHRM_%cX", reg_name);
+            }
+            else if (commands_list[i][PUSH_LEN + 1] == '[') {
+                int temp = 0;
+                sscanf (commands_list[i], "PUSH [%d]", &temp);
+                sprintf (commands_list[i], "PUSHRM %d", temp);
+                ++special;
+            }
+            else {
+                ++special;
+            }
         }
 
         //Проверка на команду POP
-        else if (strcmp (command, "POP") == 0) {
-            char reg_name = ' ';
-            sscanf (commands_list[i], "%*s %cX", &reg_name);
-            commands_list[i][POP_LEN] = '_';
+        if (strcmp (command, "POP") == 0) {
+            if (commands_list[i][POP_LEN + 2] == 'X') {
+                commands_list[i][POP_LEN] = '_';
+            }
+            else if (commands_list[i][POP_LEN + 1] == '[' && commands_list[i][POP_LEN + 3] == 'X') {
+                char reg_name = commands_list[i][POP_LEN + 2];
+                sprintf (commands_list[i], "POPRM_%cX", reg_name);
+            }
+            else if (commands_list[i][POP_LEN + 1] == '[') {
+                int temp = 0;
+                sscanf (commands_list[i], "POP [%d]", &temp);
+                sprintf (commands_list[i], "POPRM %d", temp);
+                ++special;
+            }
         }
 
         //Проверка на команду JMP или CALL
@@ -138,19 +156,56 @@ void UserInputHandle (int **code, FILE *user_lst) {
                 read_words = sscanf (commands_list[i], "%*s %lg %c", &operand_double, &comment_tag);
                 if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
                     printf("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
-                    exit (2);
+                    exit(2);
                 }
                 (*code)[idx++] = CMD_PUSH;
-                operand_int = (int) (operand_double * pow(10, ACCURACY));
+                operand_int = (int) (operand_double * pow (10, ACCURACY));
                 (*code)[idx++] = operand_int;
 
                 // (Вывод в листинг компиляции если 2 проход)
-                if (pass == 2) fprintf (user_lst, "%08zu %08x %08x PUSH %lg\n", shift, CMD_PUSH, operand_int, operand_double);
-                shift += 4 * sizeof (char) + sizeof (int); //Увеличение сдвига в листинге компиляции
+                if (pass == 2)
+                    fprintf (user_lst, "%08zu %08x %08x PUSH %lg\n", shift, CMD_PUSH, operand_int, operand_double);
+                shift += 4 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
                 continue;
+            }
+            else if (strcmp (command, "PUSHRM") == 0) {
+                double operand_double = 0; //Введенный операнд (если имеется)
+                int operand_int = 0; //Введенный операнд (если имеется) с заданной точоностью
+                read_words = sscanf (commands_list[i], "%*s %lg %c", &operand_double, &comment_tag);
+                if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
+                    printf ("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
+                    exit (2);
+                }
+                (*code)[idx++] = CMD_PUSHRM;
+                operand_int = (int) (operand_double * pow (10, ACCURACY));
+                (*code)[idx++] = operand_int;
 
+                // (Вывод в листинг компиляции если 2 проход)
+                if (pass == 2)
+                    fprintf(user_lst, "%08zu %08x %08x PUSHRM %lg\n", shift, CMD_PUSHRM, operand_int, operand_double);
+                shift += 6 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
+                continue;
+            }
+            else if (strcmp (command, "POPRM") == 0) {
+                double operand_double = 0; //Введенный операнд (если имеется)
+                int operand_int = 0; //Введенный операнд (если имеется) с заданной точоностью
+                read_words = sscanf (commands_list[i], "%*s %lg %c", &operand_double, &comment_tag);
+                if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
+                    printf ("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
+                    exit (2);
+                }
+                (*code)[idx++] = CMD_POPRM;
+                operand_int = (int) (operand_double * pow (10, ACCURACY));
+                (*code)[idx++] = operand_int;
+
+                // (Вывод в листинг компиляции если 2 проход)
+                if (pass == 2)
+                    fprintf(user_lst, "%08zu %08x %08x POPRM %lg\n", shift, CMD_POPRM, operand_int, operand_double);
+                shift += 5 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
+                continue;
+            }
             //Если в строке содержится метка или CALL
-            } else if ( (strcmp (command, "JMP") == 0) || (strcmp (command, "JA") == 0) ||
+            else if ( (strcmp (command, "JMP") == 0) || (strcmp (command, "JA") == 0) ||
                         (strcmp (command, "JAE") == 0) || (strcmp (command, "JB") == 0) || (strcmp (command, "JBE") == 0) ||
                         (strcmp (command, "JE") == 0) || (strcmp (command, "JNE") == 0) || (strcmp (command, "CALL") == 0) ) {
                 size_t location_idx = 0; //Номер команды, куда направляет JMP
@@ -195,8 +250,9 @@ void UserInputHandle (int **code, FILE *user_lst) {
             #define DEF_CMD(name, num, _code) \
             else if (strcmp (command, #name) == 0) { (*code)[idx++] = num; \
             if (pass == 2) fprintf (user_lst, "%08zu %08x %08x "#name"\n", shift, CMD_##name, 0); shift += strlen (#name) * sizeof (char);}
-            #include "data/program.operations"
-            #undef DEF_CMD
+            #include "data/program.commands"
+
+#undef DEF_CMD
 
             //Обработка меток
             else {
@@ -223,5 +279,4 @@ void UserInputHandle (int **code, FILE *user_lst) {
             }
         }
     }
-    free (command);
 }

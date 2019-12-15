@@ -9,6 +9,8 @@ struct CPU_t {
     int ax = 0, bx = 0, cx = 0, dx = 0;
     int *data = nullptr;
     size_t it = 0;
+    size_t RAM_base = 0;
+    size_t RAM_it = 0;
 };
 
 void CPUMain ();
