@@ -4,14 +4,14 @@
 //TODO Прогнать через валгринд, убедиться в том, что пустые узлы освобождаются
 //TODO Дописать в грамматику функции (математические)
 //TODO Добавить [] в процессор
-//TODO Сделать константы, наконец, неизменными!
 //TODO Файл с синтаксисом
 //TODO Начать делать бекэнд
-//TODO Форму узлов
 //TODO Добавить операций для дифференциатора
-//TODO Придумать как на этом этапе отличать глобальные переменные от локальных
+//TODO Отличать глобальные переменные от локальных
+//TODO Проверку чтобы имя функции не начиналось с $ а имя переменной deriv
 
 int main () {
+    /*
     FILE *readfile = fopen (INPUTFILE, "rb");
     if (!readfile) {
         printf ("Error opening file\n");
@@ -19,12 +19,23 @@ int main () {
     }
 
     Elem_t *tokens = Tokens::Tokenization (readfile);
-
+    fclose (readfile);
     Node *root = RD::GetG (tokens);
     root = Optimize::Differentiator (root);
     root = Optimize::Optimizer (root);
+    */
+
+    FILE *readfile = fopen (INPUTTREE, "rb");
+    if (!readfile) {
+        printf ("Error opening file\n");
+        return 0;
+    }
+    Node *root = Tree::NodeInit ();
+    root->parent = Tree::NodeInit (nullptr, root);
+    root = AST::ReadTree (readfile, root->parent);
+
     Dot::PrintTree (root);
-    AST::PrintTree (root);
+    //AST::PrintTree (root);
     Tree::FreeNode (root);
     return 0;
 }

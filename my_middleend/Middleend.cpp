@@ -78,10 +78,6 @@ Node &Diff::Diff (Node *node) {
             new_node = &Diff::Copy (NUM_0);
             return *new_node;
         }
-        case TYPE_UNDEF: {
-            new_node = &Diff::Copy (NUM_0);
-            return *new_node;
-        }
         case TYPE_OP:
             switch ((int)node->data) {
                 case OP_SUM: {
@@ -149,7 +145,7 @@ Node *Diff::PreHandle (Node *node, size_t diff_var) {
     if (node->right)
         Diff::PreHandle (node->right, diff_var);
     if (node->type == TYPE_VAR && node->data != diff_var)
-        node->type = TYPE_UNDEF;
+        node->type = TYPE_CONST;
     return node;
 }
 
@@ -158,7 +154,7 @@ Node *Diff::PostHandle (Node *node, size_t diff_var) {
         Diff::PostHandle (node->left, diff_var);
     if (node->right)
         Diff::PostHandle (node->right, diff_var);
-    if (node->type == TYPE_UNDEF) {
+    if (node->type == TYPE_CONST) {
         node->type = TYPE_VAR;
     }
     return node;

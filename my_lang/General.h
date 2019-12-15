@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cassert>
 #include <cctype>
+#include <utility>
 
 typedef size_t type_t;
 typedef double num_t;
@@ -18,6 +19,8 @@ const int EXTRA_BUF_SIZE = 1;
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
 #define INPUTFILE "../my_programs/program1.my_lang"
+#define INPUTTREE "../my_ast/temp.ast"
+
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
 
 enum Types {
@@ -31,13 +34,13 @@ enum Types {
 };
 
 enum LangCommands {
-    VAR = 0,
-    CONST,
+    OP = 0,
+    VAR,
     FUNCTION,
     CALL,
-    RETURN,
-    PRINT,
-    SCAN,
+    RET,
+    PUT,
+    GET,
     IF,
     WHILE,
     ELSE,
@@ -70,7 +73,6 @@ struct Variable_t {
     num_t val = 0;
 };
 
-typedef Variable_t Constant_t;
 typedef Variable_t Function_t;
 
 typedef struct Node {
@@ -90,13 +92,12 @@ typedef struct {
 
 extern size_t idx;
 extern bool flag;
+extern bool return_flag;
 
 extern size_t var_idx;
-extern size_t const_idx;
 extern size_t func_idx;
 
 extern Variable_t vars [ARRAY_SIZE];
-extern Constant_t consts [ARRAY_SIZE];
 extern Function_t funcs [ARRAY_SIZE];
 
 extern const char *Operations[12];
@@ -104,6 +105,8 @@ extern const char *LangCommands[17];
 
 namespace Tree {
     Node *NodeInit (Node *parent = nullptr, Node *left = nullptr, Node *right = nullptr);
+    int VarSearch (char *name, bool allow_to_add = false);
+    int FuncSearch (char *name, bool allow_to_add = false);
     void TreeOffsetCorrecter (Node *node);
     void EmptyNodesCleaner (Node *node);
     void FreeNode (Node *node);
@@ -118,6 +121,8 @@ namespace Dot {
 }
 
 namespace AST {
+    Node *ReadTree (FILE *readfile, Node *parent);
+    std::pair <type_t, num_t > GetNodeInfo (char *str);
     void PrintTree (Node *node);
     void PrintNode (FILE *writefile, Node *node);
 }

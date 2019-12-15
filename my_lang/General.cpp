@@ -2,13 +2,12 @@
 
 size_t idx = 0;
 bool flag = true;
+bool return_flag = false;
 
 size_t var_idx = 0;
-size_t const_idx = 0;
 size_t func_idx = 0;
 
 Variable_t vars [ARRAY_SIZE];
-Constant_t consts [ARRAY_SIZE];
 Function_t funcs [ARRAY_SIZE];
 
 const char *Operations[] = {
@@ -27,13 +26,13 @@ const char *Operations[] = {
 };
 
 const char *LangCommands[] = {
+        "op",
         "var",
-        "const",
         "function",
         "call",
-        "return",
-        "print",
-        "scan",
+        "ret",
+        "put",
+        "get",
         "if",
         "while",
         "else",
@@ -55,6 +54,34 @@ Node *Tree::NodeInit (Node *parent, Node *left, Node *right) {
     if (right)
         node->right = right;
     return node;
+}
+
+int Tree::VarSearch (char *name, bool allow_to_add) {
+    for (size_t i = 0; i < var_idx; ++i) {
+        if (strcmp(vars[i].name, name) == 0) {
+            return i;
+        }
+    }
+    if (allow_to_add) {
+        strcpy(vars[var_idx++].name, name);
+        return var_idx - 1;
+    } else {
+        return NOTFOUND;
+    }
+}
+
+int Tree::FuncSearch (char *name, bool allow_to_add) {
+    for (size_t i = 0; i < func_idx; ++i) {
+        if (strcmp(funcs[i].name, name) == 0) {
+            return i;
+        }
+    }
+    if (allow_to_add) {
+        strcpy(funcs[func_idx++].name, name);
+        return func_idx - 1;
+    } else {
+        return NOTFOUND;
+    }
 }
 
 void Tree::TreeOffsetCorrecter (Node *node) {
@@ -115,10 +142,12 @@ void Dot::PrintNode (FILE *writefile, Node *node) {
         return;
     char *label = Dot::MakeNodeLabel (node);
     char *color = Dot::MakeNodeColor (node);
+    char *shape = Dot::MakeNodeShape (node);
     if (node->left) {
         char *label1 = Dot::MakeNodeLabel (node->left);
         char *color1 = Dot::MakeNodeColor (node->left);
-        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color, node->left, label1, color1);
+        char *shape1 = Dot::MakeNodeShape (node->left);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\", shape = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\", shape = \"%s\"]\n", node, label, color, shape, node->left, label1, color1, shape1);
         fprintf (writefile, "%zu -> %zu\n", node, node->left);
         PrintNode (writefile, node->left);
         free (label1);
@@ -126,13 +155,14 @@ void Dot::PrintNode (FILE *writefile, Node *node) {
     if (node->right) {
         char *label2 = Dot::MakeNodeLabel (node->right);
         char *color2 = Dot::MakeNodeColor (node->right);
-        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color, node->right, label2, color2);
+        char *shape2 = Dot::MakeNodeShape (node->right);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\", shape = \"%s\"]\n%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\", shape = \"%s\"]\n", node, label, color, shape, node->right, label2, color2, shape2);
         fprintf (writefile, "%zu -> %zu\n", node, node->right);
         PrintNode (writefile, node->right);
         free (label2);
     }
     if (!node->left && !node->right) {
-        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\"]\n", node, label, color);
+        fprintf (writefile, "%zu[label = \"%s\", style = \"filled\", fillcolor = \"%s\", shape = \"%s\"]\n", node, label, color, shape);
     }
     free (label);
 }
@@ -144,9 +174,6 @@ char *Dot::MakeNodeLabel (Node *node) {
     }
     else if (node->type == TYPE_VAR) {
         sprintf (label, "%s", vars[(int)node->data].name);
-    }
-    else if (node->type == TYPE_CONST) {
-        sprintf (label, "%s", consts[(int)node->data].name);
     }
     else if (node->type == TYPE_FUNC) {
         sprintf (label, "$%s", funcs[(int)node->data].name);
@@ -173,8 +200,6 @@ char *Dot::MakeNodeColor (Node *node) {
         sprintf (color, "darkseagreen2");
     } else if (node->type == TYPE_VAR) {
         sprintf (color, "darkolivegreen1");
-    } else if (node->type == TYPE_CONST) {
-        sprintf (color, "indianred1");
     } else if (node->type == TYPE_FUNC) {
         sprintf (color, "bisque");
     } else if (node->type == TYPE_OP) {
@@ -206,23 +231,23 @@ char *Dot::MakeNodeColor (Node *node) {
         }
     } else if (node->type == TYPE_SYS) {
         switch ((int)node->data) {
+            case OP: {
+                sprintf (color, "hotpink");
+                break;
+            }
             case VAR: {
                 sprintf (color, "yellow");
                 break;
             }
-            case CONST: {
-                sprintf (color, "yellow");
-                break;
-            }
-            case RETURN: {
+            case RET: {
                 sprintf (color, "sandybrown");
                 break;
             }
-            case PRINT: {
+            case PUT: {
                 sprintf (color, "steelblue1");
                 break;
             }
-            case SCAN: {
+            case GET: {
                 sprintf (color, "steelblue1");
                 break;
             }
@@ -284,25 +309,144 @@ char *Dot::MakeNodeColor (Node *node) {
 char *Dot::MakeNodeShape (Node *node) {
     char *shape = (char *) calloc (STR_LEN, sizeof (char));
     if (node->type == TYPE_NUM) {
-        sprintf (shape, NUM_T_FORMAT, node->data);
+        sprintf (shape, "egg");
     } else if (node->type == TYPE_VAR) {
-        sprintf (shape, "%s", vars[(int)node->data].name);
-    } else if (node->type == TYPE_CONST) {
-        sprintf (shape, "%s", consts[(int)node->data].name);
+        sprintf (shape, "egg");
     } else if (node->type == TYPE_FUNC) {
-        sprintf (shape, "$%s", funcs[(int)node->data].name);
+        sprintf (shape, "box");
     } else if (node->type == TYPE_OP) {
-        sprintf (shape, "%s", Operations[(int)node->data]);
+        sprintf (shape, "diamond");
     } else if (node->type == TYPE_SYS) {
-        sprintf (shape, "%s", LangCommands[(int)node->data]);
+        switch ((int)node->data) {
+            case OP: {
+                sprintf (shape, "diamond");
+                break;
+            }
+            case VAR: {
+                sprintf (shape, "plaintext");
+                break;
+            }
+            case RET: {
+                sprintf (shape, "septagon");
+                break;
+            }
+            case PUT: {
+                sprintf (shape, "note");
+                break;
+            }
+            case GET: {
+                sprintf (shape, "note");
+                break;
+            }
+            case IF: {
+                sprintf (shape, "hexagon");
+                break;
+            }
+            case WHILE: {
+                sprintf (shape, "pentagon");
+                break;
+            }
+            case ELSE: {
+                sprintf (shape, "hexagon");
+                break;
+            }
+            case EQUAL: {
+                sprintf (shape, "larrow");
+                break;
+            }
+            case SEMICOLON: {
+                sprintf (shape, "circle");
+                break;
+            }
+            case COMMA: {
+                sprintf (shape, "circle");
+                break;
+            }
+            case OPEN_PARENTHESIS: {
+                sprintf (shape, "circle");
+                break;
+            }
+            case CLOSE_PARENTHESIS: {
+                sprintf (shape, "circle");
+                break;
+            }
+            case OPEN_BRACE: {
+                sprintf (shape, "circle");
+                break;
+            }
+            case CLOSE_BRACE: {
+                sprintf (shape, "circle");
+                break;
+            }
+            default : {
+                sprintf (shape, "plaintext");
+                break;
+            }
+        }
     } else if (node->type == TYPE_UNDEF) {
-        sprintf (shape, "UNDEF");
+        sprintf (shape, "box");
         printf ("Error! Undefined command\n");
 #ifdef NDEBUG
         exit (1);
 #endif
     }
     return shape;
+}
+
+Node *AST::ReadTree (FILE *readfile, Node *parent) {
+    char str[STR_LEN];
+    Node *node = nullptr;
+    if (fscanf (readfile, "{%[^\{}]", str) > 0) {
+        if (strcmp(str, "@") == 0)
+            node = nullptr;
+        else {
+            node = Tree::NodeInit(parent);
+            std::pair<type_t, num_t> temp = AST::GetNodeInfo(str);
+            node->type = temp.first;
+            node->data = temp.second;
+            node->left = AST::ReadTree(readfile, node);
+        }
+        fscanf(readfile, "}");
+        if (fscanf(readfile, "{%[^\{}]", str) > 0) {
+            if (strcmp(str, "@") == 0)
+                parent->right = nullptr;
+            else {
+                parent->right = Tree::NodeInit(parent);
+                std::pair<type_t, num_t> temp = AST::GetNodeInfo(str);
+                parent->right->type = temp.first;
+                parent->right->data = temp.second;
+                parent->right->left = AST::ReadTree(readfile, parent->right);
+            }
+            fscanf(readfile, "}");
+        }
+    }
+    return node;
+}
+
+std::pair <type_t, num_t> AST::GetNodeInfo (char *str) {
+    if (isdigit (str[0])) {
+        return { TYPE_NUM, strtod (str, nullptr) };
+    }
+    if (str[0] == '$') {
+        ++str;
+        return {TYPE_FUNC, Tree::FuncSearch(str, true)};
+    }
+    size_t size = sizeof (LangCommands) / sizeof (char *);
+    for (size_t i = 0; i < size; ++i) {
+        if (strcmp (str, LangCommands[i]) == 0) {
+            return { TYPE_SYS, i };
+        }
+    }
+    size = sizeof (Operations) / sizeof (char *);
+    for (size_t i = 0; i < size; ++i) {
+        if (strcmp (str, Operations[i]) == 0) {
+            return { TYPE_OP, i };
+        }
+    }
+    if (isalpha (str[0])) {
+        return { TYPE_VAR, Tree::VarSearch (str, true) };
+    }
+    return { TYPE_UNDEF, 0 };
 }
 
 void AST::PrintTree (Node *node) {
@@ -312,16 +456,16 @@ void AST::PrintTree (Node *node) {
 }
 
 void AST::PrintNode (FILE *writefile, Node *node) {
-    fprintf (writefile, "{ ");
+    fprintf (writefile, "{");
     char *label = Dot::MakeNodeLabel (node);
-    fprintf (writefile, "%s ", label);
+    fprintf (writefile, "%s", label);
     if (node->left)
         AST::PrintNode (writefile, node->left);
     else
-        fprintf (writefile, "{ nil } ");
+        fprintf (writefile, "{@}");
     if (node->right)
         AST::PrintNode (writefile, node->right);
     else
-        fprintf (writefile, "{ nil } ");
-    fprintf (writefile, "} ");
+        fprintf (writefile, "{@}");
+    fprintf (writefile, "}");
 }

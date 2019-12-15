@@ -6,9 +6,6 @@
 namespace Tokens {
     Elem_t *Tokenization (FILE *readfile);
     void TokenHandle (Elem_t *tokens, size_t pass);
-    int VarSearch (char *name, bool allow_to_add = false);
-    int ConstSearch (char *name, bool allow_to_add = false);
-    int FuncSearch (char *name, bool allow_to_add = false);
 }
 
 //Рекурсивный спуск
@@ -31,8 +28,8 @@ namespace RD {
     Node *GetIf (Elem_t *tokens);
     Node *GetWhile (Elem_t *tokens);
     Node *GetC (Elem_t *tokens);
-    Node *GetPrint (Elem_t *tokens);
-    Node *GetScan (Elem_t *tokens);
+    Node *GetPut (Elem_t *tokens);
+    Node *GetGet (Elem_t *tokens);
 }
 
 #endif

@@ -1,14 +1,16 @@
+var v = 0 ;
+
 function main ( ) {
     var num = 0 ;
-    scan ( num ) ;
+    scan ( v ) ;
     var ans = call fact ( num ) ;
-    print ( ans ) ;
+    print ( num ) ;
     return 0 ;
 }
 
-function fact ( var kek ) {
-    if ( kek == 1 )
+function fact ( var lol ) {
+    if ( lol == 1 )
         return 1 ;
     else
-        return call fact ( kek - 1 ) ;
+        return call fact ( lol - 1 ) ;
 }
