@@ -3,14 +3,19 @@
 Elem_t *Tokens::Tokenization (FILE *readfile) {
     struct stat file_info = {};
     stat (INPUTFILE, &file_info);
+
     char *program = (char *) calloc (file_info.st_size + EXTRA_BUF_SIZE, sizeof (char));
     program[file_info.st_size] = EOF;
     fread (program, sizeof (char), file_info.st_size, readfile);
+
     Elem_t *tokens = nullptr;
     tokens = (Elem_t *) calloc (file_info.st_size, sizeof(Elem_t));
+
     char *s = program;
-    size_t line_num = 1;
+    bool line_inc = false; //Надо ли увеличить счётчик строк после данного токена
+    size_t line_num = 1; //Счётчик строк
     size_t pass = 1;
+
     while (*s != EOF) {
         (tokens[idx].name) = s;
         while (!isspace(*s) && *s != EOF) {
@@ -21,12 +26,16 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
             break;
         } else {
             if (*s == '\n')
-                ++line_num;
+                line_inc = true;
             *s = '\0';
         }
         ++s;
         if (strcmp (tokens[idx].name, "") != 0) {
             tokens[idx].line_num = line_num;
+            if (line_inc) {
+                ++line_num;
+                line_inc = false;
+            }
             Tokens::TokenHandle (tokens, pass); //Предварительная обработка токена
             ++idx; //Переход к следующему токену
         }
@@ -37,6 +46,8 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
         Tokens::TokenHandle (tokens, pass); //Постобработка токена
         ++idx; //Переход к следующему токену
     }
+
+    flag = true;
     idx = 0;
     return tokens;
 }
@@ -145,6 +156,9 @@ Node *RD::GetG (Elem_t *tokens) {
         flag = false;
         Tree::EmptyNodesCleaner(ans);
     }
+
+    flag = true;
+    idx = 0;
     return ans;
 }
 
@@ -237,7 +251,9 @@ Node *RD::GetAs (Elem_t *tokens) {
     node->data = EQUAL;
     node->type = TYPE_SYS;
     ++idx;
-    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+    if (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0)
+        node->right = RD::GetDiff (tokens);
+    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);
     else
         node->right = RD::GetE (tokens);
@@ -415,11 +431,31 @@ Node *RD::GetReturn (Elem_t *tokens) {
     ++idx;
     node->data = RETURN;
     node->type = TYPE_SYS;
-    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+    if (strcmp (tokens[idx].name, Operations [OP_DIFF]) == 0)
+        node->right = RD::GetDiff (tokens);
+    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);
     else
         node->right = RD::GetE (tokens);
     assert (strcmp (tokens[idx].name, LangCommands[SEMICOLON]) == 0);
+    ++idx;
+    return node;
+}
+
+Node *RD::GetDiff (Elem_t *tokens) {
+    Node *node = Tree::NodeInit ();
+    assert (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0);
+    node->type = TYPE_OP;
+    node->data = OP_DIFF;
+    ++idx;
+    assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
+    ++idx;
+    node->right = RD::GetE (tokens);
+    assert (strcmp (tokens[idx].name, LangCommands[COMMA]) == 0);
+    ++idx;
+    assert (tokens[idx].type == TYPE_VAR);
+    node->left = RD::GetID (tokens);
+    assert (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0);
     ++idx;
     return node;
 }
@@ -535,7 +571,9 @@ Node *RD::GetPrint (Elem_t *tokens) {
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
     node->right = Tree::NodeInit ();
-    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+    if (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0)
+        node->right = RD::GetDiff (tokens);
+    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);
     else
         node->right = RD::GetE (tokens);

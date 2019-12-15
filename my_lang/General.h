@@ -14,10 +14,10 @@ const int STR_LEN = 100;
 const int ARRAY_SIZE = 1000;
 const int EXTRA_BUF_SIZE = 1;
 
-#define NDEBUG
+//#define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../my_programs/program.my_lang"
+#define INPUTFILE "../my_programs/program1.my_lang"
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
 
 enum Types {

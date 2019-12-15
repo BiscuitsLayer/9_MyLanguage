@@ -8,7 +8,7 @@
 //TODO Файл с синтаксисом
 //TODO Начать делать бекэнд
 //TODO Форму узлов
-//TODO Дифференциатор подключить
+//TODO Добавить операций для дифференциатора
 //TODO Придумать как на этом этапе отличать глобальные переменные от локальных
 
 int main () {
@@ -21,6 +21,8 @@ int main () {
     Elem_t *tokens = Tokens::Tokenization (readfile);
 
     Node *root = RD::GetG (tokens);
+    root = Optimize::Differentiator (root);
+    root = Optimize::Optimizer (root);
     Dot::PrintTree (root);
     AST::PrintTree (root);
     Tree::FreeNode (root);

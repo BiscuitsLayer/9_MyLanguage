@@ -25,6 +25,7 @@ namespace RD {
     Node *GetN (Elem_t *tokens);
     Node *GetOp (Elem_t *tokens);
     Node *GetReturn (Elem_t *tokens);
+    Node *GetDiff (Elem_t *tokens);
     Node *GetFCall (Elem_t *tokens);
     Node *GetFCallArgs (Elem_t *tokens);
     Node *GetIf (Elem_t *tokens);

@@ -2,7 +2,7 @@ function main ( ) {
     var a = 5 ;
     const c = 5 ;
     const b = 1 ;
-    if ( 15 )
+    if ( 15 > 2 )
         print ( 15 * 15 * 14 / 2 ) ;
     else
         print ( 14 ) ;
@@ -11,7 +11,6 @@ function main ( ) {
 }
 
 function keks ( var a , var b ) {
-    while ( a + a - b )
-        print ( a + b ^ a ) ;
+    a = diff ( ( a ^ 2 ) ^ 3 * b , a ) ;
     print ( 1 ) ;
 }

@@ -17,7 +17,7 @@ const char *Operations[] = {
         "*",
         "/",
         "^",
-        "d",
+        "diff",
         ">",
         ">=",
         "<",
@@ -196,7 +196,7 @@ char *Dot::MakeNodeColor (Node *node) {
                 break;
             }
             case OP_POW: {
-                sprintf (color, "ivory");
+                sprintf (color, "skyblue");
                 break;
             }
             default : {

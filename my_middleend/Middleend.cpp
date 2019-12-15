@@ -3,11 +3,12 @@
 Node &Diff::Copy (Node *node) {
     Node *new_node = Tree::NodeInit (node->parent);
     new_node->type = node->type;
+    new_node->data = node->data;
+    new_node->level = node->level;
     if (node->left)
         new_node->left = &Copy (node->left);
     if (node->right)
         new_node->right = &Copy (node->right);
-    new_node->level = node->level;
     return *new_node;
 }
 
@@ -41,28 +42,28 @@ Node &Diff::Diff (Node *node) {
 #define L node->left
 #define R node->right
 
-    Node *NUM_0 = Tree::NodeInit (node->parent);
+    Node *NUM_0 = Tree::NodeInit ();
     NUM_0->type = TYPE_NUM;
     NUM_0->data = 0;
 
-    Node *NUM_1 = Tree::NodeInit (node->parent);
+    Node *NUM_1 = Tree::NodeInit ();
     NUM_1->type = TYPE_NUM;
     NUM_1->data = 1;
 
-    Node *NUM_2 = Tree::NodeInit (node->parent);
+    Node *NUM_2 = Tree::NodeInit ();
     NUM_2->type = TYPE_NUM;
     NUM_2->data = 2;
 
-    Node *HALF = Tree::NodeInit (node->parent);
+    Node *HALF = Tree::NodeInit ();
     HALF->type = TYPE_NUM;
     HALF->data = 0.5;
-
+/*
     Node *SQR = Tree::NodeInit (node->parent, &c(L), NUM_2);
     HALF->type = TYPE_NUM;
     HALF->data = OP_POW;
 
 #define OP(name) Tree::NodeInit(node, OP_##name, TYPE_OP, &c(L))
-
+*/
     Node *new_node = nullptr;
     switch (node->type) {
         case TYPE_NUM: {
@@ -74,6 +75,10 @@ Node &Diff::Diff (Node *node) {
             return *new_node;
         }
         case TYPE_CONST: {
+            new_node = &Diff::Copy (NUM_0);
+            return *new_node;
+        }
+        case TYPE_UNDEF: {
             new_node = &Diff::Copy (NUM_0);
             return *new_node;
         }
@@ -93,6 +98,16 @@ Node &Diff::Diff (Node *node) {
                 }
                 case OP_DIV: {
                     new_node = &((d(L) * c(R) - d(R) * c(L)) / (c(R) * c(R)));
+                    return *new_node;
+                }
+                case OP_POW: {
+                    Node *new_node1 = Tree::NodeInit (node->right, &c(R), NUM_1);
+                    new_node1->type = TYPE_OP;
+                    new_node1->data = OP_SUB;
+                    Node *new_node2 = Tree::NodeInit(node, &c(L), new_node1);
+                    new_node2->type = TYPE_OP;
+                    new_node2->data = OP_POW;
+                    new_node = &((c(R) * *new_node2) * d(L));
                     return *new_node;
                 }
                 /*
@@ -128,6 +143,63 @@ Node &Diff::Diff (Node *node) {
 #undef R
 }
 
+Node *Diff::PreHandle (Node *node, size_t diff_var) {
+    if (node->left)
+        Diff::PreHandle (node->left, diff_var);
+    if (node->right)
+        Diff::PreHandle (node->right, diff_var);
+    if (node->type == TYPE_VAR && node->data != diff_var)
+        node->type = TYPE_UNDEF;
+    return node;
+}
+
+Node *Diff::PostHandle (Node *node, size_t diff_var) {
+    if (node->left)
+        Diff::PostHandle (node->left, diff_var);
+    if (node->right)
+        Diff::PostHandle (node->right, diff_var);
+    if (node->type == TYPE_UNDEF) {
+        node->type = TYPE_VAR;
+    }
+    return node;
+}
+
+Node *Optimize::Optimizer(Node *node) {
+    while (flag) {
+        flag = false;
+#define CHECK(func) node->parent = nullptr; node = Optimize::func (node);
+        CHECK (MulZero)
+        CHECK (SumZero)
+        CHECK (DivZero)
+        CHECK (PowZero)
+        CHECK (MulUnit)
+        CHECK (DivUnit)
+        CHECK (PowUnit)
+        CHECK (NumSum)
+        //CHECK (SimplePower)
+#undef CHECK
+    }
+    flag = true;
+    idx = 0;
+    return node;
+}
+
+Node *Optimize::Differentiator (Node *node) {
+    if (!node->parent)
+        Tree::TreeOffsetCorrecter (node);
+    if (node->left)
+        Optimize::Differentiator (node->left);
+    if (node->right)
+        Optimize::Differentiator (node->right);
+    if (node->type == TYPE_OP && node->data == OP_DIFF) {
+        node->right = Diff::PreHandle (node->right, node->left->data);
+        node->right = &Diff::Diff (node->right);
+        node->right = Diff::PostHandle (node->right, node->left->data);
+        NODE_REF = node->right;
+    }
+    return node;
+}
+
 Node *Optimize::MulZero (Node *node) {
     if (!node->parent)
         Tree::TreeOffsetCorrecter (node);
@@ -137,11 +209,13 @@ Node *Optimize::MulZero (Node *node) {
         Optimize::MulZero (node->right);
     if (node->type == TYPE_OP && node->data == OP_MUL) {
         if ((node->left->type == TYPE_NUM && node->left->data == 0) || (node->right->type == TYPE_NUM && node->right->data == 0)) {
-            Node *new_node = NodeInit (node->parent, 0, TYPE_NUM, nullptr, nullptr);
-            FreeNode (node->left);
-            FreeNode (node->right);
+            Node *new_node = Tree::NodeInit (node->parent);
+            new_node->data = 0;
+            new_node->type = TYPE_NUM;
+            Tree::FreeNode (node->left);
+            Tree::FreeNode (node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = new_node;
+                NODE_REF = new_node;
             flag = true;
             return new_node;
         }
@@ -160,31 +234,35 @@ Node *Optimize::SumZero (Node *node) {
         if (node->left->type == TYPE_NUM && node->left->data == 0) {
             Tree::FreeNode (node->left);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->right;
+                NODE_REF = node->right;
             flag = true;
             return node->right;
         }
         else if (node->right->type == TYPE_NUM && node->right->data == 0) {
             Tree::FreeNode (node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
     }
     else if (node->type == TYPE_OP && node->data == OP_SUB) { //Обработка вычитания нуля и из нуля
         if (node->left->type == TYPE_NUM && node->left->data == 0) { //Замена на -1
-            Node *new_node = NodeInit (node->parent, OP_MUL, TYPE_OP, node->left, node->right);
+            Node *new_node = Tree::NodeInit (node->parent, node->left, node->right);
+            new_node->type = TYPE_OP;
+            new_node->data = OP_MUL;
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = new_node;
-            new_node->left = NodeInit (node, -1, TYPE_NUM, nullptr, nullptr);
+                NODE_REF = new_node;
+            new_node->left = Tree::NodeInit (node);
+            new_node->left->type = TYPE_NUM;
+            new_node->left->data = -1;
             flag = true;
             return new_node;
         }
         else if (node->right->type == TYPE_NUM && node->right->data == 0) { //Сдвиг
             Tree::FreeNode (node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
@@ -203,7 +281,7 @@ Node *Optimize::DivZero (Node *node) {
         if (node->left->type == TYPE_NUM && node->left->data == 0) {
             Tree::FreeNode(node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
@@ -218,13 +296,15 @@ Node *Optimize::PowZero (Node *node) {
         Optimize::PowZero (node->left);
     if (node->right)
         Optimize::PowZero (node->right);
-    if (node->type == TYPE_OP && (node->data == OP_POW1 || node->data == OP_POW2)) {
+    if (node->type == TYPE_OP && node->data == OP_POW) {
         if (node->right->type == TYPE_NUM && node->right->data == 0) {
-            Node *new_node = NodeInit (node->parent, 1, TYPE_NUM, nullptr, nullptr);
+            Node *new_node = Tree::NodeInit (node->parent);
+            new_node->type = TYPE_NUM;
+            new_node->data = 1;
             Tree::FreeNode(node->left);
             Tree::FreeNode(node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = new_node;
+                NODE_REF = new_node;
             flag = true;
             return new_node;
         }
@@ -243,14 +323,14 @@ Node *Optimize::MulUnit (Node *node) {
         if (node->left->type == TYPE_NUM && node->left->data == 1) {
             Tree::FreeNode (node->left);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->right;
+                NODE_REF = node->right;
             flag = true;
             return node->right;
         }
         else if (node->right->type == TYPE_NUM && node->right->data == 1) {
             Tree::FreeNode (node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
@@ -269,7 +349,7 @@ Node *Optimize::DivUnit (Node *node) {
         if (node->right->type == TYPE_NUM && node->right->data == 1) {
             Tree::FreeNode(node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
@@ -284,11 +364,11 @@ Node *Optimize::PowUnit (Node *node) {
         Optimize::PowUnit (node->left);
     if (node->right)
         Optimize::PowUnit (node->right);
-    if (node->type == TYPE_OP && (node->data == OP_POW1 || node->data == OP_POW2)) {
+    if (node->type == TYPE_OP && node->data == OP_POW) {
         if (node->right->type == TYPE_NUM && node->right->data == 1) {
             Tree::FreeNode(node->right);
             if (node->parent)
-                (node->parent->left == node ? node->parent->left : node->parent->right) = node->left;
+                NODE_REF = node->left;
             flag = true;
             return node->left;
         }
@@ -306,12 +386,15 @@ Node *Optimize::NumSum (Node *node) {
     if (false) {}
 #define CALCULATE(SYM, NAME) else if (node->type == TYPE_OP && node->data == NAME) {                                       \
         if (node->left->type == TYPE_NUM && node->right->type == TYPE_NUM) {                                               \
-        Node *new_node = NodeInit (node->parent, node->left->data SYM node->right->data, TYPE_NUM, nullptr, nullptr);      \
-            FreeNode (node->left);                                                                                         \
-            FreeNode (node->right);                                                                                        \
+            Node *new_node = Tree::NodeInit (node->parent);                                                                \
+            new_node->type = TYPE_NUM;                                                                                     \
+            new_node->data = node->left->data SYM node->right->data;                                                       \
+            Tree::FreeNode (node->left);                                                                                   \
+            Tree::FreeNode (node->right);                                                                                  \
             if (node->parent)                                                                                              \
                 (node->parent->left == node ? node->parent->left : node->parent->right) = new_node;                        \
-            return (*flag = true), new_node;                                                                               \
+            flag = true;                                                                                                   \
+            return new_node;                                                                                               \
         }                                                                                                                  \
     }
     CALCULATE(+, OP_SUM)
@@ -322,6 +405,7 @@ Node *Optimize::NumSum (Node *node) {
 #undef CALCULATE
 }
 
+/*
 Node *Optimize::SimplePower (Node *node) {
     if (!node->parent)
         Tree::TreeOffsetCorrecter (node);
@@ -335,3 +419,4 @@ Node *Optimize::SimplePower (Node *node) {
     }
     return node;
 }
+*/
