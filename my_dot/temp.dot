@@ -1,147 +1,227 @@
 digraph G {
 fontsize = 50
-94665140884320[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
-94665140884384[label = "$getD", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140884320 -> 94665140884384
-94665140884384[label = "$getD", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140884448[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884384 -> 94665140884448
-94665140884448[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884512[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884448 -> 94665140884512
-94665140884512[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884576[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884512 -> 94665140884576
-94665140884576[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884640[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884576 -> 94665140884640
-94665140884640[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884512[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884704[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884512 -> 94665140884704
-94665140884704[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884448[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140884768[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884448 -> 94665140884768
-94665140884768[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884384[label = "$getD", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140884832[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140884384 -> 94665140884832
-94665140884832[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140884896[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
-94665140884832 -> 94665140884896
-94665140884896[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
-94665140884960[label = "-", style = "filled", fillcolor = "orchid2", shape = "diamond"]
-94665140884896 -> 94665140884960
-94665140884960[label = "-", style = "filled", fillcolor = "orchid2", shape = "diamond"]
-94665140885024[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140884960 -> 94665140885024
-94665140885024[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885088[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885024 -> 94665140885088
-94665140885088[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885024[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885152[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885024 -> 94665140885152
-94665140885152[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884960[label = "-", style = "filled", fillcolor = "orchid2", shape = "diamond"]
-94665140885216[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140884960 -> 94665140885216
-94665140885216[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885280[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885216 -> 94665140885280
-94665140885280[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885344[label = "4", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
-94665140885280 -> 94665140885344
-94665140885344[label = "4", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
-94665140885280[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885408[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885280 -> 94665140885408
-94665140885408[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885216[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
-94665140885472[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885216 -> 94665140885472
-94665140885472[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140884320[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
-94665140885536[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
-94665140884320 -> 94665140885536
-94665140885536[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
-94665140885600[label = "$main@", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885536 -> 94665140885600
-94665140885600[label = "$main@", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885664[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885600 -> 94665140885664
-94665140885664[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885728[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140885664 -> 94665140885728
-94665140885728[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140885792[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885728 -> 94665140885792
-94665140885792[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885728[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140885856[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885728 -> 94665140885856
-94665140885856[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885664[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885920[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885664 -> 94665140885920
-94665140885920[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885984[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140885920 -> 94665140885984
-94665140885984[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886048[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885984 -> 94665140886048
-94665140886048[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140885984[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886112[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885984 -> 94665140886112
-94665140886112[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140885920[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140886176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140885920 -> 94665140886176
-94665140886176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140886240[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886176 -> 94665140886240
-94665140886240[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886304[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886240 -> 94665140886304
-94665140886304[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886240[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886368[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140886240 -> 94665140886368
-94665140886368[label = "$get", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140886176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140886432[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140886176 -> 94665140886432
-94665140886432[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
-94665140886496[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886432 -> 94665140886496
-94665140886496[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886560[label = "discr", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886496 -> 94665140886560
-94665140886560[label = "discr", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886496[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
-94665140886624[label = "$getD", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140886496 -> 94665140886624
-94665140886624[label = "$getD", style = "filled", fillcolor = "bisque", shape = "box"]
-94665140886688[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140886624 -> 94665140886688
-94665140886688[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140886752[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140886688 -> 94665140886752
-94665140886752[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140886816[label = "UNDEF", style = "filled", fillcolor = "firebrick1", shape = "box"]
-94665140886752 -> 94665140886816
-94665140886816[label = "UNDEF", style = "filled", fillcolor = "firebrick1", shape = "box"]
-94665140886880[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886816 -> 94665140886880
-94665140886880[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886752[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140886944[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886752 -> 94665140886944
-94665140886944[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886688[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
-94665140887008[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
-94665140886688 -> 94665140887008
-94665140887008[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667806224[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667806352[label = "$main", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667806224 -> 93977667806352
+93977667806352[label = "$main", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667806544[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667806352 -> 93977667806544
+93977667806544[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667806352[label = "$main", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667806608[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667806352 -> 93977667806608
+93977667806608[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667806736[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667806608 -> 93977667806736
+93977667806736[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667806800[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667806736 -> 93977667806800
+93977667806800[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667806736[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807056[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667806736 -> 93977667807056
+93977667807056[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667806608[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807120[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667806608 -> 93977667807120
+93977667807120[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807248[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807120 -> 93977667807248
+93977667807248[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807312[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667807248 -> 93977667807312
+93977667807312[label = "c", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667807248[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807568[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667807248 -> 93977667807568
+93977667807568[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667807120[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807632[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807120 -> 93977667807632
+93977667807632[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807760[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807632 -> 93977667807760
+93977667807760[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667807824[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667807760 -> 93977667807824
+93977667807824[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667807760[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667808080[label = "1", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667807760 -> 93977667808080
+93977667808080[label = "1", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667807632[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667808144[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667807632 -> 93977667808144
+93977667808144[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667808272[label = "if", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667808144 -> 93977667808272
+93977667808272[label = "if", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667808400[label = ">", style = "filled", fillcolor = "lawngreen", shape = "diamond"]
+93977667808272 -> 93977667808400
+93977667808400[label = ">", style = "filled", fillcolor = "lawngreen", shape = "diamond"]
+93977667808720[label = "15", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667808400 -> 93977667808720
+93977667808720[label = "15", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667808400[label = ">", style = "filled", fillcolor = "lawngreen", shape = "diamond"]
+93977667809040[label = "2", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667808400 -> 93977667809040
+93977667809040[label = "2", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667808272[label = "if", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667809104[label = "if-else", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667808272 -> 93977667809104
+93977667809104[label = "if-else", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667809296[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667809104 -> 93977667809296
+93977667809296[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667809936[label = "1600.2", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667809296 -> 93977667809936
+93977667809936[label = "1600.2", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667809104[label = "if-else", style = "filled", fillcolor = "springgreen", shape = "hexagon"]
+93977667817792[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667809104 -> 93977667817792
+93977667817792[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667818112[label = "14", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667817792 -> 93977667818112
+93977667818112[label = "14", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667808144[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667808144 -> 93977667818176
+93977667818176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818304[label = "get", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667818176 -> 93977667818304
+93977667818304[label = "get", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667818432[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667818304 -> 93977667818432
+93977667818432[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667818176[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818496[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818176 -> 93977667818496
+93977667818496[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818624[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667818496 -> 93977667818624
+93977667818624[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667818688[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667818624 -> 93977667818688
+93977667818688[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667818624[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667818752[label = "$keks", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667818624 -> 93977667818752
+93977667818752[label = "$keks", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667818944[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667818752 -> 93977667818944
+93977667818944[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667819456[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667818944 -> 93977667819456
+93977667819456[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667819712[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667819456 -> 93977667819712
+93977667819712[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667818944[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667819008[label = "+", style = "filled", fillcolor = "gold", shape = "diamond"]
+93977667818944 -> 93977667819008
+93977667819008[label = "+", style = "filled", fillcolor = "gold", shape = "diamond"]
+93977667819200[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667819008 -> 93977667819200
+93977667819200[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667819008[label = "+", style = "filled", fillcolor = "gold", shape = "diamond"]
+93977667819392[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667819008 -> 93977667819392
+93977667819392[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667818496[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667819776[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667818496 -> 93977667819776
+93977667819776[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667819904[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
+93977667819776 -> 93977667819904
+93977667819904[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
+93977667820160[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667819904 -> 93977667820160
+93977667820160[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667819776[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667820224[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667819776 -> 93977667820224
+93977667820224[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667806224[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667820288[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667806224 -> 93977667820288
+93977667820288[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667820416[label = "$keks", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667820288 -> 93977667820416
+93977667820416[label = "$keks", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667820608[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667820416 -> 93977667820608
+93977667820608[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667820800[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667820608 -> 93977667820800
+93977667820800[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667820928[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667820800 -> 93977667820928
+93977667820928[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667820608[label = ",", style = "filled", fillcolor = "violet", shape = "circle"]
+93977667820736[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667820608 -> 93977667820736
+93977667820736[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667820416[label = "$keks", style = "filled", fillcolor = "bisque", shape = "box"]
+93977667820992[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667820416 -> 93977667820992
+93977667820992[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667821120[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667820992 -> 93977667821120
+93977667821120[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667821184[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667821120 -> 93977667821184
+93977667821184[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667821120[label = "=", style = "filled", fillcolor = "aquamarine", shape = "larrow"]
+93977667824832[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667821120 -> 93977667824832
+93977667824832[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667824704[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667824832 -> 93977667824704
+93977667824704[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667824640[label = "6", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667824704 -> 93977667824640
+93977667824640[label = "6", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667824704[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667824256[label = "^", style = "filled", fillcolor = "skyblue", shape = "diamond"]
+93977667824704 -> 93977667824256
+93977667824256[label = "^", style = "filled", fillcolor = "skyblue", shape = "diamond"]
+93977667824192[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667824256 -> 93977667824192
+93977667824192[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667824256[label = "^", style = "filled", fillcolor = "skyblue", shape = "diamond"]
+93977667810128[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667824256 -> 93977667810128
+93977667810128[label = "5", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667824832[label = "*", style = "filled", fillcolor = "pink", shape = "diamond"]
+93977667823744[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667824832 -> 93977667823744
+93977667823744[label = "b", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667820992[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667821824[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667820992 -> 93977667821824
+93977667821824[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667821952[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667821824 -> 93977667821952
+93977667821952[label = "put", style = "filled", fillcolor = "steelblue1", shape = "note"]
+93977667822272[label = "1", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667821952 -> 93977667822272
+93977667822272[label = "1", style = "filled", fillcolor = "darkseagreen2", shape = "egg"]
+93977667821824[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667822336[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667821824 -> 93977667822336
+93977667822336[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667822464[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
+93977667822336 -> 93977667822464
+93977667822464[label = "ret", style = "filled", fillcolor = "sandybrown", shape = "septagon"]
+93977667822720[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667822464 -> 93977667822720
+93977667822720[label = "a", style = "filled", fillcolor = "darkolivegreen1", shape = "egg"]
+93977667822336[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667822784[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667822336 -> 93977667822784
+93977667822784[label = "op", style = "filled", fillcolor = "hotpink", shape = "diamond"]
+93977667820288[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667822848[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
+93977667820288 -> 93977667822848
+93977667822848[label = ";", style = "filled", fillcolor = "khaki1", shape = "circle"]
 }

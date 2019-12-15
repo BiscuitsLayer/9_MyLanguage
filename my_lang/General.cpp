@@ -1,11 +1,15 @@
 #include "General.h"
 
+
 size_t idx = 0;
 bool flag = true;
 bool return_flag = false;
 
 size_t var_idx = 0;
 size_t func_idx = 0;
+
+size_t move = 0;
+size_t delta = 0;
 
 Variable_t vars [ARRAY_SIZE];
 Function_t funcs [ARRAY_SIZE];
@@ -35,7 +39,7 @@ const char *LangCommands[] = {
         "get",
         "if",
         "while",
-        "else",
+        "if-else",
         "=",
         ";",
         ",",
@@ -259,7 +263,7 @@ char *Dot::MakeNodeColor (Node *node) {
                 sprintf (color, "olivedrab1");
                 break;
             }
-            case ELSE: {
+            case IF_ELSE: {
                 sprintf (color, "springgreen");
                 break;
             }
@@ -346,7 +350,7 @@ char *Dot::MakeNodeShape (Node *node) {
                 sprintf (shape, "pentagon");
                 break;
             }
-            case ELSE: {
+            case IF_ELSE: {
                 sprintf (shape, "hexagon");
                 break;
             }
@@ -393,10 +397,35 @@ char *Dot::MakeNodeShape (Node *node) {
     return shape;
 }
 
-Node *AST::ReadTree (FILE *readfile, Node *parent) {
+char *AST::ReadHandle (FILE *readfile) {
+    char *readstr = (char *) calloc (STR_LEN, sizeof (char));
+    fscanf(readfile, "%s", readstr);
+    char *new_readstr = (char *) calloc (STR_LEN, sizeof (char));
+    char *ans = new_readstr;
+    while (*readstr != '\0') {
+        if (*readstr == '@') {
+            *new_readstr = '{';
+            ++new_readstr;
+            *new_readstr = *readstr;
+            ++readstr;
+            ++new_readstr;
+            *new_readstr = '}';
+            ++new_readstr;
+        }
+        else {
+            *new_readstr = *readstr;
+            ++readstr;
+            ++new_readstr;
+        }
+    }
+    return ans;
+}
+
+Node *AST::ReadTree (char *readstr, Node *parent) {
     char str[STR_LEN];
     Node *node = nullptr;
-    if (fscanf (readfile, "{%[^\{}]", str) > 0) {
+    if (sscanf (readstr + move, "{%[^\{}]%n", str, &delta) > 0) {
+        move += delta;
         if (strcmp(str, "@") == 0)
             node = nullptr;
         else {
@@ -404,10 +433,12 @@ Node *AST::ReadTree (FILE *readfile, Node *parent) {
             std::pair<type_t, num_t> temp = AST::GetNodeInfo(str);
             node->type = temp.first;
             node->data = temp.second;
-            node->left = AST::ReadTree(readfile, node);
+            node->left = AST::ReadTree(readstr, node);
         }
-        fscanf(readfile, "}");
-        if (fscanf(readfile, "{%[^\{}]", str) > 0) {
+        sscanf(readstr + move, "}%n", &delta);
+        move += delta;
+        if (sscanf(readstr + move, "{%[^\{}]%n", str, &delta) > 0) {
+            move += delta;
             if (strcmp(str, "@") == 0)
                 parent->right = nullptr;
             else {
@@ -415,9 +446,10 @@ Node *AST::ReadTree (FILE *readfile, Node *parent) {
                 std::pair<type_t, num_t> temp = AST::GetNodeInfo(str);
                 parent->right->type = temp.first;
                 parent->right->data = temp.second;
-                parent->right->left = AST::ReadTree(readfile, parent->right);
+                parent->right->left = AST::ReadTree(readstr, parent->right);
             }
-            fscanf(readfile, "}");
+            sscanf(readstr + move, "}%n", &delta);
+            move += delta;
         }
     }
     return node;
@@ -462,10 +494,10 @@ void AST::PrintNode (FILE *writefile, Node *node) {
     if (node->left)
         AST::PrintNode (writefile, node->left);
     else
-        fprintf (writefile, "{@}");
+        fprintf (writefile, "@");
     if (node->right)
         AST::PrintNode (writefile, node->right);
     else
-        fprintf (writefile, "{@}");
+        fprintf (writefile, "@");
     fprintf (writefile, "}");
 }

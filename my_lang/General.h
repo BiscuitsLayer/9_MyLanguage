@@ -8,10 +8,11 @@
 #include <cassert>
 #include <cctype>
 #include <utility>
+#include <sstream>
 
 typedef size_t type_t;
 typedef double num_t;
-const int STR_LEN = 100;
+const int STR_LEN = 1000;
 const int ARRAY_SIZE = 1000;
 const int EXTRA_BUF_SIZE = 1;
 
@@ -43,7 +44,7 @@ enum LangCommands {
     GET,
     IF,
     WHILE,
-    ELSE,
+    IF_ELSE,
     EQUAL,
     SEMICOLON,
     COMMA,
@@ -97,6 +98,9 @@ extern bool return_flag;
 extern size_t var_idx;
 extern size_t func_idx;
 
+extern size_t move;
+extern size_t delta;
+
 extern Variable_t vars [ARRAY_SIZE];
 extern Function_t funcs [ARRAY_SIZE];
 
@@ -121,7 +125,8 @@ namespace Dot {
 }
 
 namespace AST {
-    Node *ReadTree (FILE *readfile, Node *parent);
+    char *ReadHandle (FILE *readfile);
+    Node *ReadTree (char *readstr, Node *parent);
     std::pair <type_t, num_t > GetNodeInfo (char *str);
     void PrintTree (Node *node);
     void PrintNode (FILE *writefile, Node *node);

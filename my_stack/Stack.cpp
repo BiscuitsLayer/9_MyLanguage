@@ -11,13 +11,13 @@
 
 FILE *console_log = fopen ("console_log.txt", "w");
 
-//! \brief Инициализирует стек с начальным размером DELTA_2 и данными типа Elem_t
+//! \brief Инициализирует стек с начальным размером DELTA_2 и данными типа Stack_Elem_t
 //! \return копия созданного стека
 
 Stack_t StackInit () {
     Stack_t stk = {};
     stk.size = 0, stk.maxsize = DELTA_2, stk.dump_count = 0;
-    stk.data = (Elem_t *) calloc (2 * PK_LEN + DELTA_2, sizeof (Elem_t));
+    stk.data = (Stack_Elem_t *) calloc (2 * PK_LEN + DELTA_2, sizeof (Stack_Elem_t));
     stk.pk1 = (Parkour_t *) (stk.data), *stk.pk1 = 0xDEADBEEF;
     stk.pk2 = (Parkour_t *) (stk.data + PK_LEN + stk.maxsize), *stk.pk2 = 0xBEEFDEAD;
     stk.data += PK_LEN;
@@ -38,11 +38,11 @@ void StackFillWithPoison (Stack_t *stk, size_t begin, size_t end) {
         *(stk->data + i) = POISON;
 }
 
-//! \brief Кладёт элемент типа Elem_t в конец стека
+//! \brief Кладёт элемент типа Stack_Elem_t в конец стека
 //! \param stk Стек
 //! \param value Элемент, который кладётся в стек
 
-void StackPush (Stack_t *stk, Elem_t value) {
+void StackPush (Stack_t *stk, Stack_Elem_t value) {
     try {
         StackOK (stk);
 
@@ -62,12 +62,12 @@ void StackPush (Stack_t *stk, Elem_t value) {
     StackDump (stk, "Element Pushed", LOCATION);
 }
 
-//! \brief Достаёт элемент типа Elem_t из конца стека
+//! \brief Достаёт элемент типа Stack_Elem_t из конца стека
 //! \param stk Стек
 //! \return Значение последнего элемента стека
 
-Elem_t StackPop (Stack_t *stk) {
-    Elem_t ans = 0;
+Stack_Elem_t StackPop (Stack_t *stk) {
+    Stack_Elem_t ans = 0;
     try {
         stk->size--;
         StackOK (stk);
@@ -88,11 +88,11 @@ Elem_t StackPop (Stack_t *stk) {
 }
 
 void StackResize (Stack_t *stk, size_t delta_size) {
-    Elem_t *new_data = (Elem_t *) calloc (stk->maxsize + 2 * PK_LEN + delta_size, sizeof(Elem_t));
+    Stack_Elem_t *new_data = (Stack_Elem_t *) calloc (stk->maxsize + 2 * PK_LEN + delta_size, sizeof(Stack_Elem_t));
 
     if (new_data != nullptr) {
         stk->maxsize += delta_size;
-        memmove(new_data + PK_LEN, stk->data, stk->maxsize * sizeof(Elem_t));
+        memmove(new_data + PK_LEN, stk->data, stk->maxsize * sizeof(Stack_Elem_t));
 
         stk->data = new_data + PK_LEN;
         StackFillWithPoison (stk, stk->size, stk->maxsize);

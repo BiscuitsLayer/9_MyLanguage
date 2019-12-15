@@ -306,7 +306,7 @@ Node *RD::GetP (Elem_t *tokens) {
 Node *RD::GetN (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
     for (size_t i = 0; i < strlen(tokens[idx].name); ++i)
-        assert (isdigit (tokens[idx].name[i]));
+        assert (isdigit (tokens[idx].name[i]) || tokens[idx].name[i] == '.');
     node->data = strtod (tokens[idx].name, nullptr);
     node->type = TYPE_NUM;
     ++idx;
@@ -448,11 +448,11 @@ Node *RD::GetIf (Elem_t *tokens) {
     assert (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0);
     ++idx;
     node->right = Tree::NodeInit ();
-    node->right->data = ELSE;
+    node->right->data = IF_ELSE;
     node->right->type = TYPE_SYS;
     node->right->left = Tree::NodeInit ();
     node->right->left = RD::GetOp (tokens);
-    if (strcmp (tokens[idx].name, LangCommands[ELSE]) == 0) {
+    if (strcmp (tokens[idx].name, LangCommands[IF_ELSE]) == 0) {
         ++idx;
         node->right->right = Tree::NodeInit ();
         node->right->right = RD::GetOp (tokens);

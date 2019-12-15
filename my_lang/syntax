@@ -1,8 +1,0 @@
-OP_CMD (varname, TYPE_SYS)
-
-OP_CMD (begin, TYPE_SYS)
-
-OP_CMD (end, TYPE_SYS)
-
-
-

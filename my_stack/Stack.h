@@ -8,21 +8,21 @@
 //#define console_log stdout
 
 typedef long long int Parkour_t;
-typedef long long int Elem_t;
+typedef long long int Stack_Elem_t;
 typedef struct {
     int size = 0, maxsize = 0, dump_count = 0;
     Parkour_t *pk1 = nullptr;
-    Elem_t *data = nullptr;
+    Stack_Elem_t *data = nullptr;
     Parkour_t *pk2 = nullptr;
     unsigned int hashcode = 0;
 } Stack_t;
 
-const int DELTA_1 = 1, DELTA_2 = 5, PK_LEN = sizeof (Parkour_t) / sizeof (Elem_t);
+const int DELTA_1 = 1, DELTA_2 = 5, PK_LEN = sizeof (Parkour_t) / sizeof (Stack_Elem_t);
 
 Stack_t StackInit ();
 void StackFillWithPoison (Stack_t *stk, size_t begin, size_t end);
-void StackPush (Stack_t *stk, Elem_t value);
-Elem_t StackPop (Stack_t *stk);
+void StackPush (Stack_t *stk, Stack_Elem_t value);
+Stack_Elem_t StackPop (Stack_t *stk);
 size_t StackGetSize (Stack_t *stk);
 void StackResize (Stack_t *stk, size_t delta_size);
 void StackDestruct (Stack_t *stk);

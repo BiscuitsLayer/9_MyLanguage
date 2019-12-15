@@ -4,12 +4,13 @@ function main ( ) {
     var num = 0 ;
     scan ( v ) ;
     var ans = call fact ( num ) ;
-    print ( num ) ;
+    put ( num ) ;
     return 0 ;
 }
 
 function fact ( var lol ) {
-    if ( lol == 1 )
+    if ( num == 1 )
+    var num = 2 ;
         return 1 ;
     else
         return call fact ( lol - 1 ) ;

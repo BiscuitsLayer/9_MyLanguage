@@ -4,6 +4,7 @@
 #define IF(cond, code) CPU->ax = StackPop(&CPU->stk); CPU->bx = StackPop(&CPU->stk); StackPush(&CPU->stk COMMA (CPU->bx)); \
 StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); StackPush(&CPU->stk COMMA (CPU->ax)); if (cond) code; else CPU->it += 1
 #define GOTO(code) CPU->it = code - 1
+#define SCAN double num; scanf ("%lg" COMMA &num); int num1 = num * pow(10 COMMA ACCURACY); StackPush(&CPU->stk COMMA num1)
 #define POW(num1, num2) pow(num1, num2)
 #define SQRT(code) sqrt(code)
 #define AX CPU->ax

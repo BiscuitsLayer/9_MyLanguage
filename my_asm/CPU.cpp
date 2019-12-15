@@ -1,28 +1,12 @@
-#include <cstdio>
-#include <cstdlib>
 #include "CPU.h"
-//#define GRAPH
-#include "data/program.commands"
-//#undef GRAPH
-/*
-int f (int x) {
-    const double a = 0.08, b = -7, c = -3;
-    return a * x * x + b * x + c;
-}
-*/
+
 void CPUMain () {
     CPU_t CPU = {}; //Структура процессора
     CPU.stk = StackInit (); //Инициализация процессора
     CPU.func = StackInit (); //Инициализация стека вызовов функций
     CPU.RAM = (int *) calloc (RAM_SIZE, sizeof (int));
-    /*
-    int idx = 0;
-    for (int i = -PARABOLA_SIZE / 2; i < PARABOLA_SIZE / 2; ++i) {
-        CPU.RAM[idx++] = i;
-        CPU.RAM[idx++] = f (i);
-    }
-     */
-    FILE *program_code = fopen ("program_data/program.code", "rb"); //Машинный код
+
+    FILE *program_code = fopen ("../my_ast/program.code", "rb"); //Машинный код
 
     fseek (program_code, 0, SEEK_END);
     size_t program_len = ftell (program_code); //Ввод длины машинного кода

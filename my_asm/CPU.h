@@ -1,6 +1,6 @@
 #include "../my_stack/Stack.h"
+#include "GeneralAsm.h"
 #include <cmath>
-//#include <TXLin.h>
 
 struct CPU_t {
     Stack_t stk = {};
