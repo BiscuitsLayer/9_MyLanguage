@@ -4,6 +4,11 @@
 size_t idx = 0;
 bool flag = true;
 bool return_flag = false;
+int brace_flag = 0; //Счётчик (колво "{" - колво "}"), чтобы знать в функции сейчас находимся или нет
+bool just_added_variable = false;
+bool just_entered_function = false; //Необходимо для пропусков названия функции и списка ее переменных (они находятся после слова function и до открывающейся скобки ,=>
+//необходимо чтобы function flag при чтении этих токенов не изменялся
+int function_flag = -1;
 
 size_t var_idx = 0;
 size_t func_idx = 0;
@@ -62,16 +67,26 @@ Node *Tree::NodeInit (Node *parent, Node *left, Node *right) {
 
 int Tree::VarSearch (char *name, bool allow_to_add) {
     for (size_t i = 0; i < var_idx; ++i) {
-        if (strcmp(vars[i].name, name) == 0) {
+        if (strcmp(vars[i].name, name) == 0 && (vars[i].val == function_flag || vars[i].val == -1)) {
             return i;
         }
     }
     if (allow_to_add) {
-        strcpy(vars[var_idx++].name, name);
+        strcpy(vars[var_idx].name, name);
+        vars[var_idx++].val = function_flag;
+        just_added_variable = true;
         return var_idx - 1;
     } else {
         return NOTFOUND;
     }
+}
+
+void Tree::VarDump () {
+    printf ("VARIABLES DUMP\n");
+    for (size_t i = 0; i < var_idx; ++i) {
+        printf ("name: %s, func: %s, line_num: %d\n", vars[i].name, (vars[i].val == -1 ? "GLOBAL" : funcs[(int)vars[i].val].name), vars[i].line_num);
+    }
+    printf ("VARIABLES DUMP END\n\n");
 }
 
 int Tree::FuncSearch (char *name, bool allow_to_add) {

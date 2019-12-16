@@ -15,7 +15,6 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
     bool line_inc = false; //Надо ли увеличить счётчик строк после данного токена
     size_t line_num = 1; //Счётчик строк
     size_t pass = 1;
-
     while (*s != EOF) {
         (tokens[idx].name) = s;
         while (!isspace(*s) && *s != EOF) {
@@ -46,13 +45,23 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
         Tokens::TokenHandle (tokens, pass); //Постобработка токена
         ++idx; //Переход к следующему токену
     }
-
-    flag = true;
     idx = 0;
     return tokens;
 }
 
 void Tokens::TokenHandle (Elem_t *tokens, size_t pass) {
+    //Счётчик (колво "{" - колво "}"), если == 0 то мы не в функции, => объявляем глобальные переменные
+    if (strcmp (tokens[idx].name, LangCommands[OPEN_BRACE]) == 0) {
+        ++brace_flag;
+        just_entered_function = false;
+    }
+    if (strcmp (tokens[idx].name, LangCommands[CLOSE_BRACE]) == 0) {
+        --brace_flag;
+        just_entered_function = false;
+    }
+    if (brace_flag == 0 && !just_entered_function)
+        function_flag = -1;
+
     size_t size = sizeof (LangCommands) / sizeof (char *);
     for (size_t i = 0; i < size; ++i) {
         if (strcmp(tokens[idx].name, LangCommands[i]) == 0) {
@@ -70,23 +79,32 @@ void Tokens::TokenHandle (Elem_t *tokens, size_t pass) {
     if (isdigit(tokens[idx].name[0])) {
         tokens[idx].type = TYPE_NUM;
         return;
-    } else if ((idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[VAR]) == 0) || Tree::VarSearch (tokens[idx].name) != NOTFOUND) {
+    }
+    //Стратегический ход: сначала прописан кейс для функций, только в том случае, когда этот кейс не пройден, он проверит переменная ли это
+    else if (idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[FUNCTION]) == 0) {
+        tokens[idx].type = TYPE_FUNC;
+        function_flag = Tree::FuncSearch (tokens[idx].name, true);
+        just_entered_function = true;
+        return;
+    }
+    else if (idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[CALL]) == 0) {
+        tokens[idx].type = TYPE_FUNC;
+        return;
+    }
+    //Для функций обязательно чтобы предыдущий токен был CALL или FUNCTION, для переменных - нет
+    else if ((idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[VAR]) == 0) || (Tree::VarSearch (tokens[idx].name) != NOTFOUND && tokens[idx].line_num >= vars[Tree::VarSearch (tokens[idx].name)].line_num) || just_entered_function) {
         tokens[idx].type = TYPE_VAR;
-        Tree::VarSearch (tokens[idx].name, true);
-        return;
-    } else if ((idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[FUNCTION]) == 0) && Tree::FuncSearch (tokens[idx].name) == NOTFOUND) {
-        tokens[idx].type = TYPE_FUNC;
-        Tree::FuncSearch (tokens[idx].name, true);
-        return;
-    } else if ((idx > 0 && strcmp(tokens[idx - 1].name, LangCommands[CALL]) == 0) && Tree::FuncSearch (tokens[idx].name) != NOTFOUND) {
-        tokens[idx].type = TYPE_FUNC;
-        Tree::FuncSearch (tokens[idx].name);
-        return;
-    } else if (tokens[idx].type == TYPE_UNDEF) {
-        if (pass == 2) {
-            printf("Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
-            exit(1);
+        size_t temp = Tree::VarSearch (tokens[idx].name, true);
+        if (just_added_variable) { //Если только что добавили переменную
+            vars[temp].val = function_flag;
+            vars[temp].line_num = tokens[idx].line_num;
+            just_added_variable = false;
         }
+        return;
+    }
+    else if (pass == 2) {
+        printf ("Error! Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
+        //exit (1);
     }
 }
 
@@ -97,24 +115,24 @@ Node *RD::GetG (Elem_t *tokens) {
     node->type = TYPE_SYS;
     assert (strcmp (tokens[idx].name, LangCommands[VAR]) == 0 || strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0 );
 
-    while (tokens[idx].name && (strcmp (tokens[idx].name, LangCommands[VAR]) == 0) ) {
-        ++idx;
-        node->left = Tree::NodeInit();
-        node->left = RD::GetAs(tokens);
-        node->right = Tree::NodeInit();
-        node->right->data = SEMICOLON;
-        node->right->type = TYPE_SYS;
-        node = node->right;
-    }
-
-    while (tokens[idx].name && strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0) {
-        node->left = Tree::NodeInit();
-        node->left = RD::GetF(tokens);
-
-        node->right = Tree::NodeInit();
-        node->right->data = SEMICOLON;
-        node->right->type = TYPE_SYS;
-        node = node->right;
+    while (tokens[idx].name && ((strcmp (tokens[idx].name, LangCommands[VAR]) == 0) || strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0)) {
+        if (strcmp(tokens[idx].name, LangCommands[VAR]) == 0) {
+            ++idx;
+            node->left = Tree::NodeInit();
+            node->left = RD::GetAs(tokens);
+            node->right = Tree::NodeInit();
+            node->right->data = SEMICOLON;
+            node->right->type = TYPE_SYS;
+            node = node->right;
+        }
+        else if (strcmp(tokens[idx].name, LangCommands[FUNCTION]) == 0) {
+            node->left = Tree::NodeInit();
+            node->left = RD::GetF(tokens);
+            node->right = Tree::NodeInit();
+            node->right->data = SEMICOLON;
+            node->right->type = TYPE_SYS;
+            node = node->right;
+        }
     }
     Tree::TreeOffsetCorrecter (ans);
     while (flag) {
@@ -134,6 +152,7 @@ Node *RD::GetF (Elem_t *tokens) {
     assert (strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0);
     ++idx;
     node->data = Tree::FuncSearch (tokens[idx].name);
+    function_flag = node->data;
     ++idx;
 
     node->left = Tree::NodeInit ();
@@ -157,6 +176,7 @@ Node *RD::GetF (Elem_t *tokens) {
     ++idx;
     assert (return_flag);
     return_flag = false;
+    function_flag = -1;
     return base;
 }
 
@@ -297,7 +317,7 @@ Node *RD::GetP (Elem_t *tokens) {
     } else if (isalpha (tokens[idx].name[0])) {
         node = RD::GetID (tokens);
     } else {
-        printf ("Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
+        printf ("Error! Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
         exit (1);
     }
     return node;
@@ -335,7 +355,7 @@ Node *RD::GetOp (Elem_t *tokens) {
     }
     else if (strcmp (tokens[idx].name, LangCommands[OPEN_BRACE]) == 0) {
         Node *base = node;
-        node->data = OPEN_BRACE;
+        node->data = OP;
         node->type = TYPE_SYS;
         ++idx;
         node->left = Tree::NodeInit();
@@ -346,7 +366,7 @@ Node *RD::GetOp (Elem_t *tokens) {
         }
         node = base;
         node->right = Tree::NodeInit();
-        node->right->data = CLOSE_BRACE;
+        node->right->data = OP;
         node->right->type = TYPE_SYS;
         ++idx;
     }

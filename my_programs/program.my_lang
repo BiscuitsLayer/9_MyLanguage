@@ -1,17 +1,21 @@
 var v = 0 ;
 
 function main ( ) {
-    var num = 0 ;
-    scan ( v ) ;
-    var ans = call fact ( num ) ;
-    put ( num ) ;
-    return 0 ;
+    get ( v ) ;
+    v = 0 ;
+    var ans = call fact ( v ) ;
+    put ( v ) ;
+    ret 0 ;
 }
 
-function fact ( var lol ) {
-    if ( num == 1 )
-    var num = 2 ;
-        return 1 ;
-    else
-        return call fact ( lol - 1 ) ;
+var num = 9 ;
+
+function fact ( ) {
+    var ans1 = 0 ;
+    if ( v == 1 ) {
+        ret 1 ;
+    }
+    if-else
+        ans1 = v ^ 2 ;
+        ret call fact ( ans1 - 1 ) ;
 }

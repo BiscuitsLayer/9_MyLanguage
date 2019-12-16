@@ -19,7 +19,7 @@ const int EXTRA_BUF_SIZE = 1;
 //#define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../my_programs/program1.my_lang"
+#define INPUTFILE "../my_programs/program.my_lang"
 #define INPUTTREE "../my_ast/temp.ast"
 
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
@@ -71,7 +71,8 @@ enum Operations {
 
 struct Variable_t {
     char name [STR_LEN] = {};
-    num_t val = 0;
+    num_t val = 0; //Для переменных - номер функции, для функций - количество переменных
+    size_t line_num = 0; //Для переменных - номерр строки в которой она появляется в данной функции, для функций - номер начальной строки
 };
 
 typedef Variable_t Function_t;
@@ -94,6 +95,11 @@ typedef struct {
 extern size_t idx;
 extern bool flag;
 extern bool return_flag;
+extern int brace_flag; //Счётчик (колво "{" - колво "}"), чтобы знать в функции сейчас находимся или нет
+extern int function_flag;
+extern bool just_added_variable;
+extern bool just_entered_function; //Необходимо для пропусков названия функции и списка ее переменных (они находятся после слова function и до открывающейся скобки ,=>
+//необходимо чтобы function flag при чтении этих токенов не изменялся
 
 extern size_t var_idx;
 extern size_t func_idx;
@@ -110,6 +116,7 @@ extern const char *LangCommands[17];
 namespace Tree {
     Node *NodeInit (Node *parent = nullptr, Node *left = nullptr, Node *right = nullptr);
     int VarSearch (char *name, bool allow_to_add = false);
+    void VarDump ();
     int FuncSearch (char *name, bool allow_to_add = false);
     void TreeOffsetCorrecter (Node *node);
     void EmptyNodesCleaner (Node *node);
