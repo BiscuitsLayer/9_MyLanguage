@@ -1,0 +1,1125 @@
+Dump #1 (Stack Initialized) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (32) Stack_t StackInit():
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #1 (Stack Initialized) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (32) Stack_t StackInit():
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #2 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #2 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #3 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #4 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #5 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #6 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #7 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #8 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 1000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #9 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #10 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 2000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #11 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #12 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 1000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #13 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #14 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #15 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #16 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 1000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #17 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #18 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 2000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #19 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #20 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 1000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #21 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #22 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 10000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #23 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 10000;
+		* [1] = 3000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #24 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 10000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #25 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #26 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 7000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #27 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #3 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 40;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #28 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 2000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #29 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 2000;
+		* [1] = 2000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #30 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 2000;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #31 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #32 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #33 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #34 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		* [2] = 1000;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #35 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #36 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #37 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #38 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		* [2] = 1000;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #39 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #40 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #41 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		* [1] = 4000;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #42 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #43 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #44 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #45 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #46 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #4 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = 0;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #47 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #48 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 7000;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #49 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 4;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 7000;
+		* [3] = 1000;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #50 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 7000;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #51 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #52 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 6000;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #53 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #54 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #55 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #56 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #57 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #58 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #59 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #60 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #61 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #62 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 1;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #63 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #64 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = -4096;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #65 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 4;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = -4096;
+		* [3] = 0;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #66 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = -4096;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #67 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #68 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 0;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #69 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 2;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #70 (Element Pushed) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (62) void StackPush(Stack_t*, Stack_Elem_t):
+Stack_t [stk] {
+	size = 3;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		* [0] = -4096;
+		* [1] = 0;
+		* [2] = 0;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+
+Dump #5 (Element Popped) from /home/biscuitslayer/CLionProjects/9_MyLanguage/my_stack/Stack.cpp (86) Stack_Elem_t StackPop(Stack_t*):
+Stack_t [stk] {
+	size = 0;
+	maxsize = 5;
+	pk1 = deadbeef;
+	data [5] {
+		  [0] = 666;
+		  [1] = 666;
+		  [2] = 666;
+		  [3] = 666;
+		  [4] = 666;
+	}
+	pk2 = beefdead;
+}
+

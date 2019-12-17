@@ -7,9 +7,10 @@ StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); Stac
 #define SCAN double num; scanf ("%lg" COMMA &num); int num1 = num * pow(10 COMMA ACCURACY); StackPush(&CPU->stk COMMA num1)
 #define POW(num1, num2) pow(num1, num2)
 #define SQRT(code) sqrt(code)
-#define RAM(code) CPU->RAM[(code)]
-#define BP CPU->RAM_base
-#define SP CPU->RAM_it
+#define RAM(code) CPU->RAM[CPU->RAM_bp + (int)(code)] //RAM
+#define DRAM(code) CPU->RAM[(int)(code)] //DIRECT RAM (без сдвинутого начала)
+#define BP CPU->RAM_bp
+#define SP CPU->RAM_sp
 #define AX CPU->ax
 #define BX CPU->bx
 #define CX CPU->cx

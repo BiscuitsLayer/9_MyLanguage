@@ -19,7 +19,7 @@ const int EXTRA_BUF_SIZE = 1;
 //#define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../my_programs/program1.my_lang"
+#define INPUTFILE "../my_programs/solve_sqr.my_lang"
 #define INPUTTREE "../my_ast/temp.ast"
 
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)

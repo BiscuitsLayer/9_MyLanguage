@@ -6,20 +6,17 @@
 #include "../my_asm/Assembler.h"
 #include "../my_asm/CPU.h"
 
+#define GLOBAL -1
+
 struct ASM_VAR_t {
-    size_t vars_array_idx = 0;
     size_t RAM_idx = 0;
+    bool is_global = false;
 };
 
-struct ASM_FUNC_t {
-    size_t funcs_array_idx = 0;
-};
-
-extern size_t RAM_base;
-extern size_t RAM_it;
+extern size_t NUM_IF;
+extern size_t global;
 
 extern ASM_VAR_t asm_vars [ARRAY_SIZE];
-extern ASM_FUNC_t asm_funcs [ARRAY_SIZE];
 
 namespace ASM {
     void GetRAMIdx ();

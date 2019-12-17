@@ -9,7 +9,7 @@
 #define RE std::runtime_error
 #define ERR_RETURN exit (1)
 
-FILE *console_log = fopen ("console_log.txt", "w");
+FILE *console_log = fopen ("../my_stack/console_log.txt", "w");
 
 //! \brief Инициализирует стек с начальным размером DELTA_2 и данными типа Stack_Elem_t
 //! \return копия созданного стека

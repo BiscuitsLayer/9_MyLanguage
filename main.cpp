@@ -6,8 +6,11 @@
 //TODO Дописать в грамматику функции (математические)
 //TODO Файл с синтаксисом
 //TODO Добавить операций для дифференциатора и ассемблера
-//TODO Добавить степень в асм!!
-//TODO Проверку чтобы имя функции не начиналось с $ а имя переменной deriv
+//TODO Проверку чтобы имя функции не начиналось с $ а имя переменной
+//TODO Пропуск строчек в асме
+//TODO Комменты в моем языке
+//TODO сдвиг у мейна на количество переменных
+//TODO отключить инкремент RAM_it при каждой вставке в память
 
 int main (int argc, char *argv[]) {
     //assert (argc == 1);
@@ -25,14 +28,12 @@ int main (int argc, char *argv[]) {
         //Tree::VarDump();
         root = Optimize::Differentiator(root);
         root = Optimize::Optimizer(root);
+        Dot::PrintTree (root);
+        AST::PrintTree (root);
         ASM::TreeToASM(root);
         AssemblerMain ();
         CPUMain ();
-    /*
-        Dot::PrintTree (root);
-        AST::PrintTree (root);
         Tree::FreeNode (root);
-    */
     //}
     /*
     //else if (strtod (argv[0], nullptr) == 1) {

@@ -27,7 +27,7 @@ void AssemblerMain () {
 
     free (code);
     free (labels);
-    //TODO КОСТЫЛЬ??
+    //TODO разберись!
     //free (input_start);
     fclose (program_code);
 }
@@ -60,7 +60,7 @@ void ReadUserInput (FILE *user_input, char **input_start) {
 
         //Проверка на команду PUSH
         if (strcmp (command, "PUSH") == 0) {
-            if (commands_list[i][PUSH_LEN + 2] == 'X') {
+            if (commands_list[i][PUSH_LEN + 2] == 'X' || commands_list[i][PUSH_LEN + 2] == 'P') {
                 commands_list[i][PUSH_LEN] = '_';
             }
             else if (commands_list[i][PUSH_LEN + 1] == '[' && commands_list[i][PUSH_LEN + 3] == 'X') {
@@ -77,6 +77,12 @@ void ReadUserInput (FILE *user_input, char **input_start) {
                 sprintf (commands_list[i], "PUSHRM %d", temp);
                 ++special;
             }
+            else if (commands_list[i][PUSH_LEN + 1] == '(') {
+                int temp = 0;
+                sscanf (commands_list[i], "PUSH (%d)", &temp);
+                sprintf (commands_list[i], "PUSHDR %d", temp);
+                ++special;
+            }
             else {
                 ++special;
             }
@@ -84,7 +90,7 @@ void ReadUserInput (FILE *user_input, char **input_start) {
 
         //Проверка на команду POP
         if (strcmp (command, "POP") == 0) {
-            if (commands_list[i][POP_LEN + 2] == 'X') {
+            if (commands_list[i][POP_LEN + 2] == 'X' || commands_list[i][POP_LEN + 2] == 'P') {
                 commands_list[i][POP_LEN] = '_';
             }
             else if (commands_list[i][POP_LEN + 1] == '[' && commands_list[i][POP_LEN + 3] == 'X') {
@@ -99,6 +105,12 @@ void ReadUserInput (FILE *user_input, char **input_start) {
                 int temp = 0;
                 sscanf (commands_list[i], "POP [%d]", &temp);
                 sprintf (commands_list[i], "POPRM %d", temp);
+                ++special;
+            }
+            else if (commands_list[i][POP_LEN + 1] == '(') {
+                int temp = 0;
+                sscanf (commands_list[i], "POP [%d]", &temp);
+                sprintf (commands_list[i], "POPDR %d", temp);
                 ++special;
             }
         }
@@ -210,6 +222,42 @@ void UserInputHandle (int **code, FILE *user_lst) {
                 // (Вывод в листинг компиляции если 2 проход)
                 if (pass == 2)
                     fprintf(user_lst, "%08zu %08x %08x POPRM %lg\n", shift, CMD_POPRM, operand_int, operand_double);
+                shift += 5 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
+                continue;
+            }
+            else if (strcmp (command, "PUSHDR") == 0) {
+                double operand_double = 0; //Введенный операнд (если имеется)
+                int operand_int = 0; //Введенный операнд (если имеется) с заданной точоностью
+                read_words = sscanf (commands_list[i], "%*s %lg %c", &operand_double, &comment_tag);
+                if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
+                    printf ("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
+                    exit (2);
+                }
+                (*code)[idx++] = CMD_PUSHDR;
+                operand_int = (int) (operand_double * pow (10, ACCURACY));
+                (*code)[idx++] = operand_int;
+
+                // (Вывод в листинг компиляции если 2 проход)
+                if (pass == 2)
+                    fprintf(user_lst, "%08zu %08x %08x PUSHDR %lg\n", shift, CMD_PUSHRM, operand_int, operand_double);
+                shift += 6 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
+                continue;
+            }
+            else if (strcmp (command, "POPDR") == 0) {
+                double operand_double = 0; //Введенный операнд (если имеется)
+                int operand_int = 0; //Введенный операнд (если имеется) с заданной точоностью
+                read_words = sscanf (commands_list[i], "%*s %lg %c", &operand_double, &comment_tag);
+                if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
+                    printf ("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
+                    exit (2);
+                }
+                (*code)[idx++] = CMD_POPDR;
+                operand_int = (int) (operand_double * pow (10, ACCURACY));
+                (*code)[idx++] = operand_int;
+
+                // (Вывод в листинг компиляции если 2 проход)
+                if (pass == 2)
+                    fprintf(user_lst, "%08zu %08x %08x POPDR %lg\n", shift, CMD_POPRM, operand_int, operand_double);
                 shift += 5 * sizeof(char) + sizeof(int); //Увеличение сдвига в листинге компиляции
                 continue;
             }

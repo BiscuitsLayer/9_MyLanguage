@@ -1,30 +1,33 @@
-var a = 0 ;
-var b = 0 ;
-var c = 0 ;
-var D = 0 ;
-var x1 = 0 ;
-var x2 = 0 ;
-
 function main ( ) {
+    var a = 0 ;
+    var b = 0 ;
+    var c = 0 ;
     get ( a ) ;
     get ( b ) ;
     get ( c ) ;
-    D = b * b - 4 * a * c ;
+    var D = call disc ( a , b , c ) ;
+    put ( D ) ;
     if ( D < 0 )
         put ( 0 ) ;
     if-else {
-    if ( D == 0 ) {
-        put ( 1 ) ;
-        x1 = ( ( 0 - 1 ) * b ) / ( 2 * a ) ;
-        put ( x1 ) ;
+        D = D ^ 0.5 ;
+        if ( D == 0 ) {
+            put ( 1 ) ;
+            var x1 = ( ( 0 - 1 ) * b / ( 2 * a ) ) ;
+            put ( x1 ) ;
+        }
+        if-else {
+            put ( 2 ) ;
+            var x1 = ( ( ( 0 - 1 ) * b + D ) / ( 2 * a ) ) ;
+            var x2 = ( ( ( 0 - 1 ) * b - D ) / ( 2 * a ) ) ;
+            put ( x1 ) ;
+            put ( x2 ) ;
+        }
     }
-    if-else {
-        put ( 2 ) ;
-        D = D ^ ( 0.5 ) ;
-        x1 = ( ( 0 - 1 ) * b + D ) / ( 2 * a ) ;
-        x2 = ( ( 0 - 1 ) * b - D ) / ( 2 * a ) ;
-        put ( x1 ) ;
-        put ( x2 ) ;
-    }
-    }
+    ret 0 ;
+}
+
+function disc ( a , b , c ) {
+    var D = b ^ 2 - 4 * a * c ;
+    ret D ;
 }
