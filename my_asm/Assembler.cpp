@@ -27,7 +27,8 @@ void AssemblerMain () {
 
     free (code);
     free (labels);
-    free (input_start);
+    //TODO КОСТЫЛЬ??
+    //free (input_start);
     fclose (program_code);
 }
 
@@ -66,6 +67,10 @@ void ReadUserInput (FILE *user_input, char **input_start) {
                 char reg_name = commands_list[i][PUSH_LEN + 2];
                 sprintf (commands_list[i], "PUSHRM_%cX", reg_name);
             }
+            else if (commands_list[i][PUSH_LEN + 1] == '[' && commands_list[i][PUSH_LEN + 3] == 'P') {
+                char reg_name = commands_list[i][PUSH_LEN + 2];
+                sprintf (commands_list[i], "PUSHRM_%cP", reg_name);
+            }
             else if (commands_list[i][PUSH_LEN + 1] == '[') {
                 int temp = 0;
                 sscanf (commands_list[i], "PUSH [%d]", &temp);
@@ -85,6 +90,10 @@ void ReadUserInput (FILE *user_input, char **input_start) {
             else if (commands_list[i][POP_LEN + 1] == '[' && commands_list[i][POP_LEN + 3] == 'X') {
                 char reg_name = commands_list[i][POP_LEN + 2];
                 sprintf (commands_list[i], "POPRM_%cX", reg_name);
+            }
+            else if (commands_list[i][POP_LEN + 1] == '[' && commands_list[i][POP_LEN + 3] == 'P') {
+                char reg_name = commands_list[i][POP_LEN + 2];
+                sprintf (commands_list[i], "POPRM_%cP", reg_name);
             }
             else if (commands_list[i][POP_LEN + 1] == '[') {
                 int temp = 0;

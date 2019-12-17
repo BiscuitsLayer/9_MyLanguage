@@ -158,24 +158,16 @@ Node *RD::GetF (Elem_t *tokens) {
     node->left = Tree::NodeInit ();
     node->left = RD::GetFArgs (tokens);
 
-    node->right = Tree::NodeInit ();
-    node->right->type = TYPE_SYS;
-    node->right->data = OP;
-    node = node->right;
 
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_BRACE]) == 0);
     ++idx;
 
     while (strcmp (tokens[idx].name, LangCommands[CLOSE_BRACE]) != 0) {
-        node->left = RD::GetOp(tokens);
         node->right = Tree::NodeInit ();
-        node->right->type = TYPE_SYS;
-        node->right->data = OP;
+        node->right = RD::GetOp(tokens);
         node = node->right;
     }
     ++idx;
-    assert (return_flag);
-    return_flag = false;
     function_flag = -1;
     return base;
 }
@@ -185,16 +177,23 @@ Node *RD::GetFArgs (Elem_t *tokens) {
     Node *ans = node;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
+    if (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0) {
+        ++idx;
+        return nullptr;
+    }
 
     node->left = Tree::NodeInit ();
     node->left->type = TYPE_SYS;
     node->left->data = COMMA;
     node = node->left;
 
+    size_t var_count = 0;
+
     while (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) != 0) {
         node->right = Tree::NodeInit ();
         assert (isalpha(tokens[idx].name[0]));
         node->right = RD::GetID(tokens);
+        ++var_count;
         if (strcmp(tokens[idx].name, LangCommands[COMMA]) == 0) {
             node->left = Tree::NodeInit();
             node->left->type = TYPE_SYS;
@@ -203,6 +202,7 @@ Node *RD::GetFArgs (Elem_t *tokens) {
             ++idx;
         }
     }
+    funcs[function_flag].val = var_count;
     ++idx;
     return ans;
 }
@@ -215,7 +215,7 @@ Node *RD::GetAs (Elem_t *tokens) {
     node->data = EQUAL;
     node->type = TYPE_SYS;
     ++idx;
-    if (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0)
+    if (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0)
         node->right = RD::GetDiff (tokens);
     else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);
@@ -335,44 +335,42 @@ Node *RD::GetN (Elem_t *tokens) {
 
 Node *RD::GetOp (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
+    node->type = TYPE_SYS;
+    node->data = OP;
+    node->left = Tree::NodeInit ();
+
     if (strcmp (tokens[idx + 1].name, LangCommands[EQUAL]) == 0) {
-        node = RD::GetAs (tokens);
+        node->left = RD::GetAs (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[IF]) == 0) {
-        node = RD::GetIf (tokens);
+        node->left = RD::GetIf (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[WHILE]) == 0) {
-        node = RD::GetWhile (tokens);
+        node->left = RD::GetWhile (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[RET]) == 0) {
-        node = RD::GetReturn (tokens);
+        node->left = RD::GetReturn (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[PUT]) == 0) {
-        node = RD::GetPut (tokens);
+        node->left = RD::GetPut (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[GET]) == 0) {
-        node = RD::GetGet (tokens);
+        node->left = RD::GetGet (tokens);
     }
     else if (strcmp (tokens[idx].name, LangCommands[OPEN_BRACE]) == 0) {
         Node *base = node;
-        node->data = OP;
-        node->type = TYPE_SYS;
         ++idx;
-        node->left = Tree::NodeInit();
-        node->left = RD::GetOp(tokens);
-        while (strcmp(tokens[idx].name, LangCommands[CLOSE_BRACE]) != 0) {
-            node->right = Tree::NodeInit();
-            node->right = RD::GetOp(tokens);
+        while (strcmp (tokens[idx].name, LangCommands[CLOSE_BRACE]) != 0) {
+            node->right = RD::GetOp (tokens);
+            node->right->right = Tree::NodeInit();
+            node = node->right;
         }
         node = base;
-        node->right = Tree::NodeInit();
-        node->right->data = OP;
-        node->right->type = TYPE_SYS;
         ++idx;
     }
     else if (strcmp (tokens[idx].name, LangCommands[VAR]) == 0) {
         ++idx;
-        node =  RD::GetAs (tokens);
+        node->left =  RD::GetAs (tokens);
     }
     else {
         printf ("Error! Unknown operator \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
@@ -382,18 +380,17 @@ Node *RD::GetOp (Elem_t *tokens) {
 }
 
 Node *RD::GetReturn (Elem_t *tokens) {
-    return_flag = true;
     Node *node = Tree::NodeInit ();
     assert (strcmp (tokens[idx].name, LangCommands[RET]) == 0);
     ++idx;
     node->data = RET;
     node->type = TYPE_SYS;
-    if (strcmp (tokens[idx].name, Operations [OP_DIFF]) == 0)
-        node->right = RD::GetDiff (tokens);
+    if (strcmp (tokens[idx].name, Operations [OP_DERIV]) == 0)
+        node->left = RD::GetDiff (tokens);
     else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
-        node->right = RD::GetFCall (tokens);
+        node->left = RD::GetFCall (tokens);
     else
-        node->right = RD::GetE (tokens);
+        node->left = RD::GetE (tokens);
     assert (strcmp (tokens[idx].name, LangCommands[SEMICOLON]) == 0);
     ++idx;
     return node;
@@ -401,9 +398,9 @@ Node *RD::GetReturn (Elem_t *tokens) {
 
 Node *RD::GetDiff (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
-    assert (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0);
+    assert (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0);
     node->type = TYPE_OP;
-    node->data = OP_DIFF;
+    node->data = OP_DERIV;
     ++idx;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
@@ -426,23 +423,30 @@ Node *RD::GetFCall (Elem_t *tokens) {
     node->data = Tree::FuncSearch (tokens[idx].name);
     ++idx;
     node->left = Tree::NodeInit ();
-    node->left = RD::GetFCallArgs (tokens);
+    node->left = RD::GetFCallArgs (tokens, funcs[(int)node->data].val);
     return base;
 }
 
-Node *RD::GetFCallArgs (Elem_t *tokens) {
+Node *RD::GetFCallArgs (Elem_t *tokens, size_t var_count) {
     Node *node = Tree::NodeInit ();
     Node *ans = node;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
+    if (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0) {
+        ++idx;
+        return nullptr;
+    }
 
     node->left = Tree::NodeInit ();
     node->left->type = TYPE_SYS;
     node->left->data = COMMA;
     node = node->left;
 
+    size_t var_count_check = 0;
+
     while (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) != 0) {
         node->right = RD::GetE (tokens);
+        ++var_count_check;
         if (strcmp (tokens[idx].name, LangCommands[COMMA]) == 0) {
             node->left = Tree::NodeInit();
             node->left->type = TYPE_SYS;
@@ -528,7 +532,7 @@ Node *RD::GetPut (Elem_t *tokens) {
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
     node->right = Tree::NodeInit ();
-    if (strcmp (tokens[idx].name, Operations[OP_DIFF]) == 0)
+    if (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0)
         node->right = RD::GetDiff (tokens);
     else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);

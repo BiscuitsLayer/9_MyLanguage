@@ -19,7 +19,7 @@ const int EXTRA_BUF_SIZE = 1;
 //#define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../my_programs/program.my_lang"
+#define INPUTFILE "../my_programs/program1.my_lang"
 #define INPUTTREE "../my_ast/temp.ast"
 
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
@@ -43,7 +43,7 @@ enum LangCommands {
     PUT,
     GET,
     IF,
-    WHILE,
+    WHILE, //TODO
     IF_ELSE,
     EQUAL,
     SEMICOLON,
@@ -60,7 +60,7 @@ enum Operations {
     OP_MUL,
     OP_DIV,
     OP_POW,
-    OP_DIFF,
+    OP_DERIV,
     OP_ABOVE,
     OP_ABOVE_EQUAL,
     OP_BELOW,
@@ -94,7 +94,6 @@ typedef struct {
 
 extern size_t idx;
 extern bool flag;
-extern bool return_flag;
 extern int brace_flag; //Счётчик (колво "{" - колво "}"), чтобы знать в функции сейчас находимся или нет
 extern int function_flag;
 extern bool just_added_variable;

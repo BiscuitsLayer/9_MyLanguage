@@ -187,7 +187,7 @@ Node *Optimize::Differentiator (Node *node) {
         Optimize::Differentiator (node->left);
     if (node->right)
         Optimize::Differentiator (node->right);
-    if (node->type == TYPE_OP && node->data == OP_DIFF) {
+    if (node->type == TYPE_OP && node->data == OP_DERIV) {
         node->right = Diff::PreHandle (node->right, node->left->data);
         node->right = &Diff::Diff (node->right);
         node->right = Diff::PostHandle (node->right, node->left->data);

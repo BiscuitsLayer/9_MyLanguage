@@ -8,6 +8,8 @@ StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); Stac
 #define POW(num1, num2) pow(num1, num2)
 #define SQRT(code) sqrt(code)
 #define RAM(code) CPU->RAM[(code)]
+#define BP CPU->RAM_base
+#define SP CPU->RAM_it
 #define AX CPU->ax
 #define BX CPU->bx
 #define CX CPU->cx

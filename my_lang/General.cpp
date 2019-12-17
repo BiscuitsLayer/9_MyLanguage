@@ -3,7 +3,6 @@
 
 size_t idx = 0;
 bool flag = true;
-bool return_flag = false;
 int brace_flag = 0; //Счётчик (колво "{" - колво "}"), чтобы знать в функции сейчас находимся или нет
 bool just_added_variable = false;
 bool just_entered_function = false; //Необходимо для пропусков названия функции и списка ее переменных (они находятся после слова function и до открывающейся скобки ,=>
@@ -25,7 +24,7 @@ const char *Operations[] = {
         "*",
         "/",
         "^",
-        "diff",
+        "deriv",
         ">",
         ">=",
         "<",
@@ -135,6 +134,10 @@ void Tree::EmptyNodesCleaner (Node *node) {
             NODE_REF = nullptr;
         }
     }
+    else if (node->type == TYPE_SYS && node->data == OP && !node->left)
+        NODE_REF = node->right;
+    else if (node->type == TYPE_SYS && node->data == SEMICOLON && !node->left)
+        NODE_REF = node->right;
 }
 
 void Tree::FreeNode (Node *node) {
@@ -506,13 +509,15 @@ void AST::PrintNode (FILE *writefile, Node *node) {
     fprintf (writefile, "{");
     char *label = Dot::MakeNodeLabel (node);
     fprintf (writefile, "%s", label);
-    if (node->left)
-        AST::PrintNode (writefile, node->left);
-    else
-        fprintf (writefile, "@");
-    if (node->right)
-        AST::PrintNode (writefile, node->right);
-    else
-        fprintf (writefile, "@");
+    if (node->left || node->right) {
+        if (node->left)
+            AST::PrintNode(writefile, node->left);
+        else
+            fprintf(writefile, "@");
+        if (node->right)
+            AST::PrintNode(writefile, node->right);
+        else
+            fprintf(writefile, "@");
+    }
     fprintf (writefile, "}");
 }

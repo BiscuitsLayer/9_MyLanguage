@@ -1,0 +1,42 @@
+#include "my_frontend/Frontend.h"
+#include "my_middleend/Middleend.h"
+#include "my_backend/Backend.h"
+
+//TODO Прогнать через валгринд, убедиться в том, что пустые узлы освобождаются
+//TODO Дописать в грамматику функции (математические)
+//TODO Файл с синтаксисом
+//TODO Добавить операций для дифференциатора и ассемблера
+//TODO Добавить степень в асм!!
+//TODO Проверку чтобы имя функции не начиналось с $ а имя переменной deriv
+
+int main (int argc, char *argv[]) {
+    //AssemblerMain ();
+    // CPUMain ();
+
+    strcpy (vars[0].name, "a");
+    strcpy (vars[1].name, "b");
+    strcpy (funcs[0].name, "fact");
+
+    ASM::GetRAMIdx (0);
+    ASM::GetRAMIdx (1);
+
+
+    Node *root = Tree::NodeInit ();
+    root->data = 0;
+    root->type = TYPE_FUNC;
+    root->left = Tree::NodeInit ();
+    root->left->data = COMMA;
+    root->left->type = TYPE_SYS;
+    root->left->right = Tree::NodeInit ();
+    root->left->right->data = 0;
+    root->left->right->type = TYPE_VAR;
+    root->left->left = Tree::NodeInit ();
+    root->left->left->data = COMMA;
+    root->left->left->type = TYPE_SYS;
+    root->left->left->right = Tree::NodeInit ();
+    root->left->left->right->data = 1;
+    root->left->left->right->type = TYPE_VAR;
+    //Dot::PrintTree (root);
+    ASM::TreeToASM (root);
+    return 0;
+}
