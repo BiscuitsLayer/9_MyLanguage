@@ -1,6 +1,5 @@
 #include "General.h"
 
-
 size_t idx = 0;
 bool flag = true;
 int brace_flag = 0; //Счётчик (колво "{" - колво "}"), чтобы знать в функции сейчас находимся или нет
@@ -14,6 +13,7 @@ size_t func_idx = 0;
 
 size_t move = 0;
 size_t delta = 0;
+int main_flag = -1;
 
 Variable_t vars [ARRAY_SIZE];
 Function_t funcs [ARRAY_SIZE];
@@ -64,6 +64,14 @@ Node *Tree::NodeInit (Node *parent, Node *left, Node *right) {
     return node;
 }
 
+void Tree::VarDump () {
+	printf ("VARIABLES DUMP\n");
+	for (size_t i = 0; i < var_idx; ++i) {
+		printf ("name: %s, func: %s, line_num: %d\n", vars[i].name, (vars[i].val == -1 ? "GLOBAL" : funcs[(int)vars[i].val].name), vars[i].line_num);
+	}
+	printf ("VARIABLES DUMP END\n\n");
+}
+
 int Tree::VarSearch (char *name, bool allow_to_add) {
     for (size_t i = 0; i < var_idx; ++i) {
         if (strcmp(vars[i].name, name) == 0 && (vars[i].val == function_flag || vars[i].val == -1)) {
@@ -78,14 +86,6 @@ int Tree::VarSearch (char *name, bool allow_to_add) {
     } else {
         return NOTFOUND;
     }
-}
-
-void Tree::VarDump () {
-    printf ("VARIABLES DUMP\n");
-    for (size_t i = 0; i < var_idx; ++i) {
-        printf ("name: %s, func: %s, line_num: %d\n", vars[i].name, (vars[i].val == -1 ? "GLOBAL" : funcs[(int)vars[i].val].name), vars[i].line_num);
-    }
-    printf ("VARIABLES DUMP END\n\n");
 }
 
 int Tree::FuncSearch (char *name, bool allow_to_add) {

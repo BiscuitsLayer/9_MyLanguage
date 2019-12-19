@@ -7,8 +7,6 @@ size_t special = 0; //Количество специальных символо
 Label_t *labels = nullptr; //Массив меток
 size_t labels_idx = 0; //Индекс в массиве меток
 
-//TODO Обработать случаи с двумя совпадающими метками
-
 void AssemblerMain () {
     labels = (Label_t *) calloc (LABEL_ARRAY_SIZE, sizeof(Label_t)); //Массив меток
 
@@ -27,8 +25,7 @@ void AssemblerMain () {
 
     free (code);
     free (labels);
-    //TODO разберись!
-    //free (input_start);
+    free (input_start);
     fclose (program_code);
 }
 
@@ -109,7 +106,7 @@ void ReadUserInput (FILE *user_input, char **input_start) {
             }
             else if (commands_list[i][POP_LEN + 1] == '(') {
                 int temp = 0;
-                sscanf (commands_list[i], "POP [%d]", &temp);
+                sscanf (commands_list[i], "POP (%d)", &temp);
                 sprintf (commands_list[i], "POPDR %d", temp);
                 ++special;
             }
@@ -125,6 +122,12 @@ void ReadUserInput (FILE *user_input, char **input_start) {
         //Проверка на наличие комментария
         else if (command[strlen (command) - 1] == ':') {
             labels[labels_idx].name = commands_list[i];
+            for (int j = 0; j < labels_idx; ++j) {
+            	if (strcmp (labels[j].name, labels[labels_idx].name) == 0) {
+					printf ("ERROR! Same labels names\n");
+					exit (2);
+	            }
+            }
             labels[labels_idx].name[strlen (labels[labels_idx].name) - 1] = '\0';
             labels[(labels_idx)++].num = -1;
         }
@@ -158,7 +161,7 @@ size_t GetProgramLen (FILE *user_input, struct stat file_info, char **input_star
 
 void UserInputHandle (int **code, FILE *user_lst) {
     *code = (int *) calloc (program_len + special - labels_idx, sizeof(int)); //Выделение памяти для массива с машинным кодом
-    size_t idx = 0; //Индекс в массиве с машинным кодом
+    idx = 0; //Индекс в массиве с машинным кодом
     size_t shift = 0; //Сдвиг в листинге компиляции
     char *command = (char *) calloc (STR_LEN, sizeof(char)); //Введенная команда
     char comment_tag = ';'; //Введенный символ комментария

@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cassert>
 #include <cctype>
+#include <cmath>
 #include <utility>
 #include <sstream>
 
@@ -19,8 +20,8 @@ const int EXTRA_BUF_SIZE = 1;
 //#define NDEBUG
 #define NOTFOUND -1
 #define NUM_T_FORMAT "%lg"
-#define INPUTFILE "../my_programs/solve_sqr.my_lang"
-#define INPUTTREE "../my_ast/temp.ast"
+extern const char *INPUTFILE;
+extern const char *INPUTTREE;
 
 #define NODE_REF (node->parent->left == node ? node->parent->left : node->parent->right)
 
@@ -105,6 +106,7 @@ extern size_t func_idx;
 
 extern size_t move;
 extern size_t delta;
+extern int main_flag;
 
 extern Variable_t vars [ARRAY_SIZE];
 extern Function_t funcs [ARRAY_SIZE];
@@ -114,8 +116,8 @@ extern const char *LangCommands[17];
 
 namespace Tree {
     Node *NodeInit (Node *parent = nullptr, Node *left = nullptr, Node *right = nullptr);
+	void VarDump ();
     int VarSearch (char *name, bool allow_to_add = false);
-    void VarDump ();
     int FuncSearch (char *name, bool allow_to_add = false);
     void TreeOffsetCorrecter (Node *node);
     void EmptyNodesCleaner (Node *node);

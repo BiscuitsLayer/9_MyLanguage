@@ -1,0 +1,15 @@
+function main ( ) {
+    var x = 0 ;
+    get ( x ) ;
+    put ( call fact ( x ) ) ;
+    ret 0 ;
+}
+
+function fact ( x ) {
+    if ( x == 1 )
+        ret 1 ;
+    if-else {
+        var temp = call fact ( x - 1 ) ;
+        ret x * temp ;
+    }
+}

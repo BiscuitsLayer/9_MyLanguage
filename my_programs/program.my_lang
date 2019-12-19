@@ -16,6 +16,6 @@ function fact ( ans ) {
         ret 1 ;
     }
     if-else
-        ans1 = v ^ 2 ;
+        var temp = deriv ( a , x ) ;
         ret call fact ( ans ) ;
 }

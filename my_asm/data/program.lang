@@ -15,7 +15,8 @@ StackPush(&CPU->stk COMMA (CPU->ax)); StackPush(&CPU->stk COMMA (CPU->bx)); Stac
 #define BX CPU->bx
 #define CX CPU->cx
 #define DX CPU->dx
-#define PRINT(code) int num = code; printf("%d.%d\n" COMMA (int)(num / pow(10 COMMA ACCURACY)) COMMA (num % (int)pow(10 COMMA ACCURACY)))
+#define PRINT(code) int num = code; bool sign = ( num >= 0 ? true : false ); if (!sign) num = -1 * num; \
+printf((sign ? "%d.%d\n" : "-%d.%d\n") COMMA (int)( num / pow(10 COMMA ACCURACY)) COMMA (num % (int)pow(10 COMMA ACCURACY)))
 #define PUSH(code) StackPush(&CPU->stk COMMA (code))
 #define POP StackPop(&CPU->stk)
 #define RETLOC CPU->it = StackPop(&CPU->func) + 1

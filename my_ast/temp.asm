@@ -1,3 +1,5 @@
+PUSH 4
+POP SP
 CALL main
 END
 
@@ -26,7 +28,7 @@ PUSH SP
 PUSH 3
 SUB
 POP BP
-CALL disc
+CALL solveSquare
 PUSH [-1]
 PUSH BP
 PUSH 1
@@ -34,22 +36,94 @@ SUB
 POP SP
 POP BP
 POP [3]
-PUSH [3]
-OUT
-PUSH [3]
 PUSH 0
-JAE elseif_1
+RET
+
+solveSquare:
+PUSH [0]
 PUSH 0
-OUT
+JNE elseif_1
+PUSH BP
+POP [SP]
+PUSH [1]
+POP [SP]
+PUSH [2]
+POP [SP]
+PUSH SP
+PUSH 2
+SUB
+POP BP
+CALL solveLinear
+PUSH [-1]
+PUSH BP
+PUSH 1
+SUB
+POP SP
+POP BP
+POP [3]
 JMP endif_1
 elseif_1:
-PUSH [3]
-PUSH 0.5
-POW
-POP [3]
-PUSH [3]
+PUSH [2]
 PUSH 0
 JNE elseif_2
+PUSH 2
+OUT
+PUSH 0
+OUT
+PUSH BP
+POP [SP]
+PUSH [0]
+POP [SP]
+PUSH [1]
+POP [SP]
+PUSH SP
+PUSH 2
+SUB
+POP BP
+CALL solveLinear
+PUSH [-1]
+PUSH BP
+PUSH 1
+SUB
+POP SP
+POP BP
+POP [3]
+JMP endif_2
+elseif_2:
+PUSH BP
+POP [SP]
+PUSH [0]
+POP [SP]
+PUSH [1]
+POP [SP]
+PUSH [2]
+POP [SP]
+PUSH SP
+PUSH 3
+SUB
+POP BP
+CALL Discriminant
+PUSH [-1]
+PUSH BP
+PUSH 1
+SUB
+POP SP
+POP BP
+POP [4]
+PUSH [4]
+PUSH 0
+JAE elseif_3
+PUSH 0
+OUT
+JMP endif_3
+elseif_3:
+PUSH [4]
+PUSH 0.5
+POW
+POP [4]
+PUSH [4]
+PUSH 0
+JNE elseif_4
 PUSH 1
 OUT
 PUSH -1
@@ -59,43 +133,75 @@ PUSH 2
 PUSH [0]
 MUL
 DIV
-POP [4]
-PUSH [4]
+POP [5]
+PUSH [5]
 OUT
-JMP endif_2
-elseif_2:
+JMP endif_4
+elseif_4:
 PUSH 2
 OUT
 PUSH -1
 PUSH [1]
 MUL
-PUSH [3]
+PUSH [4]
 ADD
 PUSH 2
 PUSH [0]
 MUL
 DIV
-POP [4]
+POP [5]
 PUSH -1
 PUSH [1]
 MUL
-PUSH [3]
+PUSH [4]
 SUB
 PUSH 2
 PUSH [0]
 MUL
 DIV
-POP [5]
-PUSH [4]
-OUT
+POP [6]
 PUSH [5]
 OUT
+PUSH [6]
+OUT
+endif_4:
+endif_3:
 endif_2:
 endif_1:
 PUSH 0
 RET
 
-disc:
+solveLinear:
+PUSH [0]
+PUSH 0
+JNE elseif_5
+PUSH [1]
+PUSH 0
+JNE elseif_6
+PUSH 1000
+OUT
+JMP endif_6
+elseif_6:
+PUSH 0
+OUT
+endif_6:
+JMP endif_5
+elseif_5:
+PUSH 1
+OUT
+PUSH -1
+PUSH [1]
+MUL
+PUSH [0]
+DIV
+POP [2]
+PUSH [2]
+OUT
+endif_5:
+PUSH 0
+RET
+
+Discriminant:
 PUSH [1]
 PUSH 2
 POW
@@ -105,6 +211,4 @@ MUL
 PUSH [2]
 MUL
 SUB
-POP [3]
-PUSH [3]
 RET

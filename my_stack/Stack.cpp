@@ -37,10 +37,10 @@ void StackFillWithPoison (Stack_t *stk, size_t begin, size_t end) {
     for (size_t i = begin; i <= end; ++i)
         *(stk->data + i) = POISON;
 }
-
-//! \brief Кладёт элемент типа Stack_Elem_t в конец стека
-//! \param stk Стек
-//! \param value Элемент, который кладётся в стек
+/**
+* @param stk Стек
+* @param value Элемент, который кладётся в стек
+*/
 
 void StackPush (Stack_t *stk, Stack_Elem_t value) {
     try {

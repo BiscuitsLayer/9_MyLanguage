@@ -29,7 +29,7 @@ Elem_t *Tokens::Tokenization (FILE *readfile) {
             *s = '\0';
         }
         ++s;
-        if (strcmp (tokens[idx].name, "") != 0) {
+        if (strcmp (tokens[idx].name, "") != 0 && strcmp (tokens[idx].name, "\0") != 0 && strcmp (tokens[idx].name, "\t") != 0) {
             tokens[idx].line_num = line_num;
             if (line_inc) {
                 ++line_num;
@@ -142,6 +142,10 @@ Node *RD::GetG (Elem_t *tokens) {
 
     flag = true;
     idx = 0;
+    if (main_flag < 0) {
+        printf ("Error! No main function found\n");
+        exit (1);
+    }
     return ans;
 }
 
@@ -152,6 +156,8 @@ Node *RD::GetF (Elem_t *tokens) {
     assert (strcmp (tokens[idx].name, LangCommands[FUNCTION]) == 0);
     ++idx;
     node->data = Tree::FuncSearch (tokens[idx].name);
+    if (strcmp (tokens[idx].name, "main") == 0)
+        main_flag = node->data;
     function_flag = node->data;
     ++idx;
 
@@ -215,9 +221,7 @@ Node *RD::GetAs (Elem_t *tokens) {
     node->data = EQUAL;
     node->type = TYPE_SYS;
     ++idx;
-    if (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0)
-        node->right = RD::GetDiff (tokens);
-    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->right = RD::GetFCall (tokens);
     else
         node->right = RD::GetE (tokens);
@@ -312,11 +316,17 @@ Node *RD::GetP (Elem_t *tokens) {
         node = RD::GetE (tokens);
         assert (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0);
         ++idx;
-    } else if (isdigit (tokens[idx].name[0])) {
-        node = RD::GetN (tokens);
-    } else if (isalpha (tokens[idx].name[0])) {
+    }
+    else if (isdigit (tokens[idx].name[0])) {
+        node = RD::GetN(tokens);
+    }
+    else if (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0) {
+        node = RD::GetDeriv (tokens);
+    }
+    else if (isalpha (tokens[idx].name[0])) {
         node = RD::GetID (tokens);
-    } else {
+    }
+    else {
         printf ("Error! Unknown token \"%s\" in line %d\n", tokens[idx].name, tokens[idx].line_num);
         exit (1);
     }
@@ -385,9 +395,7 @@ Node *RD::GetReturn (Elem_t *tokens) {
     ++idx;
     node->data = RET;
     node->type = TYPE_SYS;
-    if (strcmp (tokens[idx].name, Operations [OP_DERIV]) == 0)
-        node->left = RD::GetDiff (tokens);
-    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
         node->left = RD::GetFCall (tokens);
     else
         node->left = RD::GetE (tokens);
@@ -396,7 +404,7 @@ Node *RD::GetReturn (Elem_t *tokens) {
     return node;
 }
 
-Node *RD::GetDiff (Elem_t *tokens) {
+Node *RD::GetDeriv (Elem_t *tokens) {
     Node *node = Tree::NodeInit ();
     assert (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0);
     node->type = TYPE_OP;
@@ -531,13 +539,11 @@ Node *RD::GetPut (Elem_t *tokens) {
     ++idx;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
-    node->right = Tree::NodeInit ();
-    if (strcmp (tokens[idx].name, Operations[OP_DERIV]) == 0)
-        node->right = RD::GetDiff (tokens);
-    else if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
-        node->right = RD::GetFCall (tokens);
+    node->left = Tree::NodeInit ();
+    if (strcmp (tokens[idx].name, LangCommands[CALL]) == 0)
+        node->left = RD::GetFCall (tokens);
     else
-        node->right = RD::GetE (tokens);
+        node->left = RD::GetE (tokens);
     assert (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0);
     ++idx;
     assert (strcmp (tokens[idx].name, LangCommands[SEMICOLON]) == 0);
@@ -553,8 +559,8 @@ Node *RD::GetGet (Elem_t *tokens) {
     ++idx;
     assert (strcmp (tokens[idx].name, LangCommands[OPEN_PARENTHESIS]) == 0);
     ++idx;
-    node->right = Tree::NodeInit ();
-    node->right = RD::GetID (tokens);
+    node->left = Tree::NodeInit ();
+    node->left = RD::GetID (tokens);
     assert (strcmp (tokens[idx].name, LangCommands[CLOSE_PARENTHESIS]) == 0);
     ++idx;
     assert (strcmp (tokens[idx].name, LangCommands[SEMICOLON]) == 0);

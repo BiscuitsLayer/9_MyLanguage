@@ -1,0 +1,8 @@
+//
+// Created by biscuitslayer on 19.12.2019.
+//
+
+#ifndef INC_9_MYLANGUAGE_BALLETLANG_H
+#define INC_9_MYLANGUAGE_BALLETLANG_H
+
+#endif //INC_9_MYLANGUAGE_BALLETLANG_H

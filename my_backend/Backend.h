@@ -14,7 +14,8 @@ struct ASM_VAR_t {
 };
 
 extern size_t NUM_IF;
-extern size_t global;
+extern size_t global_vars;
+extern size_t main_vars;
 
 extern ASM_VAR_t asm_vars [ARRAY_SIZE];
 
