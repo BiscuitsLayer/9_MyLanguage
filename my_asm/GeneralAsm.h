@@ -1,7 +1,7 @@
 #ifndef GeneralAsm_h
 #define GeneralAsm_h
 
-#include "../my_lang/General.h"
+#include "../my_general/General.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cctype>

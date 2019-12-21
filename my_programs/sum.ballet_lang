@@ -1,0 +1,13 @@
+allegro a arabesque 0 pas
+allegro b arabesque 0 pas
+adagio main enface croisee {
+	endedans enface a croisee pas
+	endedans enface b croisee pas
+	allegro c arabesque grande sum enface croisee pas
+	endehors enface grande sum enface croisee croisee pas
+	renverse 0 pas
+}
+
+adagio sum enface croisee {
+	renverse a attitude b pas
+}

@@ -5,13 +5,10 @@ function main ( ) {
     get ( a ) ;
     get ( b ) ;
     var c = call sum ( ) ;
-    put ( c ) ;
+    put ( call sum ( ) ) ;
     ret 0 ;
 }
 
 function sum ( ) {
-    put ( a ) ;
-    put ( b ) ;
-    put ( a + b ) ;
     ret ( a + b ) ;
 }

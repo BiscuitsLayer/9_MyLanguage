@@ -1,7 +1,7 @@
 #ifndef Middleend_h
 #define Middleend_h
 
-#include "../my_lang/General.h"
+#include "../my_general/General.h"
 
 namespace Diff {
     Node &Copy (Node *node);

@@ -44,7 +44,7 @@ enum LangCommands {
     PUT,
     GET,
     IF,
-    WHILE, //TODO
+    WHILE, //TODO Добавить
     IF_ELSE,
     EQUAL,
     SEMICOLON,
@@ -113,10 +113,11 @@ extern Function_t funcs [ARRAY_SIZE];
 
 extern const char *Operations[12];
 extern const char *LangCommands[17];
+extern const char *BalletOperations[12];
+extern const char *BalletLangCommands[17];
 
 namespace Tree {
     Node *NodeInit (Node *parent = nullptr, Node *left = nullptr, Node *right = nullptr);
-	void VarDump ();
     int VarSearch (char *name, bool allow_to_add = false);
     int FuncSearch (char *name, bool allow_to_add = false);
     void TreeOffsetCorrecter (Node *node);
@@ -136,7 +137,6 @@ namespace AST {
     char *ReadHandle (FILE *readfile);
     Node *ReadTree (char *readstr, Node *parent);
     std::pair <type_t, num_t > GetNodeInfo (char *str);
-    void PrintTree (Node *node);
     void PrintNode (FILE *writefile, Node *node);
 }
 

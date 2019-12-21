@@ -1,8 +1,18 @@
-//
-// Created by biscuitslayer on 19.12.2019.
-//
+#ifndef BalletLang_h
+#define BalletLang_h
 
-#ifndef INC_9_MYLANGUAGE_BALLETLANG_H
-#define INC_9_MYLANGUAGE_BALLETLANG_H
+#include "../my_general/General.h"
 
-#endif //INC_9_MYLANGUAGE_BALLETLANG_H
+struct BL_VAR_t {
+	bool appeared = false;
+};
+
+extern BL_VAR_t bl_vars[ARRAY_SIZE];
+extern bool bl_just_skipped_line;
+
+namespace BalletLang {
+	void PrintShift (FILE *writefile);
+	void NodeToLang (FILE *writefile, Node *node);
+}
+
+#endif

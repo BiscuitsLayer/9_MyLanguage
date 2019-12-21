@@ -1,0 +1,66 @@
+adagio main enface croisee {
+	allegro a arabesque 0 pas
+	allegro b arabesque 0 pas
+	allegro c arabesque 0 pas
+	endedans enface a croisee pas
+	endedans enface b croisee pas
+	endedans enface c croisee pas
+	allegro temp arabesque grande solveSquare enface a tour b tour c croisee pas
+	renverse 0 pas
+}
+
+adagio solveSquare enface a tour b tour c croisee {
+	port-de-bras enface a demi-plie 0 croisee {
+		allegro temp arabesque grande solveLinear enface b tour c croisee pas
+	}
+	pas-de-bourree {
+		port-de-bras enface c demi-plie 0 croisee {
+			endehors enface 2 croisee pas
+			endehors enface 0 croisee pas
+			temp arabesque grande solveLinear enface a tour b croisee pas
+		}
+		pas-de-bourree {
+			allegro D arabesque grande Discriminant enface a tour b tour c croisee pas
+			port-de-bras enface D releve-petit-plie 0 croisee {
+				endehors enface 0 croisee pas
+			}
+			pas-de-bourree {
+				D arabesque D jete 0.5 pas
+				port-de-bras enface D demi-plie 0 croisee {
+					endehors enface 1 croisee pas
+					allegro x1 arabesque 0 battement 1 battement-tendu-jete b assemble 2 battement-tendu-jete a pas
+					endehors enface x1 croisee pas
+				}
+				pas-de-bourree {
+					endehors enface 2 croisee pas
+					x1 arabesque 0 battement 1 battement-tendu-jete b attitude D assemble 2 battement-tendu-jete a pas
+					allegro x2 arabesque 0 battement 1 battement-tendu-jete b battement D assemble 2 battement-tendu-jete a pas
+					endehors enface x1 croisee pas
+					endehors enface x2 croisee pas
+				}
+			}
+		}
+	}
+	renverse 0 pas
+}
+
+adagio solveLinear enface a tour b croisee {
+	port-de-bras enface a demi-plie 0 croisee {
+		port-de-bras enface b demi-plie 0 croisee {
+			endehors enface 1000 croisee pas
+		}
+		pas-de-bourree {
+			endehors enface 0 croisee pas
+		}
+	}
+	pas-de-bourree {
+		endehors enface 1 croisee pas
+		allegro x1 arabesque 0 battement 1 battement-tendu-jete b assemble a pas
+		endehors enface x1 croisee pas
+	}
+	renverse 0 pas
+}
+
+adagio Discriminant enface a tour b tour c croisee {
+	renverse b jete 2 battement 4 battement-tendu-jete a battement-tendu-jete c pas
+}

@@ -22,7 +22,7 @@ printf((sign ? "%d.%d\n" : "-%d.%d\n") COMMA (int)( num / pow(10 COMMA ACCURACY)
 #define RETLOC CPU->it = StackPop(&CPU->func) + 1
 #define SAVELOC StackPush(&CPU->func COMMA CPU->it)
 #define DO(op1, op2) op1; op2
-#define EXIT exit(0)
+#define EXIT CPU->it = program_len
 /*
 #define DRAW_OPEN txCreateWindow (WindowXSize, WindowYSize, true); txSetFillColor (BG_COLOR); txClear (); txSetColor (AXIS_COLOR); \
                             txLine (0, CenterDeltaY, WindowXSize, CenterDeltaY); txLine (CenterDeltaX, 0, CenterDeltaX, WindowYSize);

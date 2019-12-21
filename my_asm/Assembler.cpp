@@ -8,6 +8,11 @@ Label_t *labels = nullptr; //Массив меток
 size_t labels_idx = 0; //Индекс в массиве меток
 
 void AssemblerMain () {
+	commands_list = nullptr; //Массив с указателями на команды
+	program_len = 0; //Количество строк в программе
+	special = 0; //Количество специальных символов в программе
+	labels = nullptr; //Массив меток
+	labels_idx = 0; //Индекс в массиве меток
     labels = (Label_t *) calloc (LABEL_ARRAY_SIZE, sizeof(Label_t)); //Массив меток
 
     FILE *user_input = fopen ("../my_ast/temp.asm", "rb"); //Ввод пользователя

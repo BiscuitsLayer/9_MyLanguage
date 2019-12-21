@@ -53,6 +53,41 @@ const char *LangCommands[] = {
         "}"
 };
 
+const char *BalletOperations[] = {
+		"attitude",
+		"battement",
+		"battement-tendu-jete",
+		"assemble",
+		"jete",
+		"echappe",
+		"releve-grand-plie",
+		"grand-plie",
+		"releve-petit-plie",
+		"petit-plie",
+		"demi-plie",
+		"releve-demi-plie"
+};
+
+const char *BalletLangCommands[] = {
+		"op",
+		"allegro",
+		"adagio",
+		"grande",
+		"renverse",
+		"endehors",
+		"endedans",
+		"port-de-bras",
+		"while", //TODO Добавить
+		"pas-de-bourree",
+		"arabesque",
+		"pas",
+		"tour",
+		"enface",
+		"croisee",
+		"{",
+		"}"
+};
+
 Node *Tree::NodeInit (Node *parent, Node *left, Node *right) {
     Node *node = (Node *) calloc (1, sizeof (Node));
     if (parent)
@@ -62,14 +97,6 @@ Node *Tree::NodeInit (Node *parent, Node *left, Node *right) {
     if (right)
         node->right = right;
     return node;
-}
-
-void Tree::VarDump () {
-	printf ("VARIABLES DUMP\n");
-	for (size_t i = 0; i < var_idx; ++i) {
-		printf ("name: %s, func: %s, line_num: %d\n", vars[i].name, (vars[i].val == -1 ? "GLOBAL" : funcs[(int)vars[i].val].name), vars[i].line_num);
-	}
-	printf ("VARIABLES DUMP END\n\n");
 }
 
 int Tree::VarSearch (char *name, bool allow_to_add) {
@@ -474,35 +501,29 @@ Node *AST::ReadTree (char *readstr, Node *parent) {
 }
 
 std::pair <type_t, num_t> AST::GetNodeInfo (char *str) {
-    if (isdigit (str[0])) {
-        return { TYPE_NUM, strtod (str, nullptr) };
-    }
-    if (str[0] == '$') {
-        ++str;
-        return {TYPE_FUNC, Tree::FuncSearch(str, true)};
-    }
-    size_t size = sizeof (LangCommands) / sizeof (char *);
-    for (size_t i = 0; i < size; ++i) {
-        if (strcmp (str, LangCommands[i]) == 0) {
-            return { TYPE_SYS, i };
-        }
-    }
-    size = sizeof (Operations) / sizeof (char *);
-    for (size_t i = 0; i < size; ++i) {
-        if (strcmp (str, Operations[i]) == 0) {
-            return { TYPE_OP, i };
-        }
-    }
-    if (isalpha (str[0])) {
-        return { TYPE_VAR, Tree::VarSearch (str, true) };
-    }
-    return { TYPE_UNDEF, 0 };
-}
-
-void AST::PrintTree (Node *node) {
-    FILE *ast_writefile = fopen ("../my_ast/temp.ast", "w");
-    AST::PrintNode (ast_writefile, node);
-    fclose (ast_writefile);
+	if (isdigit (str[0])) {
+		return {TYPE_NUM, strtod (str, nullptr)};
+	}
+	if (str[0] == '$') {
+		++ str;
+		return {TYPE_FUNC, Tree::FuncSearch (str, true)};
+	}
+	size_t size = sizeof (LangCommands) / sizeof (char *);
+	for (size_t i = 0; i < size; ++ i) {
+		if (strcmp (str, LangCommands[i]) == 0) {
+			return {TYPE_SYS, i};
+		}
+	}
+	size = sizeof (Operations) / sizeof (char *);
+	for (size_t i = 0; i < size; ++ i) {
+		if (strcmp (str, Operations[i]) == 0) {
+			return {TYPE_OP, i};
+		}
+	}
+	if (isalpha (str[0])) {
+		return {TYPE_VAR, Tree::VarSearch (str, true)};
+	}
+	return {TYPE_UNDEF, 0};
 }
 
 void AST::PrintNode (FILE *writefile, Node *node) {

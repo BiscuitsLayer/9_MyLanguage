@@ -1,0 +1,1 @@
+{;{$main@{op{={x}{0}}{op{get{x}@}{op{put{$fact{,@{x}}@}@}{op{ret{0}@}@}}}}}{;{$fact{,@{x}}{op{if{=={x}{1}}{if-else{op{ret{1}@}@}{op{={temp}{$fact{,@{-{x}{1}}}@}}{op{ret{*{x}{temp}}@}@}}}}@}}@}}

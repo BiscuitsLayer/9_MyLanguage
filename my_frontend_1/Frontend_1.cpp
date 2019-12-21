@@ -4,12 +4,6 @@ FE_1_VAR_t fe_vars[ARRAY_SIZE];
 bool just_skipped_line = false;
 size_t shift = 0;
 
-void Lang::TreeToLang (Node *node) {
-    FILE *writefile = fopen ("../my_programs/ast_program.my_lang", "w");
-    Lang::NodeToLang (writefile, node);
-    fclose (writefile);
-}
-
 void Lang::PrintShift (FILE *writefile) {
 	for (size_t i = 0; i < shift; ++i)
 		fprintf (writefile, "\t");
@@ -107,7 +101,7 @@ void Lang::NodeToLang (FILE *writefile, Node *node) {
 	            break;
             }
             case IF: {
-                //TODO BEZ ELSE
+	            //TODO Рассмотреть случай без ELSE
                 fprintf (writefile, "if ( ");
                 Lang::NodeToLang (writefile, node->left);
 	            fprintf (writefile, " ) {\n");

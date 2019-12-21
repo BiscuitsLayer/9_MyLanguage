@@ -1,0 +1,16 @@
+adagio main enface croisee {
+	allegro x arabesque 0 pas
+	endedans enface x croisee pas
+	endehors enface grande fact enface x croisee croisee pas
+	renverse 0 pas
+}
+
+adagio fact enface x croisee {
+	port-de-bras enface x demi-plie 1 croisee {
+		renverse 1 pas
+	}
+	pas-de-bourree {
+		allegro temp arabesque grande fact enface x battement 1 croisee pas
+		renverse x battement-tendu-jete temp pas
+	}
+}
