@@ -11,7 +11,7 @@
 
 const size_t PUSH_LEN = 4;
 const size_t POP_LEN = 3;
-const size_t ACCURACY = 1;
+const size_t ACCURACY = 4;
 const size_t RAM_SIZE = 1e6;
 const size_t BUF_EXTRA_SIZE = 2;
 

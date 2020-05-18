@@ -1,3 +1,4 @@
+/*
 #include "Backend.h"
 
 size_t NUM_IF = 1;
@@ -20,7 +21,7 @@ void ASM::GetRAMIdx () {
             if (vars[j].val == vars[i].val)
                 ++move;
         }
-        asm_vars[i].RAM_idx = move; //Сдвиг относительно bp в RAM
+        asm_vars[i].RAM_idx = move; //Сдвиг относительно начала в RAM
     }
 }
 
@@ -194,3 +195,4 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
         }
     }
 }
+ */

@@ -1,0 +1,68 @@
+section .text
+global _start
+_start:
+call main
+mov eax, 60
+mov rdi, 0
+syscall
+ret
+
+main:
+push rbp
+mov rbp, rsp
+
+mov rax, 50000d
+mov rcx, 5000d
+
+; POWER FUNCTION
+cmp rcx, 5000d
+je sqrt_%d
+call pow
+jmp endpow_%d
+sqrt_%d:
+call sqrt
+endpow_%d:
+push rax
+; POWER FUNCTION
+
+pop rbp
+ret
+
+pow:
+push rbp
+mov rbp, rsp
+mov rbx, rax
+; ACCURACY
+mov rdi, 10000d ; rdx = ACCURACY
+div rdi
+xchg rax, rbx
+; ACCURACY
+sub rcx, rdi
+.for:
+mul rbx
+sub rcx, rdi
+jnz .for
+pop rbp
+ret
+
+sqrt:
+push rbp
+mov rbp, rsp
+mov rdx, num
+mov qword [rdx], rax ; num = rax
+fild qword [rdx] ; fpu_reg = num
+fsqrt ; fpu_reg = sqrt (fpu_reg)
+fistp qword [rdx] ; num = fpu_reg
+mov rax, qword [rdx] ; rax = num
+; ACCURACY
+mov rdi, 100d
+mul rdi
+; ACCURACY
+pop rbp
+ret
+
+section .data
+; FOR SQRT OPERATION
+num db 8
+; FOR SQRT OPERATION
+

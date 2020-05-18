@@ -1,6 +1,9 @@
 #include "UserInterface.h"
 
-char filename[STR_LEN];
+//TODO УБЕРИ ВОТ ЭТО ВОТ СРОЧНО
+//char filename[STR_LEN];
+char filename[STR_LEN] = "test";
+//TODO УБЕРИ ВОТ ЭТО ВОТ СРОЧНО
 
 void Ask () {
 	printf ("Select mode:\n");
@@ -45,7 +48,6 @@ void UserInterfaceMain () {
 				break;
 			}
 			case 2: {
-
 				printf ("Input filename:\n");
 				scanf ("%s", filename);
 				sprintf (filepath, "../my_programs/%s.my_lang", filename);

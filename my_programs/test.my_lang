@@ -1,0 +1,8 @@
+var g = 0 ;
+
+function main ( ) {
+    var a = 829 ;
+    var b = 0.5 ;
+    var c = a ^ b ;
+    ret 0 ;
+}

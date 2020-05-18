@@ -1,52 +1,70 @@
-PUSH 0
-POP (0)
-PUSH 0
-POP (1)
-PUSH 2
-POP BP
-PUSH 3
-POP SP
-CALL main
-END
+section .text
+global _start
+_start:
+call main
+mov eax, 60
+mov rdi, 0
+syscall
+ret
 
 main:
-IN
-POP (0)
-IN
-POP (1)
-PUSH BP
-POP [SP]
-PUSH SP
-PUSH 0
-SUB
-POP BP
-CALL sum
-PUSH [-1]
-PUSH BP
-PUSH 1
-SUB
-POP SP
-POP BP
-POP [0]
-PUSH BP
-POP [SP]
-PUSH SP
-PUSH 0
-SUB
-POP BP
-CALL sum
-PUSH [-1]
-PUSH BP
-PUSH 1
-SUB
-POP SP
-POP BP
-OUT
-PUSH 0
-RET
+push rbp
+mov rbp, rsp
+sub rsp, 24d
+push 2d
+pop qword [rbp-8]
+push 4d
+pop qword [rbp-16]
+push qword [rbp-8]
+push qword [rbp-16]
+jae elseif_1
+push qword [rbp-16]
+push qword [rbp-8]
+call sum
+add rsp, 16d
+push qword rax ; push the value just returned
+pop qword [rbp-24]
+jmp endif_1
+elseif_1:
+push qword [rbp-16]
+push qword [rbp-8]
+call div
+add rsp, 16d
+push qword rax ; push the value just returned
+pop qword [rbp-24]
+endif_1:
+mov rax, 0d ; return value in rax
+add rsp, 24d
+pop rbp
+ret
 
 sum:
-PUSH (0)
-PUSH (1)
-ADD
-RET
+push rbp
+mov rbp, rsp
+sub rsp, 8d
+push qword [rbp+16]
+push qword [rbp+24]
+pop rbx
+pop rcx
+add rbx, rcx
+push rbx
+pop qword [rbp-8]
+mov rax, qword [rbp-8] ; return value in rax
+add rsp, 8d
+pop rbp
+ret
+
+div:
+push rbp
+mov rbp, rsp
+sub rsp, 0d
+push qword [rbp+16]
+push qword [rbp+24]
+pop rax
+pop rbx
+div rbx
+push rax
+pop rax
+add rsp, 0d
+pop rbp
+ret
