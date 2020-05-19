@@ -8,24 +8,152 @@ syscall
 ret
 
 main:
-push rbp
+push rbp ; typical function entry
 mov rbp, rsp
-sub rsp, 8d
-push 0d
-pop qword [rbp-8]
-call get
-mov [rbp-8], rax
-mov rax, [rbp-8]
-call put
+sub rsp, 16d ; space for locals
+push -600d ; push number
+pop qword [rbp-8] ; equal
+push 200d ; push number
+pop qword [rbp-16] ; equal
+push qword [rbp-8] ; push local variable
+push qword [rbp-16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rax ; expression is passed
+call put ; put_end
+push -100d ; push number
+push qword [rbp-8] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+push qword [rbp-16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rax ; expression is passed
+call put ; put_end
+push qword [rbp-8] ; push local variable
+push -100d ; push number
+push qword [rbp-16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rax ; expression is passed
+call put ; put_end
+push -100d ; push number
+push qword [rbp-8] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+push -100d ; push number
+push qword [rbp-16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; clean rdx
+mov rcx, 100d
+xchg rax, rbx
+call mydiv
+xchg rax, rbx
+call mymul
+push rax ; mul_end
+pop rax ; expression is passed
+call put ; put_end
 mov rax, 0d ; return value in rax
-add rsp, 8d
-pop rbp
+add rsp, 16d ; clean space for locals
+pop rbp ; typical function exit
+ret
+
+mymul:
+xor r8, r8 ; number digit
+add rax, 0
+jns secondmul
+neg rax
+inc r8
+secondmul:
+add rbx, 0
+jns checkmul
+neg rbx
+dec r8
+checkmul:
+imul rbx
+cmp r8, 0d
+je endmul
+neg rax
+endmul:
+ret
+
+mydiv:
+xor r8, r8 ; number digit
+add rax, 0
+jns seconddiv
+neg rax
+inc r8
+seconddiv:
+add rbx, 0
+jns checkdiv
+neg rbx
+dec r8
+checkdiv:
+div rbx
+cmp r8, 0d
+je enddiv
+neg rax
+enddiv:
 ret
 
 put:
-xor r8, r8 ; r8 <- extra char '-' if nuber is negative
+xor r8, r8 ; r8 <- extra char '-' if number is negative
 add rax, 0d ; check if rax is negative
-jns startput
+jns startput ; not negative -> startput
 neg rax ; rax *= -1
 mov rcx, output ; string offset
 mov byte [rcx], 02dh ; '-' char
@@ -34,8 +162,8 @@ startput:
 mov rdi, 10d ; rdi = 10 <- decimal
 xor rsi, rsi
 repput:
-xor rdx, rdx ; or divident will be dx_ax
-div rdi ; rax /= 10, rdx = rax mod 10
+xor rdx, rdx ; or idivident will be dx_ax
+idiv rdi ; rax /= 10, rdx = rax mod 10
 add rdx, '0' ; rdx -> ascii
 push rdx
 inc rsi ; ++digits counter
@@ -55,12 +183,12 @@ cmp rsi, 2d ; it's point time
 je pointput
 cmp rsi, 0d
 jne repput2
-mov byte [rcx], 0ah ; \n symbol 
+mov byte [rcx], 0ah ; \n symbol
 jmp endput
 pointput:
-mov bl, 02ch
+mov bl, 02ch ; point char
 mov byte [rcx], bl
-inc rcx
+inc rcx ; next char
 jmp repput2
 endput:
 ; PUT FUNCTION
@@ -90,7 +218,7 @@ cmp bl, 02dh ; 02dh <- '-'
 je signget
 ; sign
 ; end string
-cmp bl, 0ah ; 0ah <- end string char 
+cmp bl, 0ah ; 0ah <- end string char
 je endget
 ; end string
 ; point
@@ -100,7 +228,7 @@ cmp bl, 02eh ; if (new_char != ',')
 je pointget
 ; point
 sub bl, '0' ; bl (ascii) -> bl (digit)
-mul rdi ; result *= 10
+imul rdi ; result *= 10
 add rax, rbx ; result += new_char
 inc rcx ; next char
 jmp repget ; continue cycle
@@ -114,11 +242,11 @@ inc rcx ; next char
 repget2:
 mov bl, byte [rcx] ; bl = next char
 ; end string
-cmp bl, 0ah ; 0ah <- end string char 
+cmp bl, 0ah ; 0ah <- end string char
 je endget2
 ; end string
 sub bl, '0' ; bl (ascii) -> bl (digit)
-mul rdi ; result *= 10
+imul rdi ; result *= 10
 add rax, rbx ; result += new_char
 inc rcx ; next char
 dec rsi ; --counter
@@ -127,12 +255,12 @@ jmp retget
 endget:
 ; ACCURACY
 mov rcx, 100d
-mul rcx
+imul rcx
 ; ACCURACY
 jmp retget
 endget2:
 repget3:
-mul rdi
+imul rdi
 dec rsi
 jnz repget3
 retget:
@@ -145,24 +273,31 @@ ret
 pow:
 push rbp
 mov rbp, rsp
-mov rbx, rax
+test rcx, 1d ; check if rcx is odd (mod 2 != 0) or even (mod 2 = 0)
+jnz powstart
+add rax, 0
+jns powstart
+neg rax ; if number is even (mod 2 = 0) rax *= -1
+powstart:
+mov rbx, rax ; rbx = factor
 ; ACCURACY
-mov rdi, 100d ; rdx = ACCURACY
-div rdi
-xchg rax, rbx
+mov rdi, 100d ; rdi = ACCURACY
+xor rdx, rdx ; clean rdx
+idiv rdi
+xchg rax, rbx ; rbx = rbx / ACCURACY
 ; ACCURACY
 sub rcx, rdi
 reppow:
-mul rbx
-sub rcx, rdi
-jnz reppow
+imul rbx ; multiply by a factor
+sub rcx, rdi ; --rcx (because rcx is multiplied by REAL_ACCURACY)
+jnz reppow ; continue cycle
 pop rbp
 ret
 
 sqrt:
 push rbp
 mov rbp, rsp
-mov rdx, num
+mov rdx, num ; rdx = memory address for sqrt (num)
 mov qword [rdx], rax ; num = rax
 finit
 fild qword [rdx] ; fpu_reg = num
@@ -171,7 +306,7 @@ fistp qword [rdx] ; num = fpu_reg
 mov rax, qword [rdx] ; rax = num
 ; ACCURACY
 mov rdi, 10d
-mul rdi
+imul rdi
 ; ACCURACY
 pop rbp
 ret

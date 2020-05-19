@@ -1,7 +1,63 @@
 function main ( ) {
     var a = 0 ;
+    var b = 0 ;
+    var c = 0 ;
     get ( a ) ;
-    put ( a ) ;
+    get ( b ) ;
+    get ( c ) ;
+    var temp = call solveSquare ( a , b , c ) ;
     ret 0 ;
 }
 
+function solveSquare ( a , b , c ) {
+    if ( a == 0 ) {
+        var temp = call solveLinear ( b , c ) ;
+    }
+    if-else {
+        if ( c == 0 ) {
+            put ( 2 ) ;
+            put ( 0 ) ;
+            var temp = call solveLinear ( a , b ) ;
+        }
+        if-else {
+            var D = call Discriminant ( a , b , c ) ;
+            if ( D < 0 )
+                put ( 0 ) ;
+            if-else {
+                D = D ^ 0.5 ;
+                if ( D == 0 ) {
+                    put ( 1 ) ;
+                    var x1 = ( 0 - 1 ) * b / ( 2 * a ) ;
+                    put ( x1 ) ;
+                }
+                if-else {
+                    put ( 2 ) ;
+                    var x1 = ( ( 0 - 1 ) * b + D ) / ( 2 * a ) ;
+                    var x2 = ( ( 0 - 1 ) * b - D ) / ( 2 * a ) ;
+                    put ( x1 ) ;
+                    put ( x2 ) ;
+                }
+            }
+        }
+    }
+    ret 0 ;
+}
+
+function solveLinear ( a , b ) {
+    if ( a == 0 ) {
+        if ( b == 0 )
+            put ( 1000 ) ;
+        if-else
+            put ( 0 ) ;
+    }
+    if-else {
+        put ( 1 ) ;
+        var x1 = ( 0 - 1 ) * b / a ;
+        put ( x1 ) ;
+    }
+    ret 0 ;
+}
+
+function Discriminant ( a , b , c ) {
+    ret b ^ 2 - 4 * a * c ;
+}
