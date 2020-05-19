@@ -1,5 +1,7 @@
 function main ( ) {
-    
+    var a = 0 ;
+    get ( a ) ;
+    put ( a ) ;
     ret 0 ;
 }
 
