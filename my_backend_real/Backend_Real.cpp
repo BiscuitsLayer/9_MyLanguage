@@ -1,5 +1,9 @@
 #include "Backend_Real.h"
 
+//TODO Отрицательные числа
+//TODO Дробная степень не 0.5
+//TODO IF без ELSE
+
 size_t NUM_IF = 1;
 size_t NUM_POW = 1;
 size_t locals_num = 0;
@@ -13,15 +17,20 @@ void ASM::GetVarIdx () {
 		temp[i] = funcs[i].val;
 		funcs[i].val = 0;
 	}
+	size_t glob_idx = 1;
 	for (size_t i = 0; i < var_idx; ++i) {
-		if ((int)vars[i].val == GLOBAL)
-			printf ("globals available soon\n");
+		if ((int) vars[i].val == GLOBAL) {
+			asm_vars[i].is_global = true;
+			asm_vars[i].shift = glob_idx++;
+		}
 		else if (funcs[(int)vars[i].val].val < temp[(int)vars[i].val]) {
+			asm_vars[i].is_global = false;
 			asm_vars[i].shift = 8 * (++ funcs[(int) vars[i].val].val + 1); //ещё +1 из-за того, что сначала лежит адрес возврата
 			if (funcs[(int) vars[i].val].val == temp[(int)vars[i].val])
 				temp[(int)vars[i].val] = 0;
 		}
 		else {
+			asm_vars[i].is_global = false;
 			asm_vars[i].shift = 8 * (-- temp[(int)vars[i].val]);
 		}
 	}
@@ -37,11 +46,8 @@ void ASM::TreeToASM (Node *node) {
 	ASM::GetVarIdx ();
 	Node *base = node;
 	while (node->left && node->left->type != TYPE_FUNC) {
-		// TODO походу тут какая то муть в глобальными
-		// ASM::NodeToASM (writefile, node->left);
 		node = node->right;
 	}
-	//TODO что нибудь с глобальными
 	//Вход в программу
 	fprintf (writefile, "section .text\n"
 	                    "global _start\n"
@@ -54,16 +60,17 @@ void ASM::TreeToASM (Node *node) {
 					    "ret\n");
 	ASM::NodeToASM (writefile, node);
 	ASM::ExtraFuncs (writefile);
+	ASM::AddGlobals (writefile);
 	fclose (writefile);
 }
 
 void ASM::NodeToASM (FILE *writefile, Node *node) {
 	if (node->type == TYPE_NUM) {
-		fprintf (writefile, "push %lgd\n", REAL_ACCURACY * node->data);
+		fprintf (writefile, "push %dd\n", (int) (REAL_ACCURACY * node->data));
 	}
 	else if (node->type == TYPE_VAR) {
 		if (asm_vars[(int)node->data].is_global)
-			fprintf (writefile, "push global!!(%d)\n", asm_vars[(int)node->data].shift);
+			fprintf (writefile, "push qword [g%zu]\n", asm_vars[(int)node->data].shift);
 		else
 			fprintf (writefile, "push qword [rbp%+d]\n", asm_vars[(int)node->data].shift);
 	}
@@ -95,7 +102,7 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 				"div rbx\npush rax\n", REAL_ACCURACY);
 				break;
 			}
-			case OP_POW: { //TODO Разобрать случай когда степень дробная, но не 0.5
+			case OP_POW: {
 				size_t num = NUM_POW++;
 				fprintf (writefile, "; POWER FUNCTION\n"
 						            "pop rcx\n"
@@ -128,11 +135,11 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 				break;
 			}
 			case OP_EQUAL: {
-				fprintf (writefile, "pop rax\npop rbx\ncmp rax, rbx\nje ");
+				fprintf (writefile, "pop rax\npop rbx\ncmp rax, rbx\njne ");
 				break;
 			}
 			case OP_UNEQUAL: {
-				fprintf (writefile, "pop rax\npop rbx\ncmp rax, rbx\njne ");
+				fprintf (writefile, "pop rax\npop rbx\ncmp rax, rbx\nje ");
 				break;
 			}
 		}
@@ -162,24 +169,24 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 			case EQUAL: {
 				ASM::NodeToASM (writefile, node->right);
 				if (asm_vars[(int)node->left->data].is_global)
-					fprintf (writefile, "pop global!!(%d)\n", asm_vars[(int)node->left->data].shift);
+					fprintf (writefile, "pop qword [g%zu]\n", asm_vars[(int)node->left->data].shift);
 				else
 					fprintf (writefile, "pop qword [rbp%+d]\n", asm_vars[(int)node->left->data].shift);
 				break;
 			}
 			case RET: {
 				if (node->left->type == TYPE_NUM)
-					fprintf (writefile, "mov rax, %lgd ; return value in rax\n", node->left->data);
+					fprintf (writefile, "mov rax, %dd ; return value in rax\n", (int) (REAL_ACCURACY * node->left->data));
 				else if (node->left->type == TYPE_VAR) {
 					if (asm_vars[(int)node->left->data].is_global)
-						fprintf (writefile, "mov rax global!!(%d) ; return value in rax\n", asm_vars[(int)node->left->data].shift);
+						fprintf (writefile, "mov rax, qword [g%zu] ; return value in rax\n", asm_vars[(int)node->left->data].shift);
 					else
 						fprintf (writefile, "mov rax, qword [rbp%+d] ; return value in rax\n", asm_vars[(int)node->left->data].shift);
 				}
 				else {
 					ASM::NodeToASM (writefile, node->left);
 					if (node->left)
-						fprintf (writefile, "pop rax\n"); //TODO может всё таки push qword rax ???
+						fprintf (writefile, "pop rax ; return value in rax\n");
 				}
 				fprintf (writefile, "add rsp, %dd\n", 8 * locals_num); //Подчищаем место, выделенное под локальные переменные
 				fprintf (writefile, "pop rbp\nret\n");
@@ -187,28 +194,27 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 			}
 			case PUT: {
 				if (node->left->type == TYPE_NUM)
-					fprintf (writefile, "push %lg\n", node->left->data);
+					fprintf (writefile, "push %dd\npop rax\n", (int) (REAL_ACCURACY * node->left->data));
 				else if (node->left->type == TYPE_VAR) {
 					if (asm_vars[(int)node->left->data].is_global)
-						fprintf (writefile, "push global(%d)\n", asm_vars[(int)node->left->data].shift);
+						fprintf (writefile, "mov rax, [g%zu]\n", asm_vars[(int)node->left->data].shift);
 					else
-						fprintf (writefile, "push qword [rbp%+d]\n", asm_vars[(int)node->left->data].shift);
+						fprintf (writefile, "mov rax, [rbp%+d]\n", asm_vars[(int)node->left->data].shift);
 				}
 				else
 					ASM::NodeToASM (writefile, node->left);
-				fprintf (writefile, "out\n");
+				fprintf (writefile, "call put\n");
 				break;
 			}
 			case GET: {
 				if (asm_vars[(int)node->left->data].is_global)
-					fprintf (writefile, "in\npop global!!(%d)\n", asm_vars[(int)node->left->data].shift);
+					fprintf (writefile, "call get\nmov [g%zu], rax\n", asm_vars[(int)node->left->data].shift);
 				else
-					fprintf (writefile, "in\npop qword [rbp%+d]\n", asm_vars[(int)node->left->data].shift);
+					fprintf (writefile, "call get\nmov [rbp%+d], rax\n", asm_vars[(int)node->left->data].shift);
 				break;
 			}
 			case IF: {
 				size_t num = NUM_IF++;
-				//TODO Рассмотреть случай без ELSE
 				ASM::NodeToASM (writefile, node->left);
 				fprintf (writefile, "elseif_%d\n", num);
 				ASM::NodeToASM (writefile, node->right->left);
@@ -236,6 +242,101 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 
 void ASM::ExtraFuncs (FILE *writefile) {
 	fprintf (writefile, "\n"
+			            "put:\n"
+	                    "mov rdi, 10d ; rdi = 10 <- decimal\n"
+					    "xor rsi, rsi\n"
+	                    "repput:\n"
+	                    "xor rdx, rdx ; or divident will be dx_ax\n"
+	                    "div rdi ; rax /= 10, rdx = rax mod 10\n"
+	                    "add rdx, '0' ; rdx -> ascii\n"
+	                    "push rdx\n"
+	                    "inc rsi ; ++digits counter\n"
+	                    "cmp rax, 0 ; while rax != 0\n"
+	                    "jne repput ; continue cycle\n"
+	                    "mov rcx, output ; string offset\n"
+					    "mov rdx, rsi ; output length\n"
+		                "add rdx, 2 ; point char and \\n are printed too!\n"
+	                    "repput2:\n"
+	                    "pop rbx ; pop digit ascii\n"
+	                    "mov byte [rcx], bl\n"
+	                    "inc rcx ; next char\n"
+	                    "dec rsi ; --digits counter\n"
+	                    "cmp rsi, %dd ; it's point time\n"
+	                    "je pointput\n"
+	                    "cmp rsi, 0d\n"
+	                    "jne repput2\n"
+					    "mov byte [rcx], 0ah ; \\n symbol \n"
+	                    "jmp endput\n"
+	                    "pointput:\n"
+	                    "mov bl, 02ch\n"
+	                    "mov byte [rcx], bl\n"
+	                    "inc rcx\n"
+	                    "jmp repput2\n"
+	                    "endput:\n"
+	                    "; PUT FUNCTION\n"
+	                    "mov rax, 4 ; sys_write\n"
+	                    "mov rbx, 1 ; file descriptor = stdout\n"
+	                    "mov rcx, output ; string offset\n"
+	                    "int 0x80\n"
+	                    "; PUT FUNCTION\n"
+	                    "ret\n", EXP_REAL_ACCURACY);
+	fprintf (writefile, "\n"
+	                    "get:\n"
+	                    "; GET FUNCTION\n"
+	                    "mov rax, 3 ; sys_read\n"
+	                    "mov rbx, 1 ; file descriptor = stdin\n"
+	                    "mov rcx, input ; string offset\n"
+	                    "mov rdx, 16d ; input length\n"
+	                    "int 0x80\n"
+	                    "; GET FUNCTION\n"
+	                    "xor rax, rax ; rax = 0 <- result\n"
+	                    "mov rdi, 10d ; rdi = 10 <- decimal\n"
+	                    "mov rcx, input ; string offset\n"
+	                    "repget:\n"
+	                    "mov bl, byte [rcx] ; bl = next char\n"
+	                    "; end string\n"
+	                    "cmp bl, 0ah ; 0ah <- end string char \n"
+	                    "je endget\n"
+	                    "; end string\n"
+	                    "; point\n"
+	                    "cmp bl, 02ch ; if (new_char != ',')\n"
+	                    "je pointget\n"
+	                    "; point\n"
+	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
+	                    "mul rdi ; result *= 10\n"
+	                    "add rax, rbx ; result += new_char\n"
+	                    "inc rcx ; next char\n"
+	                    "jmp repget ; continue cycle\n"
+	                    "pointget:\n"
+	                    "mov rsi, %dd ; rsi = number of digits after the point\n"
+	                    "inc rcx ; next char\n"
+	                    "repget2:\n"
+	                    "mov bl, byte [rcx] ; bl = next char\n"
+	                    "; end string\n"
+	                    "cmp bl, 0ah ; 0ah <- end string char \n"
+	                    "je endget2\n"
+	                    "; end string\n"
+	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
+	                    "mul rdi ; result *= 10\n"
+	                    "add rax, rbx ; result += new_char\n"
+	                    "inc rcx ; next char\n"
+	                    "dec rsi ; --counter\n"
+	                    "jnz repget2 ; continue cycle\n"
+	                    "jmp retget\n"
+	                    "endget:\n"
+	                    "; ACCURACY\n"
+	                    "mov rcx, %dd\n"
+	                    "mul rcx\n"
+	                    "; ACCURACY\n"
+	                    "jmp retget\n"
+	                    "endget2:\n"
+	                    "repget3:\n"
+	                    "mul rdi\n"
+	                    "dec rsi\n"
+	                    "jnz repget3\n"
+	                    "retget:\n"
+	                    "ret\n", EXP_REAL_ACCURACY, REAL_ACCURACY);
+	fprintf (writefile, "\n"
 			            "pow:\n"
 	                    "push rbp\n"
 	                    "mov rbp, rsp\n"
@@ -246,10 +347,10 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "xchg rax, rbx\n"
 	                    "; ACCURACY\n"
 	                    "sub rcx, rdi\n"
-	                    ".for:\n"
+	                    "reppow:\n"
 	                    "mul rbx\n"
 	                    "sub rcx, rdi\n"
-	                    "jnz .for\n"
+	                    "jnz reppow\n"
 	                    "pop rbp\n"
 	                    "ret\n"
 	                    "\n"
@@ -258,6 +359,7 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "mov rbp, rsp\n"
 	                    "mov rdx, num\n"
 	                    "mov qword [rdx], rax ; num = rax\n"
+					    "finit\n"
 	                    "fild qword [rdx] ; fpu_reg = num\n"
 	                    "fsqrt ; fpu_reg = sqrt (fpu_reg)\n"
 	                    "fistp qword [rdx] ; num = fpu_reg\n"
@@ -267,10 +369,24 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "mul rdi\n"
 	                    "; ACCURACY\n"
 	                    "pop rbp\n"
-	                    "ret\n"
-	                    "\n"
+	                    "ret\n", REAL_ACCURACY, SQRT_REAL_ACCURACY);
+	fprintf (writefile, "\n"
 	                    "section .data\n"
+	                    "; FOR PUT\n"
+	                    "output dq 1\n"
+	                    "; FOR PUT\n"
+					    "; FOR GET\n"
+	                    "input dq 1\n"
+	                    "; FOR GET\n"
 	                    "; FOR SQRT OPERATION\n"
-	                    "num db 8\n"
-	                    "; FOR SQRT OPERATION", REAL_ACCURACY, SQRT_REAL_ACCURACY);
+	                    "num dq 8\n"
+	                    "; FOR SQRT OPERATION\n");
+}
+
+void ASM::AddGlobals (FILE *writefile) {
+	for (size_t i = 0; i < var_idx; ++i) {
+		if ((int) vars[i].val == GLOBAL) {
+			fprintf (writefile, "g%d dq 1\n", asm_vars[i].shift);
+		}
+	}
 }

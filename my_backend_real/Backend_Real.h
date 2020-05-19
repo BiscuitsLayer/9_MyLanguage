@@ -17,6 +17,7 @@ extern size_t NUM_POW;
 extern size_t locals_num;
 const int REAL_ACCURACY = 1e2; // Для арифметики с фиксированной точностью
 const int SQRT_REAL_ACCURACY = sqrt (REAL_ACCURACY);
+const int EXP_REAL_ACCURACY = 2; //log (REAL_ACCURACY);
 
 extern ASM_VAR_t asm_vars [ARRAY_SIZE];
 
@@ -25,6 +26,7 @@ namespace ASM {
 	void TreeToASM (Node *node);
 	void NodeToASM (FILE *writefile, Node *node);
 	void ExtraFuncs (FILE *writefile);
+	void AddGlobals (FILE *writefile);
 }
 
 #endif
