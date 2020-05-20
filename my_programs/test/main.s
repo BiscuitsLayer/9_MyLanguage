@@ -85,7 +85,7 @@ push 0d ; push number
 pop rax ; jmp start
 pop rbx
 cmp rax, rbx
-jb elseif_3
+jle elseif_3
 push 0d ; put_start
 pop rax
 call put ; put_end
@@ -119,37 +119,30 @@ push -100d ; push number
 push qword [rbp+24] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 push 200d ; push number
 push qword [rbp+16] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 pop rbx ; div_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
 call mydiv
 push rax ; div_end
 pop qword [rbp-24] ; equal
@@ -164,14 +157,11 @@ push -100d ; push number
 push qword [rbp+24] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 push qword [rbp-16] ; push local variable
 pop rcx ; sum_start
@@ -182,24 +172,20 @@ push 200d ; push number
 push qword [rbp+16] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 pop rbx ; div_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
 call mydiv
 push rax ; div_end
 pop qword [rbp-24] ; equal
@@ -207,14 +193,11 @@ push -100d ; push number
 push qword [rbp+24] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 push qword [rbp-16] ; push local variable
 pop rcx ; sub_start
@@ -225,24 +208,20 @@ push 200d ; push number
 push qword [rbp+16] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 pop rbx ; div_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
 call mydiv
 push rax ; div_end
 pop qword [rbp-32] ; equal
@@ -293,25 +272,21 @@ push -100d ; push number
 push qword [rbp+24] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 push qword [rbp+16] ; push local variable
 pop rbx ; div_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
 call mydiv
 push rax ; div_end
 pop qword [rbp-8] ; equal
@@ -345,26 +320,20 @@ push 400d ; push number
 push qword [rbp+16] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 push qword [rbp+32] ; push local variable
 pop rbx ; mul_start
 pop rax
-xor rdx, rdx ; clean rdx
-mov rcx, 100d
-xchg rax, rbx
-xchg rbx, rcx
-call mydiv
-xchg rbx, rcx
-xchg rax, rbx
+xor rdx, rdx ; or divident will be dx_ax
 call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
 push rax ; mul_end
 pop rcx ; sub_start
 pop rbx
@@ -409,7 +378,7 @@ jns checkdiv
 neg rbx
 dec r8
 checkdiv:
-div rbx
+idiv rbx
 cmp r8, 0d
 je enddiv
 neg rax
@@ -419,18 +388,21 @@ ret
 
 put:
 xor r8, r8 ; r8 <- extra char '-' if number is negative
+xor r9, r9 ; flag if pointput was called
 add rax, 0d ; check if rax is negative
 jns startput ; not negative -> startput
 neg rax ; rax *= -1
 mov rcx, output ; string offset
 mov byte [rcx], 02dh ; '-' char
-inc r8 ; because the nuber is negative
+inc r8 ; because the number is negative
 startput:
 mov rdi, 10d ; rdi = 10 <- decimal
-xor rsi, rsi
+xor rsi, rsi ; rsi <- digits counter
 repput:
 xor rdx, rdx ; or divident will be dx_ax
-idiv rdi ; rax /= 10, rdx = rax mod 10
+xchg rbx, rdi ; to call mydiv
+call mydiv ; rax /= 10, rdx = rax mod 10
+xchg rbx, rdi ; to call mydiv
 add rdx, '0' ; rdx -> ascii
 push rdx
 inc rsi ; ++digits counter
@@ -453,15 +425,43 @@ jne repput2
 mov byte [rcx], 0ah ; \n symbol 
 jmp endput
 pointput:
+inc r9 ; pointput flag
 mov bl, 02ch ; point char
 mov byte [rcx], bl
 inc rcx ; next char
 jmp repput2
 endput:
+mov rcx, output ; string offset
+test r9, r9 ; test pointput flag
+jnz endput2
+push rdx ; save rdx
+push rcx ; save rcx
+xor rdx, rdx ; just clean rdx (no mul or div)
+mov rcx, service_pos; print '0,'
+mov rdi, service_pos_len
+mov dl, byte [rdi]
+test r8, r8 ; check if we need '-' char
+jz nextput ; if we don't
+pop rcx ; slightly change the value of rcx saved
+pop rdx ; slightly change the value of rdx saved
+dec rdx ;  in the main put we don't print '-'
+inc rcx ; starting from the number
+push rdx ; slightly change the value of rdx saved
+push rcx ; slightly change the value of rcx saved
+mov rcx, service_neg; print '-0,'
+mov rdi, service_neg_len
+mov dl, byte [rdi]
+nextput:
+mov rax, 4 ; sys_write
+mov rbx, 1 ; file descriptor = stdout
+int 0x80
+pop rcx ; return saved rcx
+pop rdx ; return saved rdx
+dec rdx ; in the main put we don't print point
+endput2:
 ; PUT FUNCTION
 mov rax, 4 ; sys_write
 mov rbx, 1 ; file descriptor = stdout
-mov rcx, output ; string offset
 int 0x80
 ; PUT FUNCTION
 ret
@@ -495,7 +495,9 @@ cmp bl, 02eh ; if (new_char != ',')
 je pointget
 ; point
 sub bl, '0' ; bl (ascii) -> bl (digit)
-imul rdi ; result *= 10
+xchg rbx, rdi ; to call mymul
+call mymul ; result *= 10
+xchg rbx, rdi ; to call mymul
 add rax, rbx ; result += new_char
 inc rcx ; next char
 jmp repget ; continue cycle
@@ -513,7 +515,9 @@ cmp bl, 0ah ; 0ah <- end string char
 je endget2
 ; end string
 sub bl, '0' ; bl (ascii) -> bl (digit)
-imul rdi ; result *= 10
+xchg rbx, rdi ; to call mymul
+call mymul ; result *= 10
+xchg rbx, rdi ; to call mymul
 add rax, rbx ; result += new_char
 inc rcx ; next char
 dec rsi ; --counter
@@ -522,12 +526,16 @@ jmp retget
 endget:
 ; ACCURACY
 mov rcx, 100d
-imul rcx
+xchg rbx, rcx ; to call mymul
+call mymul
+xchg rbx, rcx ; to call mymul
 ; ACCURACY
 jmp retget
 endget2:
 repget3:
-imul rdi
+xchg rbx, rdi ; to call mymul
+call mymul
+xchg rbx, rdi ; to call mymul
 dec rsi
 jnz repget3
 retget:
@@ -549,13 +557,15 @@ powstart:
 mov rbx, rax ; rbx = factor
 ; ACCURACY
 mov rdi, 100d ; rdi = ACCURACY
-xor rdx, rdx ; clean rdx
-idiv rdi
+xor rdx, rdx ; or divident will be dx_ax
+xchg rbx, rdi ; to call mydiv
+call mydiv
+xchg rbx, rdi ; to call mydiv
 xchg rax, rbx ; rbx = rbx / ACCURACY
 ; ACCURACY
 sub rcx, rdi
 reppow:
-imul rbx ; multiply by a factor
+call mymul ; multiply by a factor
 sub rcx, rdi ; --rcx (because rcx is multiplied by REAL_ACCURACY)
 jnz reppow ; continue cycle
 pop rbp
@@ -573,13 +583,19 @@ fistp qword [rdx] ; num = fpu_reg
 mov rax, qword [rdx] ; rax = num
 ; ACCURACY
 mov rdi, 10d
-imul rdi
+xchg rbx, rdi ; to call mymul
+call mymul
+xchg rbx, rdi ; to call mymul
 ; ACCURACY
 pop rbp
 ret
 
 section .data
 ; FOR PUT
+service_pos db "0,"
+service_pos_len db $ - service_pos
+service_neg db "-0,"
+service_neg_len db $ - service_neg
 output dq 1
 ; FOR PUT
 ; FOR GET

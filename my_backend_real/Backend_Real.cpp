@@ -87,19 +87,19 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 				break;
 			}
 			case OP_MUL: {
-				fprintf (writefile, "pop rbx ; mul_start\npop rax\n"
+				fprintf (writefile, "pop rbx ; mul_start\npop rax\nxor rdx, rdx ; or divident will be dx_ax\ncall mymul\n"
 				//ACCURACY
-				"xor rdx, rdx ; clean rdx\nmov rcx, %dd\nxchg rax, rbx\nxchg rbx, rcx\ncall mydiv\nxchg rbx, rcx\nxchg rax, rbx\n"
+				"xor rdx, rdx ; or divident will be dx_ax\nmov rbx, %dd\ncall mydiv\n"
 	            //ACCURACY
-				"call mymul\npush rax ; mul_end\n", REAL_ACCURACY);
+				"push rax ; mul_end\n", REAL_ACCURACY);
 				break;
 			}
 			case OP_DIV: {
-				fprintf (writefile, "pop rbx ; div_start\npop rax\n"
+				fprintf (writefile, "pop rbx ; div_start\npop rax\nxor rdx, rdx ; or divident will be dx_ax\n"
 				//ACCURACY
-				"xor rdx, rdx ; clean rdx\nmov rcx, %dd\nxchg rax, rbx\nxchg rbx, rcx\ncall mydiv\nxchg rbx, rcx\nxchg rax, rbx\n"
+				"xor rdx, rdx ; or divident will be dx_ax\nmov rcx, rbx\nmov rbx, %dd\ncall mymul\nmov rbx, rcx\ncall mydiv\n"
 				//ACCURACY
-				"call mydiv\npush rax ; div_end\n", REAL_ACCURACY);
+				"push rax ; div_end\n", REAL_ACCURACY);
 				break;
 			}
 			case OP_POW: {
@@ -119,19 +119,19 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 				break;
 			}
 			case OP_ABOVE: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\nja ");
+				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njge ");
 				break;
 			}
 			case OP_ABOVE_EQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njae ");
+				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njg ");
 				break;
 			}
 			case OP_BELOW: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njb ");
+				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njle ");
 				break;
 			}
 			case OP_BELOW_EQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njbe ");
+				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njl ");
 				break;
 			}
 			case OP_EQUAL: {
@@ -278,7 +278,7 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "neg rbx\n"
 	                    "dec r8\n"
 	                    "checkdiv:\n"
-	                    "div rbx\n"
+	                    "idiv rbx\n"
 	                    "cmp r8, 0d\n"
 	                    "je enddiv\n"
 	                    "neg rax\n"
@@ -288,18 +288,21 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	fprintf (writefile, "\n"
 			            "put:\n"
 	                    "xor r8, r8 ; r8 <- extra char '-' if number is negative\n"
+					    "xor r9, r9 ; flag if pointput was called\n"
 	                    "add rax, 0d ; check if rax is negative\n"
 	                    "jns startput ; not negative -> startput\n"
 	                    "neg rax ; rax *= -1\n"
 	                    "mov rcx, output ; string offset\n"
 	                    "mov byte [rcx], 02dh ; '-' char\n"
-	                    "inc r8 ; because the nuber is negative\n"
+	                    "inc r8 ; because the number is negative\n"
 	                    "startput:\n"
 	                    "mov rdi, 10d ; rdi = 10 <- decimal\n"
-					    "xor rsi, rsi\n"
+					    "xor rsi, rsi ; rsi <- digits counter\n"
 	                    "repput:\n"
 	                    "xor rdx, rdx ; or divident will be dx_ax\n"
-	                    "idiv rdi ; rax /= 10, rdx = rax mod 10\n"
+					    "xchg rbx, rdi ; to call mydiv\n"
+	                    "call mydiv ; rax /= 10, rdx = rax mod 10\n"
+	                    "xchg rbx, rdi ; to call mydiv\n"
 	                    "add rdx, '0' ; rdx -> ascii\n"
 	                    "push rdx\n"
 	                    "inc rsi ; ++digits counter\n"
@@ -322,15 +325,43 @@ void ASM::ExtraFuncs (FILE *writefile) {
 					    "mov byte [rcx], 0ah ; \\n symbol \n"
 	                    "jmp endput\n"
 	                    "pointput:\n"
+					    "inc r9 ; pointput flag\n"
 	                    "mov bl, 02ch ; point char\n"
 	                    "mov byte [rcx], bl\n"
 	                    "inc rcx ; next char\n"
 	                    "jmp repput2\n"
 	                    "endput:\n"
+	                    "mov rcx, output ; string offset\n"
+	                    "test r9, r9 ; test pointput flag\n"
+	                    "jnz endput2\n"
+                        "push rdx ; save rdx\n"
+                        "push rcx ; save rcx\n"
+                        "xor rdx, rdx ; just clean rdx (no mul or div)\n"
+                        "mov rcx, service_pos; print '0,'\n"
+                        "mov rdi, service_pos_len\n"
+	                    "mov dl, byte [rdi]\n"
+                        "test r8, r8 ; check if we need '-' char\n"
+                        "jz nextput ; if we don't\n"
+                        "pop rcx ; slightly change the value of rcx saved\n"
+	                    "pop rdx ; slightly change the value of rdx saved\n"
+					    "dec rdx ;  in the main put we don't print \'-\'\n"
+                        "inc rcx ; starting from the number\n"
+	                    "push rdx ; slightly change the value of rdx saved\n"
+                        "push rcx ; slightly change the value of rcx saved\n"
+                        "mov rcx, service_neg; print '-0,'\n"
+                        "mov rdi, service_neg_len\n"
+	                    "mov dl, byte [rdi]\n"
+                        "nextput:\n"
+                        "mov rax, 4 ; sys_write\n"
+                        "mov rbx, 1 ; file descriptor = stdout\n"
+                        "int 0x80\n"
+                        "pop rcx ; return saved rcx\n"
+                        "pop rdx ; return saved rdx\n"
+						"dec rdx ; in the main put we don't print point\n"
+	                    "endput2:\n"
 	                    "; PUT FUNCTION\n"
 	                    "mov rax, 4 ; sys_write\n"
 	                    "mov rbx, 1 ; file descriptor = stdout\n"
-	                    "mov rcx, output ; string offset\n"
 	                    "int 0x80\n"
 	                    "; PUT FUNCTION\n"
 	                    "ret\n", EXP_REAL_ACCURACY);
@@ -364,7 +395,9 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "je pointget\n"
 	                    "; point\n"
 	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
-	                    "imul rdi ; result *= 10\n"
+					    "xchg rbx, rdi ; to call mymul\n"
+	                    "call mymul ; result *= 10\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
 	                    "add rax, rbx ; result += new_char\n"
 	                    "inc rcx ; next char\n"
 	                    "jmp repget ; continue cycle\n"
@@ -382,7 +415,9 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "je endget2\n"
 	                    "; end string\n"
 	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
-	                    "imul rdi ; result *= 10\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
+	                    "call mymul ; result *= 10\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
 	                    "add rax, rbx ; result += new_char\n"
 	                    "inc rcx ; next char\n"
 	                    "dec rsi ; --counter\n"
@@ -391,12 +426,16 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "endget:\n"
 	                    "; ACCURACY\n"
 	                    "mov rcx, %dd\n"
-	                    "imul rcx\n"
+	                    "xchg rbx, rcx ; to call mymul\n"
+	                    "call mymul\n"
+	                    "xchg rbx, rcx ; to call mymul\n"
 	                    "; ACCURACY\n"
 	                    "jmp retget\n"
 	                    "endget2:\n"
 	                    "repget3:\n"
-	                    "imul rdi\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
+	                    "call mymul\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
 	                    "dec rsi\n"
 	                    "jnz repget3\n"
 	                    "retget:\n"
@@ -418,13 +457,15 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "mov rbx, rax ; rbx = factor\n"
 	                    "; ACCURACY\n"
 	                    "mov rdi, %dd ; rdi = ACCURACY\n"
-					    "xor rdx, rdx ; clean rdx\n"
-	                    "idiv rdi\n"
+					    "xor rdx, rdx ; or divident will be dx_ax\n"
+		                "xchg rbx, rdi ; to call mydiv\n"
+	                    "call mydiv\n"
+	                    "xchg rbx, rdi ; to call mydiv\n"
 	                    "xchg rax, rbx ; rbx = rbx / ACCURACY\n"
 	                    "; ACCURACY\n"
 	                    "sub rcx, rdi\n"
 	                    "reppow:\n"
-	                    "imul rbx ; multiply by a factor\n"
+	                    "call mymul ; multiply by a factor\n"
 	                    "sub rcx, rdi ; --rcx (because rcx is multiplied by REAL_ACCURACY)\n"
 	                    "jnz reppow ; continue cycle\n"
 	                    "pop rbp\n"
@@ -442,13 +483,19 @@ void ASM::ExtraFuncs (FILE *writefile) {
 	                    "mov rax, qword [rdx] ; rax = num\n"
 	                    "; ACCURACY\n"
 	                    "mov rdi, %dd\n"
-	                    "imul rdi\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
+	                    "call mymul\n"
+	                    "xchg rbx, rdi ; to call mymul\n"
 	                    "; ACCURACY\n"
 	                    "pop rbp\n"
 	                    "ret\n", REAL_ACCURACY, SQRT_REAL_ACCURACY);
 	fprintf (writefile, "\n"
 	                    "section .data\n"
 	                    "; FOR PUT\n"
+					    "service_pos db \"0,\"\n"
+	                    "service_pos_len db $ - service_pos\n"
+	                    "service_neg db \"-0,\"\n"
+	                    "service_neg_len db $ - service_neg\n"
 	                    "output dq 1\n"
 	                    "; FOR PUT\n"
 					    "; FOR GET\n"
