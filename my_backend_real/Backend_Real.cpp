@@ -1,15 +1,14 @@
 #include "Backend_Real.h"
 
-//TODO Посмотреть что там с умножением двух отриц чисел в функции степени
 //TODO Дробная степень не 0.5
 //TODO IF без ELSE
 
-size_t NUM_IF = 1;
-size_t NUM_POW = 1;
-size_t locals_num = 0;
+static size_t NUM_IF = 1;
+static size_t NUM_POW = 1;
+static size_t locals_num = 0;
 
 ASM_VAR_t asm_vars [ARRAY_SIZE];
-int temp [ARRAY_SIZE];
+static int temp [ARRAY_SIZE];
 
 void ASM::GetVarIdx () {
 	//Временно запомним число переменных в каждой функции

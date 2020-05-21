@@ -14,7 +14,6 @@
 //TODO return со значением и без
 
 int main () {
-	//CreateELF ();
 	//UserInterfaceMain ();
 
 	Node *root = nullptr;
@@ -36,11 +35,15 @@ int main () {
 	Dot::PrintTree (root);
 	printf ("Handled successfully\n\n");
 
-	printf ("Turning on ASM...\n");
-	ASM::TreeToASM (root);
+	//printf ("Turning on ASM...\n");
+	//ASM::TreeToASM (root);
 	//AssemblerMain ();
 	//CPUMain ();
-	printf ("Turning off ASM...\nSuccess\n\n");
+	//printf ("Turning off ASM...\nSuccess\n\n");
+
+	printf ("Turning on ELF Generator...\n");
+	ELF::CreateELF (root);
+	printf ("Turning off ELF Generator...\nSuccess\n\n");
 
 	free (filepath);
 	Tree::FreeNode (root);
