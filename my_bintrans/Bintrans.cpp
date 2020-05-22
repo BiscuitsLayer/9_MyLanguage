@@ -14,6 +14,7 @@ const int CODE_SIZE = 10000;
 static char code [CODE_SIZE]; //Сначала пишем программу сюда, потом меняем размеры и адреса
 static size_t code_idx = 0; //Индекс в массиве, который содержит программу
 
+const int EMPTY = -1;
 static LABEL_t labels [ARRAY_SIZE];
 static size_t labels_idx = 0;
 
@@ -21,16 +22,23 @@ static LABEL_REQUEST_t label_reqs [ARRAY_SIZE];
 static size_t label_reqs_idx = 0;
 
 int ELF::GetLabelAddress (char name[ARRAY_SIZE], LABEL_REQUEST_TYPE type) {
+	int flag = 0;
 	for (int i = 0; i < labels_idx; ++i) {
-		if (strcmp (labels[i].name, name) == 0) {
-			if (type != REQUEST_TYPE_MOV)
-				return labels[i].code_ptr - code_idx;
-			else
-				return labels[i].code_ptr + START_ADDRESS;
+		if ((int)(labels[i].code_ptr - code_idx) < 0)
+			flag = 1;
+		if ((strcmp (labels[i].name, name) == 0) && ((int)labels[i].code_ptr != EMPTY)) {
+			switch (type) {
+				case REQUEST_TYPE_CALL:  //REQUEST_TYPE_JUMP <- тоже самое
+					return (labels[i].code_ptr - code_idx + 0xFFFFFFFF - _CALL_LEN + flag) % (0xFFFFFFFF);
+				case REQUEST_TYPE_J_COND:
+					return (labels[i].code_ptr - code_idx + 0xFFFFFFFF - _J_COND_LEN + flag) % (0xFFFFFFFF);
+				case REQUEST_TYPE_MOV:
+					return labels[i].code_ptr + START_ADDRESS;
+			}
 		}
 	}
-	strcpy (labels[labels_idx].name, name); //Работвем с массивом меток
-	labels[labels_idx++].code_ptr = 0;
+	strcpy (labels[labels_idx].name, name); //Работаем с массивом меток
+	labels[labels_idx++].code_ptr = EMPTY;
 	strcpy (label_reqs[label_reqs_idx].name, name); //Работаем с массивом запросов (сохраняем искомое имя)
 	label_reqs[label_reqs_idx].code_idx_request = code_idx; //Сохраняем место в коде, где был запрос на метку
 	label_reqs[label_reqs_idx].type = type;
@@ -86,7 +94,7 @@ void ELF::ELF_Header (FILE *writefile) {
 
 void ELF::Program_Header (FILE *writefile) {
 	Insert (4, 0x01, 0x00, 0x00, 0x00) //P_TYPE = Loadable program segment
-	Insert (4, 0x05, 0x00, 0x00, 0x00) //P_FLAGS = Segment is readable and executable
+	Insert (4, 0x07, 0x00, 0x00, 0x00) //P_FLAGS = Segment is readable, writable and executable
 	MultiInsert (8, 0x00) //P_OFFSET
 	//Virtual address
 	Insert (4, 0x00, 0x00, 0x40, 0x00)
@@ -173,15 +181,16 @@ void ELF::TreeToELF (Node *node, FILE *writefile) {
 		node = node->right;
 	}
 	//Вход в программу
-	code_idx += 21; //Выставляем адрес
+	code_idx += 22; //Выставляем адрес
 	SetLabelAddress ("main"); //Функции main
-	code_idx -= 21; //Возвращаемся назад
+	code_idx -= 22; //Возвращаемся назад
 	Insert (5, _CALL (GetLabelAddress ("main", REQUEST_TYPE_CALL))) //Вызов main
 
 	//Выход из программы
 	Insert (7, _MOV_R_N (_RAX, 0x3C))
 	Insert (7, _MOV_R_N (_RDI, 0))
 	Insert (2, _SYSCALL)
+	Insert (1, _RET)
 	ELF::NodeToELF (writefile, node);
 	ELF::ExtraFuncs (writefile);
 	//ELF::AddGlobals (writefile);
@@ -541,14 +550,14 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	SetLabelAddress ("nextput");
 	Insert (7, _MOV_R_N (_RAX, 4)) //sys_write
 	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdout
-	Insert (2, _SYSCALL)
+	Insert (2, _INT_0x80)
 	Insert (1, _POP_R (_RCX))
 	Insert (1, _POP_R (_RDX))
 	Insert (3, _DEC_R (_RDX)) //В основной печати мы не пишем ','
 	SetLabelAddress ("endput2");
 	Insert (7, _MOV_R_N (_RAX, 4)) //sys_write
 	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdout
-	Insert (2, _SYSCALL)
+	Insert (2, _INT_0x80)
 	Insert (1, _RET)
 	/*   GET    */
 	SetLabelAddress ("get");
@@ -556,7 +565,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdin
 	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("input", REQUEST_TYPE_MOV)))
 	Insert (7, _MOV_R_N (_RDX, 16)) //Длина
-	Insert (2, _SYSCALL)
+	Insert (2, _INT_0x80)
 	Insert (3, _XOR_PROR_PROR (_R8, _R8)) //Будет доп. символ '-' в случае отриц. числа
 	Insert (3, _XOR_R_R (_RAX, _RAX)) //В RAX будет результат
 	Insert (7, _MOV_R_N (_RDI, 10)) //Десятичная система счисления
@@ -568,7 +577,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (6, _JE (GetLabelAddress ("signget", REQUEST_TYPE_J_COND)))
 	//Проверяем знак
 	//Проверяем конец строки
-	Insert (3, _CMP_MINIR_N (_BL, 0x2a))
+	Insert (3, _CMP_MINIR_N (_BL, 0xa))
 	Insert (6, _JE (GetLabelAddress ("endget", REQUEST_TYPE_J_COND)))
 	//Проверяем конец строки
 	//Проверка ',' или '.'
@@ -708,35 +717,35 @@ void ELF::HandleLabels () {
 			if (strcmp (label_reqs[i].name, labels[j].name) == 0) {
 				if (label_reqs[i].type == REQUEST_TYPE_CALL) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 1] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 2] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 3] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_JUMP) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 1] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 2] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 3] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_J_COND) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 1] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 2] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 3] = \
-					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_MOV) {
@@ -758,10 +767,8 @@ void ELF::HandleLabels () {
 			if (j == labels_idx - 1)
 				printf ("not found label %s\n", label_reqs[i].name);
 		}
-		/*
-		for (int k = label_reqs[i].code_idx_request; k <= label_reqs[i].code_idx_request + 4; ++k)
-			printf ("%x ", code[k]);
-		printf ("\n");
-		 */
 	}
+	for (int k = 0; k < labels_idx; ++k)
+		printf ("label \"%s\" is on the address 0x%x\n", labels[k].name, labels[k].code_ptr + START_ADDRESS);
+
 }

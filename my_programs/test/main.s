@@ -10,13 +10,339 @@ ret
 main:
 push rbp ; typical function entry
 mov rbp, rsp
-sub rsp, 8d ; space for locals
+sub rsp, 32d ; space for locals
+push 0d ; push number
+pop qword [rbp-8] ; equal
+push 0d ; push number
+pop qword [rbp-16] ; equal
+push 0d ; push number
+pop qword [rbp-24] ; equal
+call get ; get_start
+mov [rbp-8], rax ; get_end
+call get ; get_start
+mov [rbp-16], rax ; get_end
+call get ; get_start
+mov [rbp-24], rax ; get_end
+push qword [rbp-24] ; push local variable
+push qword [rbp-16] ; push local variable
+push qword [rbp-8] ; push local variable
+call solveSquare
+add rsp, 24d ; clean space for arguments
+push qword rax ; push the value just returned
+pop qword [rbp-32] ; equal
+mov rax, 0d ; return value in rax
+add rsp, 32d ; clean space for locals
+pop rbp ; typical function exit
+ret
+
+solveSquare:
+push rbp ; typical function entry
+mov rbp, rsp
+sub rsp, 32d ; space for locals
+push qword [rbp+16] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jne elseif_1
+push qword [rbp+32] ; push local variable
+push qword [rbp+24] ; push local variable
+call solveLinear
+add rsp, 16d ; clean space for arguments
+push qword rax ; push the value just returned
+pop qword [rbp-8] ; equal
+jmp endif_1
+elseif_1:
+push qword [rbp+32] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jne elseif_2
+push 200d ; put_start
+pop rax
+call put ; put_end
+push 0d ; put_start
+pop rax
+call put ; put_end
+push qword [rbp+24] ; push local variable
+push qword [rbp+16] ; push local variable
+call solveLinear
+add rsp, 16d ; clean space for arguments
+push qword rax ; push the value just returned
+pop qword [rbp-8] ; equal
+jmp endif_2
+elseif_2:
+push qword [rbp+32] ; push local variable
+push qword [rbp+24] ; push local variable
+push qword [rbp+16] ; push local variable
+call Discriminant
+add rsp, 24d ; clean space for arguments
+push qword rax ; push the value just returned
+pop qword [rbp-16] ; equal
+mov rax, [rbp-16]
+call put ; put_end
+push qword [rbp-16] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jle elseif_3
+push 0d ; put_start
+pop rax
+call put ; put_end
+jmp endif_3
+elseif_3:
+push qword [rbp-16] ; push local variable
+push 50d ; push number
+; POWER FUNCTION
+pop rcx
+pop rax
+cmp rcx, 50d ; compare if sqrt or not
+je sqrt_1
+call pow ; just power
+jmp endpow_1
+sqrt_1:
+call sqrt ; just sqrt
+endpow_1:
+push rax
+; POWER FUNCTION
+pop qword [rbp-16] ; equal
+push qword [rbp-16] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jne elseif_4
+push 100d ; put_start
+pop rax
+call put ; put_end
+push -100d ; push number
+push qword [rbp+24] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
 push 200d ; push number
+push qword [rbp+16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+pop rbx ; div_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
+call mydiv
+push rax ; div_end
+pop qword [rbp-24] ; equal
+mov rax, [rbp-24]
+call put ; put_end
+jmp endif_4
+elseif_4:
+push 200d ; put_start
+pop rax
+call put ; put_end
+push -100d ; push number
+push qword [rbp+24] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+push qword [rbp-16] ; push local variable
+pop rcx ; sum_start
+pop rbx
+add rbx, rcx
+push rbx ; sum_end
+push 200d ; push number
+push qword [rbp+16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+pop rbx ; div_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
+call mydiv
+push rax ; div_end
+pop qword [rbp-24] ; equal
+push -100d ; push number
+push qword [rbp+24] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+push qword [rbp-16] ; push local variable
+pop rcx ; sub_start
+pop rbx
+sub rbx, rcx
+push rbx ; sub_end
+push 200d ; push number
+push qword [rbp+16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+pop rbx ; div_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
+call mydiv
+push rax ; div_end
+pop qword [rbp-32] ; equal
+mov rax, [rbp-24]
+call put ; put_end
+mov rax, [rbp-32]
+call put ; put_end
+endif_4:
+endif_3:
+endif_2:
+endif_1:
+mov rax, 0d ; return value in rax
+add rsp, 32d ; clean space for locals
+pop rbp ; typical function exit
+ret
+
+solveLinear:
+push rbp ; typical function entry
+mov rbp, rsp
+sub rsp, 8d ; space for locals
+push qword [rbp+16] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jne elseif_5
+push qword [rbp+24] ; push local variable
+push 0d ; push number
+pop rax ; jmp start
+pop rbx
+cmp rax, rbx
+jne elseif_6
+push 100000d ; put_start
+pop rax
+call put ; put_end
+jmp endif_6
+elseif_6:
+push 0d ; put_start
+pop rax
+call put ; put_end
+endif_6:
+jmp endif_5
+elseif_5:
+push 100d ; put_start
+pop rax
+call put ; put_end
+push -100d ; push number
+push qword [rbp+24] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+push qword [rbp+16] ; push local variable
+pop rbx ; div_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+xor rdx, rdx ; or divident will be dx_ax
+mov rcx, rbx
+mov rbx, 100d
+call mymul
+mov rbx, rcx
+call mydiv
+push rax ; div_end
 pop qword [rbp-8] ; equal
 mov rax, [rbp-8]
 call put ; put_end
+endif_5:
 mov rax, 0d ; return value in rax
 add rsp, 8d ; clean space for locals
+pop rbp ; typical function exit
+ret
+
+Discriminant:
+push rbp ; typical function entry
+mov rbp, rsp
+sub rsp, 0d ; space for locals
+push qword [rbp+24] ; push local variable
+push 200d ; push number
+; POWER FUNCTION
+pop rcx
+pop rax
+cmp rcx, 50d ; compare if sqrt or not
+je sqrt_2
+call pow ; just power
+jmp endpow_2
+sqrt_2:
+call sqrt ; just sqrt
+endpow_2:
+push rax
+; POWER FUNCTION
+push 400d ; push number
+push qword [rbp+16] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+push qword [rbp+32] ; push local variable
+pop rbx ; mul_start
+pop rax
+xor rdx, rdx ; or divident will be dx_ax
+call mymul
+xor rdx, rdx ; or divident will be dx_ax
+mov rbx, 100d
+call mydiv
+push rax ; mul_end
+pop rcx ; sub_start
+pop rbx
+sub rbx, rcx
+push rbx ; sub_end
+pop rax ; return value in rax
+add rsp, 0d ; clean space for locals
 pop rbp ; typical function exit
 ret
 
