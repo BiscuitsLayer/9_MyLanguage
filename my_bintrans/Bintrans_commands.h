@@ -1,87 +1,111 @@
 //REGISTERS
-const int REGLEN = 1;
-#define RAX 0b00000000
-#define RCX 0b00000001
-#define RDX 0b00000010
-#define RBX 0b00000011
-#define RSP 0b00000100
-#define RBP 0b00000101
-#define RSI 0b00000110
-#define RDI 0b00000111
+//size = 1
+#define _RAX 0b00000000
+#define _RCX 0b00000001
+#define _RDX 0b00000010
+#define _RBX 0b00000011
+#define _RSP 0b00000100
+#define _RBP 0b00000101
+#define _RSI 0b00000110
+#define _RDI 0b00000111
 
 //PROREGISTERS
-const int PROREGLEN = 1;
-#define R8 0b00000000
-#define R9 0b00000001
-#define R10 0b00000010
-#define R11 0b00000011
-#define R12 0b00000100
-#define R13 0b00000101
-#define R14 0b00000110
-#define R15 0b00000111
+//size = 1
+#define _R8 0b00000000
+#define _R9 0b00000001
+#define _R10 0b00000010
+#define _R11 0b00000011
+#define _R12 0b00000100
+#define _R13 0b00000101
+#define _R14 0b00000110
+#define _R15 0b00000111
 
 //MATH
-const int MATHLEN = 3;
-#define INC(REG) 0b01001000, 0b11111111, 0b11000000 | REG
-#define DEC(REG) 0b01001000, 0b11111111, 0b11001000 | REG
-#define ADD_R_R(REG1, REG2) 0b01001000, 0b00000001, 0b11000000 | REG1 | (REG2 << 3)
-#define ADD_R_N ?
-#define SUB_R_R(REG1, REG2) 0b01001000, 0b00101001, 0b11000000 | REG1 | (REG2 << 3)
-#define SUB_R_N ?
-
-#define IMUL(REG) 0b01001000, 0b11110111, 0b11101000 | REG
-#define IDIV(REG) 0b01001000, 0b11110111, 0b11111000 | REG
+//size = 7
+#define _ADD_R_N(REG, NUM) 0b01001000, 0b10000001, 0b11000000 | REG, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+#define _SUB_R_N(REG, NUM) 0b01001000, 0b10000001, 0b11101000 | REG, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+//size = 3
+#define _INC(REG) 0b01001000, 0b11111111, 0b11000000 | REG
+#define _DEC(REG) 0b01001000, 0b11111111, 0b11001000 | REG
+#define _ADD_R_R(REG1, REG2) 0b01001000, 0b00000001, 0b11000000 | REG1 | (REG2 << 3)
+#define _SUB_R_R(REG1, REG2) 0b01001000, 0b00101001, 0b11000000 | REG1 | (REG2 << 3)
+#define _IMUL(REG) 0b01001000, 0b11110111, 0b11101000 | REG
+#define _IDIV(REG) 0b01001000, 0b11110111, 0b11111000 | REG
 
 //SYSTEM
-const int SYSLEN = 2;
-#define SYSCALL 0b00001111, 0b00000101
-#define CALL ?
-#define RET ?
+//size = 5
+#define _CALL_LEN 5
+#define _CALL(OFFSET) 0b11101000, ((((OFFSET) + 256 - _CALL_LEN) % 256) & 0x000000FF), ((((OFFSET) + 256 - _CALL_LEN) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256 - _CALL_LEN) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256 - _CALL_LEN) % 256) & 0xFF000000) >> 24
+//size = 2
+#define _SYSCALL 0b00001111, 0b00000101
+//size = 1
+#define _RET 0b11000011
 
 //STACK
-const int STACKLEN = 1;
-#define PUSH_R(REG) 0b01010000 | REG
-#define PUSH_N(NUM) ?
-#define PUSH_M(M) ?
-#define POP_R(REG) 0b01011000 | REG
+//size = 5
+#define _PUSH_N(NUM) 0b01101000, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+//size = 3
+#define _PUSH_MR_N(REG, NUM) 0b11111111, 0b01110000 | REG, (((256 + (NUM)) % 256) & 0x000000FF)
+#define _POP_MR_N(REG, NUM) 0b10001111, 0b01000000 | REG, (((256 + (NUM)) % 256) & 0x000000FF)
+//size = 2
+#define _PUSH_PROR(REG) 0b01000001, 0b01010000 | REG
+#define _POP_PROR(PROREG) 0b01000001, 0b01011000 | PROREG
+//size = 1
+#define _PUSH_R(REG) 0b01010000 | REG
+#define _POP_R(REG) 0b01011000 | REG
+
 
 //MEMORY
-const int MEMLEN = 7;
-#define MOV_R_N(REG, NUM) 0b01001000, 0b11000111, 0b11000000 | REG, (NUM & 0x000000FF), (NUM & 0x0000FF00) >> 8, (NUM & 0x00FF0000) >> 16, (NUM & 0xFF000000) >> 24
-#define MOV_R_R(REG1, REG2) ?
-#define MOV_R_M(REG, MEM) ?
-#define MOV_M_R(MEM, REG) ?
-#define XCHG_R_R(REG1, REG2) ?
+//size = 10
+#define _MOV_R_M(REG, MEM) 0b01001000, 0b10111000, MEMORYADDRESS 8 BYTES
+#define _MOV_M_R(MEM, REG) ?
+//size = 7
+#define _MOV_R_N(REG, NUM) 0b01001000, 0b11000111, 0b11000000 | REG, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+//size = 4
+#define _MOV_MR_N_R(REG1, NUM, REG2) 0b01001000, 0b10001001, 0b01000000 | REG1 | (REG2 << 3), (((256 + (NUM)) % 256) & 0x000000FF)
+#define _MOV_R_MR_N(REG1, REG2, NUM) 0b01001000, 0b10001011, 0b01000000 | REG1 | (REG2 << 3), (((256 + (NUM)) % 256) & 0x000000FF)
+//size = 3
+#define _MOV_R_R(REG1, REG2) 0b01001000, 0b10001001, 0b11000000 | REG1 | (REG2 << 3)
+#define _XCHG_R_R(REG1, REG2) 0b01001000, 0b10000111, 0b11000000 | REG1 | (REG2 << 3)
 
-//MOV BYTE BL, NUM ???
+//MOV BYTE BL, (NUM) ???
 //MOV BYTE MEM, BL
-//MOV BL, NUM
+//MOV BL, (NUM)
 
 //LOGIC
-#define NEGAT_R(REG) ? //Политкорректное имя
-#define XOR_R_R(REG1, REG2) 0b01001000, 0b00110001, 0b11000000 | REG1 | (REG2 << 3)
-#define TEST_R_R(REG1, REG2) 0b01001000, 0b10000101, 0b11000000 | REG1 | (REG2 << 3)
-#define TEST_R_N(REG, NUM) ?
-#define CMP_R_N(REG, NUM) ?
-#define CMP_R_R(REG1, REG2) 0b01001000, 0b00111001, 0b11000000 | REG1 | (REG2 << 3)
+//size = 7
+#define _TEST_R_N(REG, NUM) 0b01001000, 0b11110111, 0b11000000 | REG, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+#define _CMP_R_N(REG, NUM) 0b01001000, 0b10000001, 0b11111000 | REG, ((NUM) & 0x000000FF), ((NUM) & 0x0000FF00) >> 8, ((NUM) & 0x00FF0000) >> 16, ((NUM) & 0xFF000000) >> 24
+//size = 3
+#define _NEGAT_R(REG) 0b01001000, 0b11110111, 0b11011000 | REG //Политкорректное имя
+#define _XOR_R_R(REG1, REG2) 0b01001000, 0b00110001, 0b11000000 | REG1 | (REG2 << 3)
+#define _XOR_PROR_PROR(PROREG1, PROREG2) 0b01001101, 0b00110001, 0b11000000 | PROREG1 | (PROREG2 << 3)
+#define _TEST_R_R(REG1, REG2) 0b01001000, 0b10000101, 0b11000000 | REG1 | (REG2 << 3)
+#define _CMP_R_R(REG1, REG2) 0b01001000, 0b00111001, 0b11000000 | REG1 | (REG2 << 3)
 
 //JUMPS
-#define JMP ?
-#define JE ?
-#define JNE ?
-#define JG ?
-#define JGE ?
-#define JL ?
-#define JLE ?
-#define JS ?
-#define JNS ?
-
-//JZ ?? JNZ ??
+//size = 6
+#define _J_COND_LEN 6
+#define _JE(OFFSET) 0b00001111, 0b10000100, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JZ(OFFSET) JE((OFFSET))
+#define _JNE(OFFSET) 0b00001111, 0b10000101, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JNZ(OFFSET) JNE((OFFSET))
+#define _JG(OFFSET) 0b00001111, 0b10001111, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JGE(OFFSET) 0b00001111, 0b10001101, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JL(OFFSET) 0b00001111, 0b10001100, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JLE(OFFSET) 0b00001111, 0b10001110, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JS(OFFSET) 0b00001111, 0b10001000, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+#define _JNS(OFFSET) 0b00001111, 0b10001001, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
+//size = 5
+#define _JUMP_LEN 5
+#define _JMP(OFFSET) 0b11101001, ((((OFFSET) + 256) % 256) & 0x000000FF), ((((OFFSET) + 256) % 256) & 0x0000FF00) >> 8, ((((OFFSET) + 256) % 256) & 0x00FF0000) >> 16, ((((OFFSET) + 256) % 256) & 0xFF000000) >> 24
 
 //SQRT
-#define FINIT 0b10011011, 0b11011011, 0b11100011
-#define FILD_MR(REG) 0b11011111, 0b00101000 | REG //Вместо указателя на память значение регистра
-#define FSQRT 0b11011001, 0b11111010
-#define FISTP_MR(REG) 0b11011111, 0b00111000 | REG //Вместо указателя на память значение регистра
+//size = 3
+#define _FINIT 0b10011011, 0b11011011, 0b11100011
+//size = 2
+#define _FILD_MR(REG) 0b11011111, 0b00101000 | REG //Вместо указателя на память значение регистра
+#define _FSQRT 0b11011001, 0b11111010
+#define _FISTP_MR(REG) 0b11011111, 0b00111000 | REG //Вместо указателя на память значение регистра
 
 //Разберись с section test И data

@@ -13,6 +13,38 @@ const int CODE_SIZE = 10000;
 static char code [CODE_SIZE]; //Сначала пишем программу сюда, потом меняем размеры и адреса
 static size_t code_idx = 0; //Индекс в массиве, который содержит программу
 
+static LABEL_t labels [ARRAY_SIZE];
+static size_t labels_idx = 0;
+
+static LABEL_REQUEST_t label_reqs [ARRAY_SIZE];
+static size_t label_reqs_idx = 0;
+
+int ELF::GetLabelAddress (char name[ARRAY_SIZE], LABEL_REQUEST_TYPE type) {
+	for (int i = 0; i < labels_idx; ++i) {
+		if (strcmp (labels[i].name, name) == 0) {
+			return labels[i].code_ptr - code_idx;
+		}
+	}
+	strcpy (labels[labels_idx].name, name); //Работвем с массивом меток
+	labels[labels_idx++].code_ptr = 0;
+	strcpy (label_reqs[label_reqs_idx].name, name); //Работаем с массивом запросов (сохраняем искомое имя)
+	label_reqs[label_reqs_idx].code_idx_request = code_idx; //Сохраняем место в коде, где был запрос на метку
+	label_reqs[label_reqs_idx].type = type;
+	label_reqs_idx++; //Увеличиваем количество запроосов
+	return (0x90 << 24) | (0x90 << 16) | (0x90 << 8) | (0x90);
+}
+
+void ELF::SetLabelAddress (char name[ARRAY_SIZE]) {
+	for (int i = 0; i < labels_idx; ++i) {
+		if (strcmp (labels[i].name, name) == 0) {
+			labels[i].code_ptr = code_idx;
+			return;
+		}
+	}
+	strcpy(labels[labels_idx].name, name);
+	labels[labels_idx++].code_ptr = code_idx;
+}
+
 void ELF::ELF_Header (FILE *writefile) {
 	Insert (4, 0x7F, 0x45, 0x4C, 0x46) //EI_MAG = ELF
 	Insert (1, 0x02) //EI_CLASS = 64 BIT
@@ -71,29 +103,19 @@ void ELF::Program_Header (FILE *writefile) {
 }
 
 void ELF::CreateELF (Node *node) {
-	FILE *writefile = fopen ("../my_bintrans/test", "w");
+	FILE *writefile = fopen ("../my_bintrans/test", "wb");
 	if (!writefile) {
 		printf ("Error opening ELF File\n");
+		assert (writefile);
 		return;
 	}
+
 	ELF::ELF_Header (writefile);
 	ELF::Program_Header (writefile);
-	//ELF::TreeToELF (node, writefile);
-
-	//test
-	Insert (MATHLEN, ADD_RR (RAX, RCX))
-	Insert (MATHLEN, SUB_RR (RBX, RDX))
-	Insert (MATHLEN, IMUL (RDI))
-	Insert (MATHLEN, IDIV (RSP))
-	//test
-
-	Insert (MEMLEN, MOV_RN (RAX, 0x3C))
-	Insert (MEMLEN, MOV_RN (RDI, 0))
-	Insert (SYSLEN, SYSCALL)
+	ELF::TreeToELF (node, writefile);
 
 	//Теперь заполним размер программы
-	//TODO Здесь функцию
-	int64_t sz = code_idx; //Размер программы
+	size_t sz = code_idx; //Размер программы
 	//Теперь размер есть в sz, а значит в переменной code_idx он больше не нужен
 
 	//File size
@@ -109,10 +131,7 @@ void ELF::CreateELF (Node *node) {
 	code[code_idx++] = (sz & 0x00FF0000) >> 16;
 	code[code_idx++] = (sz & 0xFF000000) >> 24;
 
-	//TODO Здесь функцию
-
-	for (int i = 0 ; i < sz; ++i)
-		fprintf (writefile, "%c", code[i]);
+	fwrite (code, 1, sz, writefile);
 	fclose (writefile);
 }
 
@@ -150,106 +169,157 @@ void ELF::TreeToELF (Node *node, FILE *writefile) {
 		node = node->right;
 	}
 	//Вход в программу
-	fprintf (writefile, "section .text\n"
-	                    "global _start\n"
-	                    "_start: ; entry point\n");
-	fprintf (writefile, "call main ; start main function\n");
+	code_idx += 21; //Выставляем адрес
+	SetLabelAddress ("main"); //Функции main
+	code_idx -= 21; //Возвращаемся назад
+	Insert (5, _CALL (GetLabelAddress ("main", REQUEST_TYPE_CALL))) //Вызов main
+
 	//Выход из программы
-	fprintf (writefile, "mov rax, 60 ; rax = exit\n"
-	                    "mov rdi, 0 ; rdi = 0 code\n"
-	                    "syscall ; program exit\n"
-	                    "ret\n");
+	Insert (7, _MOV_R_N (_RAX, 0x3C))
+	Insert (7, _MOV_R_N (_RDI, 0))
+	Insert (2, _SYSCALL)
 	ELF::NodeToELF (writefile, node);
-	ELF::ExtraFuncs (writefile);
-	ELF::AddGlobals (writefile);
-	fclose (writefile);
+	//ELF::ExtraFuncs (writefile);
+	//ELF::AddGlobals (writefile);
+	ELF::HandleLabels ();
 }
 
 void ELF::NodeToELF (FILE *writefile, Node *node) {
 	if (node->type == TYPE_NUM) {
-		fprintf (writefile, "push %dd ; push number\n", (int) (REAL_ACCURACY * node->data));
+		Insert (5, _PUSH_N ((int) (REAL_ACCURACY * node->data)))
 	}
 	else if (node->type == TYPE_VAR) {
 		if (elf_vars[(int)node->data].is_global)
 			fprintf (writefile, "push qword [g%zu] ; push global variable\n", elf_vars[(int)node->data].shift);
 		else
-			fprintf (writefile, "push qword [rbp%+d] ; push local variable\n", elf_vars[(int)node->data].shift);
+			Insert (3, _PUSH_MR_N (_RBP, elf_vars[(int)node->data].shift)) //Кладём в стек глобальные переменные
 	}
 	else if (node->type == TYPE_OP) {
 		ELF::NodeToELF (writefile, node->left);
 		ELF::NodeToELF (writefile, node->right);
 		switch ((int)node->data) {
 			case OP_SUM: {
-				fprintf (writefile, "pop rcx ; sum_start\npop rbx\nadd rbx, rcx\npush rbx ; sum_end\n");
+				Insert (1, _POP_R (_RCX))
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _ADD_R_R (_RBX, _RCX))
+				Insert (1, _PUSH_R (_RBX))
 				break;
 			}
 			case OP_SUB: {
-				fprintf (writefile, "pop rcx ; sub_start\npop rbx\nsub rbx, rcx\npush rbx ; sub_end\n");
+				Insert (1, _POP_R (_RCX))
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _SUB_R_R (_RBX, _RCX))
+				Insert (1, _PUSH_R (_RBX))
 				break;
 			}
 			case OP_MUL: {
-				fprintf (writefile, "pop rbx ; mul_start\npop rax\nxor rdx, rdx ; or divident will be dx_ax\ncall mymul\n"
-				                    //ACCURACY
-				                    "xor rdx, rdx ; or divident will be dx_ax\nmov rbx, %dd\ncall mydiv\n"
-				                    //ACCURACY
-				                    "push rax ; mul_end\n", REAL_ACCURACY);
+				Insert (1, _POP_R (_RBX)) //Начало умножения
+				Insert (1, _POP_R (_RAX))
+				Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе множитель будет DX_AX
+				Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL)))
+				//ACCURACY
+				Insert (3, _XOR_R_R (_RDX, _RDX))
+				Insert (7, _MOV_R_N (_RBX, REAL_ACCURACY))
+				Insert (5, _CALL (GetLabelAddress ("mydiv", REQUEST_TYPE_CALL)))
+				//ACCURACY
+				Insert (1, _PUSH_R (_RAX)) //Конец умножения
 				break;
 			}
 			case OP_DIV: {
-				fprintf (writefile, "pop rbx ; div_start\npop rax\nxor rdx, rdx ; or divident will be dx_ax\n"
-				                    //ACCURACY
-				                    "xor rdx, rdx ; or divident will be dx_ax\nmov rcx, rbx\nmov rbx, %dd\ncall mymul\nmov rbx, rcx\ncall mydiv\n"
-				                    //ACCURACY
-				                    "push rax ; div_end\n", REAL_ACCURACY);
+				Insert (1, _POP_R (_RBX)) //Начало деления
+				Insert (1, _POP_R (_RAX))
+				//ACCURACY
+				Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе делитель будет DX_AX
+				Insert (3, _MOV_R_R (_RCX, _RBX))
+				Insert (7, _MOV_R_N (_RBX, REAL_ACCURACY))
+				Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL)))
+				Insert (3, _MOV_R_R (_RBX, _RCX))
+				//ACCURACY
+				Insert (5, _CALL (GetLabelAddress ("mydiv", REQUEST_TYPE_CALL)))
+				Insert (1, _PUSH_R (_RAX)) //Конец деления
 				break;
 			}
 			case OP_POW: {
-				size_t num = NUM_POW++;
-				fprintf (writefile, "; POWER FUNCTION\n"
-				                    "pop rcx\n"
-				                    "pop rax\n"
-				                    "cmp rcx, %lgd ; compare if sqrt or not\n"
-				                    "je sqrt_%zu\n"
-				                    "call pow ; just power\n"
-				                    "jmp endpow_%zu\n"
-				                    "sqrt_%zu:\n"
-				                    "call sqrt ; just sqrt\n"
-				                    "endpow_%zu:\n"
-				                    "push rax\n"
-				                    "; POWER FUNCTION\n", 0.5 * REAL_ACCURACY, num, num, num, num);
+				char str_num1 [ARRAY_SIZE];
+				char str_num2 [ARRAY_SIZE];
+				sprintf (str_num1, "sqrt_%d", NUM_POW);
+				sprintf (str_num1, "endpow_%d", NUM_POW);
+				Insert (1, _POP_R (_RCX)) //Начало возведения в степень
+				Insert (1, _POP_R (_RAX))
+				Insert (7, _CMP_R_N (_RCX, (int) (0.5 * REAL_ACCURACY)))
+				Insert (6, _JE (GetLabelAddress (str_num1, REQUEST_TYPE_J_COND)))
+				Insert (5, _CALL (GetLabelAddress ("pow", REQUEST_TYPE_CALL)))
+				Insert (5, _JMP (GetLabelAddress (str_num2, REQUEST_TYPE_JUMP)))
+				SetLabelAddress (str_num1);
+				Insert (5, _CALL (GetLabelAddress ("sqrt", REQUEST_TYPE_CALL)))
+				SetLabelAddress (str_num2);
+				Insert (1, _PUSH_R (_RAX)) //Конец возведения в степень
+				++NUM_POW;
 				break;
 			}
 			case OP_ABOVE: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njge ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JGE (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка
 				break;
 			}
 			case OP_ABOVE_EQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njg ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JG (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка
 				break;
 			}
 			case OP_BELOW: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njle ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JLE (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка //Конец прыжка
 				break;
 			}
 			case OP_BELOW_EQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njl ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JL (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка
 				break;
 			}
 			case OP_EQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\njne ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JNE (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка
 				break;
 			}
 			case OP_UNEQUAL: {
-				fprintf (writefile, "pop rax ; jmp start\npop rbx\ncmp rax, rbx\nje ");
+				char str_num [ARRAY_SIZE];
+				sprintf (str_num, "elseif_%d", NUM_IF);
+				Insert (1, _POP_R (_RAX)) //Начало прыжка
+				Insert (1, _POP_R (_RBX))
+				Insert (3, _CMP_R_R (_RAX, _RBX))
+				Insert (6, _JE (GetLabelAddress (str_num, REQUEST_TYPE_J_COND))) //Конец прыжка
 				break;
 			}
 		}
 	}
 	else if (node->type == TYPE_FUNC) {
 		if (node->parent->type == TYPE_SYS && node->parent->data == SEMICOLON) { //Текст функции
-			fprintf (writefile, "\n%s:\npush rbp ; typical function entry\nmov rbp, rsp\n", funcs[(int) node->data].name);
-			locals_num =  -1 * temp[(int) node->data]; //Количество локальных переменных
-			fprintf (writefile, "sub rsp, %dd ; space for locals\n", 8 * locals_num); //Выделяем место под локальные переменные
+			SetLabelAddress (funcs[(int) node->data].name);
+			Insert (1, _PUSH_R (_RBP)) //Стандартный вход в функцию
+			Insert (3, _MOV_R_R (_RBP, _RSP))
+			locals_num =  -1 * temp[(int) node->data]; //Количество локальных переменных * 8
+			Insert (7, _SUB_R_N (_RSP, 8 * locals_num)) //Выделяем место под локальные переменные
 			ELF::NodeToELF (writefile, node->right);
 		}
 		else { //Вызов функции
@@ -260,9 +330,9 @@ void ELF::NodeToELF (FILE *writefile, Node *node) {
 				ELF::NodeToELF (writefile, node->right);
 				node = node->parent;
 			}
-			fprintf (writefile, "call %s\n", funcs[(int) node->data].name);
-			fprintf (writefile, "add rsp, %lgd ; clean space for arguments\n", 8 * funcs[(int) node->data].val); //подчищаем стек (назад на количество переданных аргументов)
-			fprintf (writefile, "push qword rax ; push the value just returned\n"); //return value
+			Insert (5, _CALL (GetLabelAddress (funcs[(int) node->data].name, REQUEST_TYPE_CALL)))
+			Insert (7, _ADD_R_N (_RSP, (int) (8 * funcs[(int) node->data].val))) //Подчищаем стек на количество переданных аргументов
+			Insert (1, _PUSH_R (_RAX)) //Return value
 		}
 	}
 	else if (node->type == TYPE_SYS) {
@@ -272,59 +342,71 @@ void ELF::NodeToELF (FILE *writefile, Node *node) {
 				if (elf_vars[(int)node->left->data].is_global)
 					fprintf (writefile, "pop qword [g%zu] ; equal\n", elf_vars[(int)node->left->data].shift);
 				else
-					fprintf (writefile, "pop qword [rbp%+d] ; equal\n", elf_vars[(int)node->left->data].shift);
+					Insert (3, _POP_MR_N (_RBP, elf_vars[(int)node->left->data].shift))
 				break;
 			}
 			case RET: {
 				if (node->left->type == TYPE_NUM)
-					fprintf (writefile, "mov rax, %dd ; return value in rax\n", (int) (REAL_ACCURACY * node->left->data));
+				Insert (7, _MOV_R_N (_RAX, (int) (REAL_ACCURACY * node->left->data))) //Return value в RAX
 				else if (node->left->type == TYPE_VAR) {
 					if (elf_vars[(int)node->left->data].is_global)
 						fprintf (writefile, "mov rax, qword [g%zu] ; return value in rax\n", elf_vars[(int)node->left->data].shift);
 					else
-						fprintf (writefile, "mov rax, qword [rbp%+d] ; return value in rax\n", elf_vars[(int)node->left->data].shift);
+						Insert (4, _MOV_R_MR_N (_RAX, _RBP, elf_vars[(int)node->left->data].shift))
 				}
 				else {
 					ELF::NodeToELF (writefile, node->left);
-					if (node->left)
-						fprintf (writefile, "pop rax ; return value in rax\n");
+					if (node->left) {
+						Insert (1, _POP_R (_RAX)) //Return value в RAX
+					}
 				}
-				fprintf (writefile, "add rsp, %dd ; clean space for locals\n", 8 * locals_num); //Подчищаем место, выделенное под локальные переменные
-				fprintf (writefile, "pop rbp ; typical function exit\nret\n");
+				Insert (7, _ADD_R_N (_RSP, 8 * locals_num)) //Подчищаем место, выделенное под локальные переменные
+				Insert (1, _POP_R (_RBP))
+				Insert (1, _RET) //Стандартный выход из функции
 				break;
 			}
 			case PUT: {
-				if (node->left->type == TYPE_NUM)
-					fprintf (writefile, "push %dd ; put_start\npop rax\n", (int) (REAL_ACCURACY * node->left->data));
+				if (node->left->type == TYPE_NUM) {
+					Insert (5, _PUSH_N ((int) (REAL_ACCURACY * node->left->data))) //Начало Put
+					Insert (1, _POP_R (_RAX))
+				}
 				else if (node->left->type == TYPE_VAR) {
 					if (elf_vars[(int)node->left->data].is_global)
 						fprintf (writefile, "mov rax, [g%zu]\n", elf_vars[(int)node->left->data].shift);
-					else
-						fprintf (writefile, "mov rax, [rbp%+d]\n", elf_vars[(int)node->left->data].shift);
+					else {
+						Insert (4, _MOV_R_MR_N (_RAX, _RBP, elf_vars[(int) node->left->data].shift))
+					}
 				}
 				else {
 					ELF::NodeToELF (writefile, node->left);
-					fprintf (writefile, "pop rax ; expression is passed\n");
+					Insert (1, _POP_R (_RAX)) //Выражение закончилось
 				}
-				fprintf (writefile, "call put ; put_end\n");
+				Insert (5, _CALL (GetLabelAddress ("put", REQUEST_TYPE_CALL))) //Конец Put
 				break;
 			}
 			case GET: {
-				if (elf_vars[(int)node->left->data].is_global)
-					fprintf (writefile, "call get ; get_start\nmov [g%zu], rax ; get_end\n", elf_vars[(int)node->left->data].shift);
-				else
-					fprintf (writefile, "call get ; get_start\nmov [rbp%+d], rax ; get_end\n", elf_vars[(int)node->left->data].shift);
+				if (elf_vars[(int)node->left->data].is_global) {
+					fprintf (writefile, "call get ; get_start\nmov [g%zu], rax ; get_end\n",
+							elf_vars[(int) node->left->data].shift);
+				}
+				else {
+					Insert (5, _CALL (GetLabelAddress ("get", REQUEST_TYPE_CALL))) //Начало Get
+					Insert (4, _MOV_MR_N_R (_RBP, elf_vars[(int) node->left->data].shift, _RAX))
+				}
 				break;
 			}
 			case IF: {
-				size_t num = NUM_IF++;
+				char str_num1 [ARRAY_SIZE];
+				char str_num2 [ARRAY_SIZE];
+				sprintf (str_num1, "elseif_%d", NUM_IF);
+				sprintf (str_num2, "endif_%d", NUM_IF);
 				ELF::NodeToELF (writefile, node->left);
-				fprintf (writefile, "elseif_%d\n", num);
 				ELF::NodeToELF (writefile, node->right->left);
-				fprintf (writefile, "jmp endif_%d\n", num);
-				fprintf (writefile, "elseif_%d:\n", num);
+				Insert (5, _JMP (GetLabelAddress (str_num2, REQUEST_TYPE_JUMP)))
+				SetLabelAddress (str_num1);
 				ELF::NodeToELF (writefile, node->right->right);
-				fprintf (writefile, "endif_%d:\n", num);
+				SetLabelAddress (str_num2);
+				++NUM_IF;
 				break;
 			}
 			case SEMICOLON: {
@@ -612,5 +694,37 @@ void ELF::AddGlobals (FILE *writefile) {
 		if ((int) vars[i].val == GLOBAL) {
 			fprintf (writefile, "g%d dq 1\n", elf_vars[i].shift);
 		}
+	}
+}
+
+void ELF::HandleLabels () {
+	for (int i = 0; i < label_reqs_idx; ++i) {
+		for (int j = 0; j < labels_idx; ++j) {
+			if (strcmp (label_reqs[i].name, labels[j].name) == 0) {
+				printf ("label %s found on the idx %x and pasted into %x - %x bytes\n", label_reqs[i].name, labels[j].code_ptr, label_reqs[i].code_idx_request, label_reqs[i].code_idx_request + 3);
+				code [label_reqs[i].code_idx_request + label_reqs[i].type] = \
+				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
+				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
+				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x000000FF);
+				code [label_reqs[i].code_idx_request + label_reqs[i].type + 1] = \
+				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
+				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
+				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x0000FF00) >> 8;
+				code [label_reqs[i].code_idx_request + label_reqs[i].type + 2] = \
+				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
+				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
+				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x00FF0000) >> 16;
+				code [label_reqs[i].code_idx_request + label_reqs[i].type + 3] = \
+				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
+				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
+				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0xFF000000) >> 24;
+				break;
+			}
+			if (j == labels_idx - 1)
+				printf ("not found label %s\n", label_reqs[i].name);
+		}
+		for (int k = label_reqs[i].code_idx_request; k <= label_reqs[i].code_idx_request + 4; ++k)
+			printf ("%x ", code[k]);
+		printf ("\n");
 	}
 }

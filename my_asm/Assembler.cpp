@@ -4,16 +4,16 @@ char **commands_list = nullptr; //Массив с указателями на к
 size_t program_len = 0; //Количество строк в программе
 size_t special = 0; //Количество специальных символов в программе
 
-Label_t *labels = nullptr; //Массив меток
-size_t labels_idx = 0; //Индекс в массиве меток
+Label_t *old_labels = nullptr; //Массив меток
+size_t old_labels_idx = 0; //Индекс в массиве меток
 
 void AssemblerMain () {
 	commands_list = nullptr; //Массив с указателями на команды
 	program_len = 0; //Количество строк в программе
 	special = 0; //Количество специальных символов в программе
-	labels = nullptr; //Массив меток
-	labels_idx = 0; //Индекс в массиве меток
-    labels = (Label_t *) calloc (LABEL_ARRAY_SIZE, sizeof(Label_t)); //Массив меток
+	old_labels = nullptr; //Массив меток
+	old_labels_idx = 0; //Индекс в массиве меток
+    old_labels = (Label_t *) calloc (LABEL_ARRAY_SIZE, sizeof(Label_t)); //Массив меток
 
     FILE *user_input = fopen ("../my_ast/temp.asm", "rb"); //Ввод пользователя
     char *input_start = nullptr; //Начало ввода пользователя
@@ -26,10 +26,10 @@ void AssemblerMain () {
     fclose (user_lst);
 
     FILE *program_code = fopen ("../my_ast/program.code", "w"); //Машинный код процессора
-    fwrite (code, sizeof (int), program_len + special - labels_idx, program_code);
+    fwrite (code, sizeof (int), program_len + special - old_labels_idx, program_code);
 
     free (code);
-    free (labels);
+    free (old_labels);
     free (input_start);
     fclose (program_code);
 }
@@ -126,15 +126,15 @@ void ReadUserInput (FILE *user_input, char **input_start) {
 
         //Проверка на наличие комментария
         else if (command[strlen (command) - 1] == ':') {
-            labels[labels_idx].name = commands_list[i];
-            for (int j = 0; j < labels_idx; ++j) {
-            	if (strcmp (labels[j].name, labels[labels_idx].name) == 0) {
-					printf ("ERROR! Same labels names\n");
+            old_labels[old_labels_idx].name = commands_list[i];
+            for (int j = 0; j < old_labels_idx; ++j) {
+            	if (strcmp (old_labels[j].name, old_labels[old_labels_idx].name) == 0) {
+					printf ("ERROR! Same old_labels names\n");
 					exit (2);
 	            }
             }
-            labels[labels_idx].name[strlen (labels[labels_idx].name) - 1] = '\0';
-            labels[(labels_idx)++].num = -1;
+            old_labels[old_labels_idx].name[strlen (old_labels[old_labels_idx].name) - 1] = '\0';
+            old_labels[(old_labels_idx)++].num = -1;
         }
     }
 }
@@ -165,7 +165,7 @@ size_t GetProgramLen (FILE *user_input, struct stat file_info, char **input_star
 }
 
 void UserInputHandle (int **code, FILE *user_lst) {
-    *code = (int *) calloc (program_len + special - labels_idx, sizeof(int)); //Выделение памяти для массива с машинным кодом
+    *code = (int *) calloc (program_len + special - old_labels_idx, sizeof(int)); //Выделение памяти для массива с машинным кодом
     idx = 0; //Индекс в массиве с машинным кодом
     size_t shift = 0; //Сдвиг в листинге компиляции
     char *command = (char *) calloc (STR_LEN, sizeof(char)); //Введенная команда
@@ -277,9 +277,9 @@ void UserInputHandle (int **code, FILE *user_lst) {
                 char *location = (char *) calloc (STR_LEN, sizeof(char)); //Название метки, куда направляет JMP
                 read_words = sscanf(commands_list[i], "%*s %s %c", location, &comment_tag);
 
-                for (size_t label_idx = 0; label_idx < labels_idx; ++label_idx) {
-                    if (strcmp (location, labels[label_idx].name) == 0)
-                        location_idx = labels[label_idx].num;
+                for (size_t label_idx = 0; label_idx < old_labels_idx; ++label_idx) {
+                    if (strcmp (location, old_labels[label_idx].name) == 0)
+                        location_idx = old_labels[label_idx].num;
                 }
                 if ((read_words != 1) && (comment_tag != ';')) { //Проверка на наличие в строке комментариев
                     printf("ERROR in line '%s': Wrong syntax\n", commands_list[i]);
@@ -322,9 +322,9 @@ void UserInputHandle (int **code, FILE *user_lst) {
             //Обработка меток
             else {
                 bool is_label = false;
-                for (size_t label_idx = 0; label_idx < labels_idx; ++label_idx) {
-                    if (strcmp(command, labels[label_idx].name) == 0) {
-                        labels[label_idx].num = idx;
+                for (size_t label_idx = 0; label_idx < old_labels_idx; ++label_idx) {
+                    if (strcmp(command, old_labels[label_idx].name) == 0) {
+                        old_labels[label_idx].num = idx;
                         is_label = true;
                     }
                 }

@@ -36,7 +36,7 @@ int main () {
 	printf ("Handled successfully\n\n");
 
 	//printf ("Turning on ASM...\n");
-	//ASM::TreeToASM (root);
+	ASM::TreeToASM (root);
 	//AssemblerMain ();
 	//CPUMain ();
 	//printf ("Turning off ASM...\nSuccess\n\n");
