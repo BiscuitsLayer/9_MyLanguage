@@ -1,17 +1,5 @@
 function main ( ) {
     var a = 2 ;
-    var b = 3 ;
-    if ( a < b )
-        var c = call sum ( a , b ) ;
-    if-else
-        var d = call sub ( a , b ) ;
+    put ( a ) ;
     ret 0 ;
-}
-
-function sum ( a , b ) {
-    ret ( a + b ) ;
-}
-
-function sub ( a , b ) {
-    ret ( a - b ) ;
 }

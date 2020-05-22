@@ -10,64 +10,13 @@ ret
 main:
 push rbp ; typical function entry
 mov rbp, rsp
-sub rsp, 32d ; space for locals
+sub rsp, 8d ; space for locals
 push 200d ; push number
 pop qword [rbp-8] ; equal
-push 300d ; push number
-pop qword [rbp-16] ; equal
-push qword [rbp-8] ; push local variable
-push qword [rbp-16] ; push local variable
-pop rax ; jmp start
-pop rbx
-cmp rax, rbx
-jle elseif_1
-push qword [rbp-16] ; push local variable
-push qword [rbp-8] ; push local variable
-call sum
-add rsp, 16d ; clean space for arguments
-push qword rax ; push the value just returned
-pop qword [rbp-24] ; equal
-jmp endif_1
-elseif_1:
-push qword [rbp-16] ; push local variable
-push qword [rbp-8] ; push local variable
-call sub
-add rsp, 16d ; clean space for arguments
-push qword rax ; push the value just returned
-pop qword [rbp-32] ; equal
-endif_1:
+mov rax, [rbp-8]
+call put ; put_end
 mov rax, 0d ; return value in rax
-add rsp, 32d ; clean space for locals
-pop rbp ; typical function exit
-ret
-
-sum:
-push rbp ; typical function entry
-mov rbp, rsp
-sub rsp, 0d ; space for locals
-push qword [rbp+16] ; push local variable
-push qword [rbp+24] ; push local variable
-pop rcx ; sum_start
-pop rbx
-add rbx, rcx
-push rbx ; sum_end
-pop rax ; return value in rax
-add rsp, 0d ; clean space for locals
-pop rbp ; typical function exit
-ret
-
-sub:
-push rbp ; typical function entry
-mov rbp, rsp
-sub rsp, 0d ; space for locals
-push qword [rbp+16] ; push local variable
-push qword [rbp+24] ; push local variable
-pop rcx ; sub_start
-pop rbx
-sub rbx, rcx
-push rbx ; sub_end
-pop rax ; return value in rax
-add rsp, 0d ; clean space for locals
+add rsp, 8d ; clean space for locals
 pop rbp ; typical function exit
 ret
 

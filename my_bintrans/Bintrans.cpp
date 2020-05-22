@@ -9,6 +9,7 @@ static size_t locals_num = 0;
 ELF_VAR_t elf_vars [ARRAY_SIZE];
 static int temp [ARRAY_SIZE];
 
+const int START_ADDRESS = 0x400000; //Адрес начала программы
 const int CODE_SIZE = 10000;
 static char code [CODE_SIZE]; //Сначала пишем программу сюда, потом меняем размеры и адреса
 static size_t code_idx = 0; //Индекс в массиве, который содержит программу
@@ -22,7 +23,10 @@ static size_t label_reqs_idx = 0;
 int ELF::GetLabelAddress (char name[ARRAY_SIZE], LABEL_REQUEST_TYPE type) {
 	for (int i = 0; i < labels_idx; ++i) {
 		if (strcmp (labels[i].name, name) == 0) {
-			return labels[i].code_ptr - code_idx;
+			if (type != REQUEST_TYPE_MOV)
+				return labels[i].code_ptr - code_idx;
+			else
+				return labels[i].code_ptr + START_ADDRESS;
 		}
 	}
 	strcpy (labels[labels_idx].name, name); //Работвем с массивом меток
@@ -92,9 +96,9 @@ void ELF::Program_Header (FILE *writefile) {
 	MultiInsert (4, 0x00)
 	//code[64d + 32d] = code [40h + 20h]
 	//File size
-	MultiInsert (8, 0x00) //Заполним, когда будеи известен размер программы
+	MultiInsert (8, 0x00) //Заполним, когда будет известен размер программы
 	//Memory size
-	MultiInsert (8, 0x00) //Заполним, когда будеи известен размер программы
+	MultiInsert (8, 0x00) //Заполним, когда будет известен размер программы
 	//code[64d + 48d] = code [40h + 30h]
 	//Align
 	Insert (4, 0x00, 0x00, 0x20, 0x00)
@@ -179,7 +183,7 @@ void ELF::TreeToELF (Node *node, FILE *writefile) {
 	Insert (7, _MOV_R_N (_RDI, 0))
 	Insert (2, _SYSCALL)
 	ELF::NodeToELF (writefile, node);
-	//ELF::ExtraFuncs (writefile);
+	ELF::ExtraFuncs (writefile);
 	//ELF::AddGlobals (writefile);
 	ELF::HandleLabels ();
 }
@@ -229,7 +233,7 @@ void ELF::NodeToELF (FILE *writefile, Node *node) {
 				Insert (1, _POP_R (_RBX)) //Начало деления
 				Insert (1, _POP_R (_RAX))
 				//ACCURACY
-				Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе делитель будет DX_AX
+				Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе делимое будет DX_AX
 				Insert (3, _MOV_R_R (_RCX, _RBX))
 				Insert (7, _MOV_R_N (_RBX, REAL_ACCURACY))
 				Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL)))
@@ -426,267 +430,268 @@ void ELF::NodeToELF (FILE *writefile, Node *node) {
 }
 
 void ELF::ExtraFuncs (FILE *writefile) {
-	fprintf (writefile, "\n"
-	                    "mymul:\n"
-	                    "push r8 ; save r8\n"
-	                    "xor r8, r8 ; number digit\n"
-	                    "add rax, 0\n"
-	                    "jns secondmul\n"
-	                    "neg rax\n"
-	                    "inc r8\n"
-	                    "secondmul:\n"
-	                    "add rbx, 0\n"
-	                    "jns checkmul\n"
-	                    "neg rbx\n"
-	                    "dec r8\n"
-	                    "checkmul:\n"
-	                    "imul rbx\n"
-	                    "cmp r8, 0d\n"
-	                    "je endmul\n"
-	                    "neg rax\n"
-	                    "endmul:\n"
-	                    "pop r8 ; return saved r8\n"
-	                    "ret\n"
-	                    "\n"
-	                    "mydiv:\n"
-	                    "push r8 ; save r8\n"
-	                    "xor r8, r8 ; number digit\n"
-	                    "add rax, 0\n"
-	                    "jns seconddiv\n"
-	                    "neg rax\n"
-	                    "inc r8\n"
-	                    "seconddiv:\n"
-	                    "add rbx, 0\n"
-	                    "jns checkdiv\n"
-	                    "neg rbx\n"
-	                    "dec r8\n"
-	                    "checkdiv:\n"
-	                    "idiv rbx\n"
-	                    "cmp r8, 0d\n"
-	                    "je enddiv\n"
-	                    "neg rax\n"
-	                    "enddiv:\n"
-	                    "pop r8 ; return saved r8\n"
-	                    "ret\n");
-	fprintf (writefile, "\n"
-	                    "put:\n"
-	                    "xor r8, r8 ; r8 <- extra char '-' if number is negative\n"
-	                    "xor r9, r9 ; flag if pointput was called\n"
-	                    "add rax, 0d ; check if rax is negative\n"
-	                    "jns startput ; not negative -> startput\n"
-	                    "neg rax ; rax *= -1\n"
-	                    "mov rcx, output ; string offset\n"
-	                    "mov byte [rcx], 02dh ; '-' char\n"
-	                    "inc r8 ; because the number is negative\n"
-	                    "startput:\n"
-	                    "mov rdi, 10d ; rdi = 10 <- decimal\n"
-	                    "xor rsi, rsi ; rsi <- digits counter\n"
-	                    "repput:\n"
-	                    "xor rdx, rdx ; or divident will be dx_ax\n"
-	                    "xchg rbx, rdi ; to call mydiv\n"
-	                    "call mydiv ; rax /= 10, rdx = rax mod 10\n"
-	                    "xchg rbx, rdi ; to call mydiv\n"
-	                    "add rdx, '0' ; rdx -> ascii\n"
-	                    "push rdx\n"
-	                    "inc rsi ; ++digits counter\n"
-	                    "cmp rax, 0 ; while rax != 0\n"
-	                    "jne repput ; continue cycle\n"
-	                    "mov rcx, output ; string offset\n"
-	                    "mov rdx, rsi ; output length\n"
-	                    "add rdx, 2 ; point char and \\n are printed too!\n"
-	                    "add rdx, r8 ; +1 if the number is negative\n"
-	                    "add rcx, r8 ; +1 if the number is negative\n"
-	                    "repput2:\n"
-	                    "pop rbx ; pop digit ascii\n"
-	                    "mov byte [rcx], bl\n"
-	                    "inc rcx ; next char\n"
-	                    "dec rsi ; --digits counter\n"
-	                    "cmp rsi, %dd ; it's point time\n"
-	                    "je pointput\n"
-	                    "cmp rsi, 0d\n"
-	                    "jne repput2\n"
-	                    "mov byte [rcx], 0ah ; \\n symbol \n"
-	                    "jmp endput\n"
-	                    "pointput:\n"
-	                    "inc r9 ; pointput flag\n"
-	                    "mov bl, 02ch ; point char\n"
-	                    "mov byte [rcx], bl\n"
-	                    "inc rcx ; next char\n"
-	                    "jmp repput2\n"
-	                    "endput:\n"
-	                    "mov rcx, output ; string offset\n"
-	                    "test r9, r9 ; test pointput flag\n"
-	                    "jnz endput2\n"
-	                    "push rdx ; save rdx\n"
-	                    "push rcx ; save rcx\n"
-	                    "xor rdx, rdx ; just clean rdx (no mul or div)\n"
-	                    "mov rcx, service_pos; print '0,'\n"
-	                    "mov rdi, service_pos_len\n"
-	                    "mov dl, byte [rdi]\n"
-	                    "test r8, r8 ; check if we need '-' char\n"
-	                    "jz nextput ; if we don't\n"
-	                    "pop rcx ; slightly change the value of rcx saved\n"
-	                    "pop rdx ; slightly change the value of rdx saved\n"
-	                    "dec rdx ;  in the main put we don't print \'-\'\n"
-	                    "inc rcx ; starting from the number\n"
-	                    "push rdx ; slightly change the value of rdx saved\n"
-	                    "push rcx ; slightly change the value of rcx saved\n"
-	                    "mov rcx, service_neg; print '-0,'\n"
-	                    "mov rdi, service_neg_len\n"
-	                    "mov dl, byte [rdi]\n"
-	                    "nextput:\n"
-	                    "mov rax, 4 ; sys_write\n"
-	                    "mov rbx, 1 ; file descriptor = stdout\n"
-	                    "int 0x80\n"
-	                    "pop rcx ; return saved rcx\n"
-	                    "pop rdx ; return saved rdx\n"
-	                    "dec rdx ; in the main put we don't print point\n"
-	                    "endput2:\n"
-	                    "; PUT FUNCTION\n"
-	                    "mov rax, 4 ; sys_write\n"
-	                    "mov rbx, 1 ; file descriptor = stdout\n"
-	                    "int 0x80\n"
-	                    "; PUT FUNCTION\n"
-	                    "ret\n", EXP_REAL_ACCURACY);
-	fprintf (writefile, "\n"
-	                    "get:\n"
-	                    "; GET FUNCTION\n"
-	                    "mov rax, 3 ; sys_read\n"
-	                    "mov rbx, 1 ; file descriptor = stdin\n"
-	                    "mov rcx, input ; string offset\n"
-	                    "mov rdx, 16d ; input length\n"
-	                    "int 0x80\n"
-	                    "; GET FUNCTION\n"
-	                    "xor r8, r8 ; r8 <- extra char '-' if number is negative\n"
-	                    "xor rax, rax ; rax = 0 <- result\n"
-	                    "mov rdi, 10d ; rdi = 10 <- decimal\n"
-	                    "mov rcx, input ; string offset\n"
-	                    "repget:\n"
-	                    "mov bl, byte [rcx] ; bl = next char\n"
-	                    "; sign\n"
-	                    "cmp bl, 02dh ; 02dh <- '-'\n"
-	                    "je signget\n"
-	                    "; sign\n"
-	                    "; end string\n"
-	                    "cmp bl, 0ah ; 0ah <- end string char \n"
-	                    "je endget\n"
-	                    "; end string\n"
-	                    "; point\n"
-	                    "cmp bl, 02ch ; if (new_char != ',')\n"
-	                    "je pointget\n"
-	                    "cmp bl, 02eh ; if (new_char != ',')\n"
-	                    "je pointget\n"
-	                    "; point\n"
-	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "call mymul ; result *= 10\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "add rax, rbx ; result += new_char\n"
-	                    "inc rcx ; next char\n"
-	                    "jmp repget ; continue cycle\n"
-	                    "signget:\n"
-	                    "inc r8 ; number is negative\n"
-	                    "inc rcx ; next char\n"
-	                    "jmp repget\n"
-	                    "pointget:\n"
-	                    "mov rsi, %dd ; rsi = number of digits after the point\n"
-	                    "inc rcx ; next char\n"
-	                    "repget2:\n"
-	                    "mov bl, byte [rcx] ; bl = next char\n"
-	                    "; end string\n"
-	                    "cmp bl, 0ah ; 0ah <- end string char \n"
-	                    "je endget2\n"
-	                    "; end string\n"
-	                    "sub bl, '0' ; bl (ascii) -> bl (digit)\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "call mymul ; result *= 10\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "add rax, rbx ; result += new_char\n"
-	                    "inc rcx ; next char\n"
-	                    "dec rsi ; --counter\n"
-	                    "jnz repget2 ; continue cycle\n"
-	                    "jmp retget\n"
-	                    "endget:\n"
-	                    "; ACCURACY\n"
-	                    "mov rcx, %dd\n"
-	                    "xchg rbx, rcx ; to call mymul\n"
-	                    "call mymul\n"
-	                    "xchg rbx, rcx ; to call mymul\n"
-	                    "; ACCURACY\n"
-	                    "jmp retget\n"
-	                    "endget2:\n"
-	                    "repget3:\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "call mymul\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "dec rsi\n"
-	                    "jnz repget3\n"
-	                    "retget:\n"
-	                    "cmp r8, 1d ; if the number is negative\n"
-	                    "jne retget2\n"
-	                    "neg rax ; rax *= -1\n"
-	                    "retget2:\n"
-	                    "ret\n", EXP_REAL_ACCURACY, REAL_ACCURACY);
-	fprintf (writefile, "\n"
-	                    "pow:\n"
-	                    "push rbp\n"
-	                    "mov rbp, rsp\n"
-	                    "test rcx, 1d ; check if rcx is odd (mod 2 != 0) or even (mod 2 = 0)\n"
-	                    "jnz powstart\n"
-	                    "add rax, 0\n"
-	                    "jns powstart\n"
-	                    "neg rax ; if number is even (mod 2 = 0) rax *= -1\n"
-	                    "powstart:\n"
-	                    "mov rbx, rax ; rbx = factor\n"
-	                    "; ACCURACY\n"
-	                    "mov rdi, %dd ; rdi = ACCURACY\n"
-	                    "xor rdx, rdx ; or divident will be dx_ax\n"
-	                    "xchg rbx, rdi ; to call mydiv\n"
-	                    "call mydiv\n"
-	                    "xchg rbx, rdi ; to call mydiv\n"
-	                    "xchg rax, rbx ; rbx = rbx / ACCURACY\n"
-	                    "; ACCURACY\n"
-	                    "sub rcx, rdi\n"
-	                    "reppow:\n"
-	                    "call mymul ; multiply by a factor\n"
-	                    "sub rcx, rdi ; --rcx (because rcx is multiplied by REAL_ACCURACY)\n"
-	                    "jnz reppow ; continue cycle\n"
-	                    "pop rbp\n"
-	                    "ret\n"
-	                    "\n"
-	                    "sqrt:\n"
-	                    "push rbp\n"
-	                    "mov rbp, rsp\n"
-	                    "mov rdx, num ; rdx = memory address for sqrt (num)\n"
-	                    "mov qword [rdx], rax ; num = rax\n"
-	                    "finit\n"
-	                    "fild qword [rdx] ; fpu_reg = num\n"
-	                    "fsqrt ; fpu_reg = sqrt (fpu_reg)\n"
-	                    "fistp qword [rdx] ; num = fpu_reg\n"
-	                    "mov rax, qword [rdx] ; rax = num\n"
-	                    "; ACCURACY\n"
-	                    "mov rdi, %dd\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "call mymul\n"
-	                    "xchg rbx, rdi ; to call mymul\n"
-	                    "; ACCURACY\n"
-	                    "pop rbp\n"
-	                    "ret\n", REAL_ACCURACY, SQRT_REAL_ACCURACY);
-	fprintf (writefile, "\n"
-	                    "section .data\n"
-	                    "; FOR PUT\n"
-	                    "service_pos db \"0,\"\n"
-	                    "service_pos_len db $ - service_pos\n"
-	                    "service_neg db \"-0,\"\n"
-	                    "service_neg_len db $ - service_neg\n"
-	                    "output dq 1\n"
-	                    "; FOR PUT\n"
-	                    "; FOR GET\n"
-	                    "input dq 1\n"
-	                    "; FOR GET\n"
-	                    "; FOR SQRT OPERATION\n"
-	                    "num dq 1\n"
-	                    "; FOR SQRT OPERATION\n");
+	/*  MYMUL   */
+	SetLabelAddress ("mymul");
+	Insert (2, _PUSH_PROR (_R8)) //Сохраняем значение
+	Insert (3, _XOR_PROR_PROR (_R8, _R8))
+	Insert (7, _ADD_R_N (_RAX, 0))
+	Insert (6, _JNS (GetLabelAddress ("secondmul", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX))
+	Insert (3, _INC_PROR (_R8))
+	SetLabelAddress ("secondmul");
+	Insert (7, _ADD_R_N (_RBX, 0))
+	Insert (6, _JNS (GetLabelAddress ("checkmul", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RBX))
+	Insert (3, _DEC_PROR (_R8))
+	SetLabelAddress ("checkmul");
+	Insert (3, _IMUL (_RBX))
+	Insert (3, _TEST_PROR_PROR (_R8, _R8)) //Проверяем R8 == 0 (только выставляем флаги)
+	Insert (6, _JZ (GetLabelAddress ("endmul", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX))
+	SetLabelAddress ("endmul");
+	Insert (2, _POP_PROR (_R8)) //Возвращаем сохранённое значение
+	Insert (1, _RET)
+	/*  MYDIV   */
+	SetLabelAddress ("mydiv");
+	Insert (2, _PUSH_PROR (_R8)) //Сохраняем значение
+	Insert (3, _XOR_PROR_PROR (_R8, _R8))
+	Insert (7, _ADD_R_N (_RAX, 0))
+	Insert (6, _JNS (GetLabelAddress ("seconddiv", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX))
+	Insert (3, _INC_PROR (_R8))
+	SetLabelAddress ("seconddiv");
+	Insert (7, _ADD_R_N (_RBX, 0))
+	Insert (6, _JNS (GetLabelAddress ("checkdiv", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RBX))
+	Insert (3, _DEC_PROR (_R8))
+	SetLabelAddress ("checkdiv");
+	Insert (3, _IDIV (_RBX))
+	Insert (3, _TEST_PROR_PROR (_R8, _R8)) //Проверяем R8 == 0 (только выставляем флаги)
+	Insert (6, _JZ (GetLabelAddress ("enddiv", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX))
+	SetLabelAddress ("enddiv");
+	Insert (2, _POP_PROR (_R8)) //Возвращаем сохранённое значение
+	Insert (1, _RET)
+	/*   PUT    */
+	SetLabelAddress ("put");
+	Insert (3, _XOR_PROR_PROR (_R8, _R8)) //Дополнительный символ '-' если число отрицательное
+	Insert (3, _XOR_PROR_PROR (_R9, _R9)) //Флаг вызова pointput
+	Insert (7, _ADD_R_N (_RAX, 0)) //Проверка RAX на отрицательность
+	Insert (6, _JNS (GetLabelAddress ("startput", REQUEST_TYPE_J_COND))) //Если неотрицательное, начинаем Put
+	Insert (3, _NEG_R (_RAX)) //RAX *= -1
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("output", REQUEST_TYPE_MOV)))
+	Insert (3, _MOV_BYTEMR_N (_RCX, 0x2d)) //Символ '-'
+	Insert (3, _INC_PROR (_R8)) //Потому что число отрицательное
+	SetLabelAddress ("startput");
+	Insert (7, _MOV_R_N (_RDI, 10)) //Десятичная система счисления
+	Insert (3, _XOR_R_R (_RSI, _RSI)) //Счётчик цифр
+	SetLabelAddress ("repput");
+	Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе делимое будет DX_AX
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Чтобы вызвать mydiv
+	Insert (5, _CALL (GetLabelAddress ("mydiv", REQUEST_TYPE_CALL))) //RAX /= 10, RDX = RAX % 10
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Чтобы вызвать mydiv
+	Insert (7, _ADD_R_N (_RDX, '0'))
+	Insert (1, _PUSH_R (_RDX))
+	Insert (3, _INC_R (_RSI))
+	Insert (7, _CMP_R_N (_RAX, 0))
+	Insert (6, _JNE (GetLabelAddress ("repput", REQUEST_TYPE_J_COND)))
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("output", REQUEST_TYPE_MOV)))
+	Insert (3, _MOV_R_R (_RDX, _RSI)) //Длина вывода
+	Insert (7, _ADD_R_N (_RDX, 2)) //',' и '\n' тоже печатаются
+	Insert (3, _ADD_R_PROR (_RDX, _R8)) //+1 если число отрицательное
+	Insert (3, _ADD_R_PROR (_RCX, _R8)) //+1 если число отрицательное
+	SetLabelAddress ("repput2");
+	Insert (1, _POP_R (_RBX))
+	Insert (2, _MOV_MR_MINIR (_RCX, _BL)) //TODO check "mov byte [rcx], bl"
+	Insert (3, _INC_R (_RCX)) //Следующий символ
+	Insert (3, _DEC_R (_RSI)) //Уменьшаем счётчик символов
+	Insert (7, _CMP_R_N (_RSI, EXP_REAL_ACCURACY)) //Пора ли вставлять ','
+	Insert (6, _JE (GetLabelAddress ("pointput", REQUEST_TYPE_J_COND)))
+	Insert (7, _CMP_R_N (_RSI, 0))
+	Insert (6, _JNE (GetLabelAddress ("repput2", REQUEST_TYPE_J_COND)))
+	Insert (3, _MOV_BYTEMR_N (_RCX, 0x0a))
+	Insert (5, _JMP (GetLabelAddress ("endput", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("pointput");
+	Insert (3, _INC_PROR (_R9)) //Флаг pointput
+	Insert (2, _MOV_MINIR_N (_BL, 0x2c)) //Символ ','
+	Insert (2, _MOV_MR_MINIR (_RCX, _BL))
+	Insert (3, _INC_R (_RCX))
+	Insert (5, _JMP (GetLabelAddress ("repput2", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("endput");
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("output", REQUEST_TYPE_MOV)))
+	Insert (3, _TEST_PROR_PROR (_R9, _R9)) //Проверим флаг pointput
+	Insert (6, _JNZ (GetLabelAddress ("endput2", REQUEST_TYPE_J_COND)))
+	Insert (1, _PUSH_R (_RDX)) //Сохраним RDX
+	Insert (1, _PUSH_R (_RCX)) //Сохраним RCX
+	Insert (3, _XOR_R_R (_RDX, _RDX)) //Просто чистим RDX (без деления и умножения)
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("service_pos", REQUEST_TYPE_MOV))) //Печатаем '0,'
+	Insert (7, _MOV_R_M (_RDI, GetLabelAddress ("service_pos_len", REQUEST_TYPE_MOV))) //Указатель на длину
+	Insert (3, _MOV_MINIR_BYTEMR (_DL, _RDI)) //Длина
+	Insert (3, _TEST_PROR_PROR (_R8, _R8)) //Проверим символ '-'
+	Insert (6, _JZ (GetLabelAddress ("nextput", REQUEST_TYPE_J_COND)))
+	Insert (1, _POP_R (_RCX))
+	Insert (1, _POP_R (_RDX))
+	Insert (3, _DEC_R (_RDX)) //В основной печати мы не пишем '-'
+	Insert (3, _INC_R (_RCX)) //Начинаем печать с цифры
+	Insert (1, _PUSH_R (_RDX))
+	Insert (1, _PUSH_R (_RCX))
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("service_neg", REQUEST_TYPE_MOV))) //Печатаем '-0,'
+	Insert (7, _MOV_R_M (_RDI, GetLabelAddress ("service_neg_len", REQUEST_TYPE_MOV))) //Указатель на длину
+	Insert (3, _MOV_MINIR_BYTEMR (_DL, _RDI)) //Длина
+	SetLabelAddress ("nextput");
+	Insert (7, _MOV_R_N (_RAX, 4)) //sys_write
+	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdout
+	Insert (2, _SYSCALL)
+	Insert (1, _POP_R (_RCX))
+	Insert (1, _POP_R (_RDX))
+	Insert (3, _DEC_R (_RDX)) //В основной печати мы не пишем ','
+	SetLabelAddress ("endput2");
+	Insert (7, _MOV_R_N (_RAX, 4)) //sys_write
+	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdout
+	Insert (2, _SYSCALL)
+	Insert (1, _RET)
+	/*   GET    */
+	SetLabelAddress ("get");
+	Insert (7, _MOV_R_N (_RAX, 3)) //sys_read
+	Insert (7, _MOV_R_N (_RBX, 1)) //Файловый дескриптор = stdin
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("input", REQUEST_TYPE_MOV)))
+	Insert (7, _MOV_R_N (_RDX, 16)) //Длина
+	Insert (2, _SYSCALL)
+	Insert (3, _XOR_PROR_PROR (_R8, _R8)) //Будет доп. символ '-' в случае отриц. числа
+	Insert (3, _XOR_R_R (_RAX, _RAX)) //В RAX будет результат
+	Insert (7, _MOV_R_N (_RDI, 10)) //Десятичная система счисления
+	Insert (7, _MOV_R_M (_RCX, GetLabelAddress ("input", REQUEST_TYPE_MOV)))
+	SetLabelAddress ("repget");
+	Insert (3, _MOV_MINIR_BYTEMR (_BL, _RCX)) //BL - следующий символ
+	//Проверяем знак
+	Insert (3, _CMP_MINIR_N (_BL, 0x2d))
+	Insert (6, _JE (GetLabelAddress ("signget", REQUEST_TYPE_J_COND)))
+	//Проверяем знак
+	//Проверяем конец строки
+	Insert (3, _CMP_MINIR_N (_BL, 0x2a))
+	Insert (6, _JE (GetLabelAddress ("endget", REQUEST_TYPE_J_COND)))
+	//Проверяем конец строки
+	//Проверка ',' или '.'
+	Insert (3, _CMP_MINIR_N (_BL, 0x2c))
+	Insert (6, _JE (GetLabelAddress ("pointget", REQUEST_TYPE_J_COND)))
+	Insert (3, _CMP_MINIR_N (_BL, 0x2e))
+	Insert (6, _JE (GetLabelAddress ("pointget", REQUEST_TYPE_J_COND)))
+	//Проверка ',' или '.'
+	Insert (3, _SUB_MINIR_N (_BL, '0')) //BL (ascii) -> BL (digit)
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL))) //Результат *= 10
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (3, _ADD_R_R (_RAX, _RBX)) //Результат += новый символ
+	Insert (3, _INC_R (_RCX)) //Следующий символ
+	Insert (5, _JMP (GetLabelAddress ("repget", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("signget");
+	Insert (3, _INC_PROR (_R8)) //Число отрицательное
+	Insert (3, _INC_R (_RCX)) //Следующий символ
+	Insert (5, _JMP (GetLabelAddress ("repget", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("pointget");
+	Insert (7, _MOV_R_N (_RSI, EXP_REAL_ACCURACY)) //RSI <- количество цифр после запятой
+	Insert (3, _INC_R (_RCX)) //Следующий символ
+	SetLabelAddress ("repget2");
+	Insert (3, _MOV_MINIR_BYTEMR (_BL, _RCX)) //BL - следующий символ
+	//Конец строки
+	Insert (3, _CMP_MINIR_N (_BL, 0x2a))
+	Insert (6, _JE (GetLabelAddress ("endget2", REQUEST_TYPE_J_COND)))
+	//Конец строки
+	Insert (3, _SUB_MINIR_N (_BL, '0')) //BL (ascii) -> BL (digit)
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL))) //Результат *= 10
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (3, _ADD_R_R (_RAX, _RBX)) //Результат += новый символ
+	Insert (3, _INC_R (_RCX)) //Следующий символ
+	Insert (3, _DEC_R (_RSI)) //Уменьшаем счётчик
+	Insert (6, _JNZ (GetLabelAddress ("repget2", REQUEST_TYPE_J_COND)))
+	Insert (5, _JMP (GetLabelAddress ("repget", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("endget");
+	//ACCURACY
+	Insert (7, _MOV_R_N (_RCX, REAL_ACCURACY))
+	Insert (3, _XCHG_R_R (_RBX, _RCX)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL)))
+	Insert (3, _XCHG_R_R (_RBX, _RCX)) //Для вызова mymul
+	//ACCURACY
+	Insert (5, _JMP (GetLabelAddress ("retget", REQUEST_TYPE_JUMP)))
+	SetLabelAddress ("endget2");
+	SetLabelAddress ("repget3");
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL))) //Результат *= 10
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (3, _DEC_R (_RSI))
+	Insert (6, _JNZ (GetLabelAddress ("repget3", REQUEST_TYPE_J_COND)))
+	SetLabelAddress ("retget");
+	Insert (4, _CMP_PROR_N (_R8, 1)) //Если число отрицательное
+	Insert (6, _JNE (GetLabelAddress ("retget2", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX))
+	SetLabelAddress ("retget2");
+	Insert (1, _RET)
+	/*   POW    */
+	SetLabelAddress ("pow");
+	Insert (1, _PUSH_R (_RBX))
+	Insert (3, _MOV_R_R (_RBP, _RSP))
+	Insert (3, _TEST_R_N (_RCX, 1)) //Смотрим на чётность RCX
+	Insert (6, _JNZ (GetLabelAddress ("powstart", REQUEST_TYPE_J_COND)))
+	Insert (7, _ADD_R_N (_RAX, 0))
+	Insert (6, _JNS (GetLabelAddress ("powstart", REQUEST_TYPE_J_COND)))
+	Insert (3, _NEG_R (_RAX)) //Если степень чётная, то RAX *= -1
+	SetLabelAddress ("powstart");
+	Insert (3, _MOV_R_R (_RBX, _RAX)) //RBX <- множитель
+	//ACCURACY
+	Insert (7, _MOV_R_N (_RDI, REAL_ACCURACY))
+	Insert (3, _XOR_R_R (_RDX, _RDX)) //Иначе делимое будет DX_AX
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mydiv", REQUEST_TYPE_CALL)))
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (3, _XCHG_R_R (_RAX, _RBX)) //Теперь RBX = RBX / ACCURACY
+	//ACCURACY
+	Insert (3, _SUB_R_R (_RCX, _RDI))
+	SetLabelAddress ("reppow");
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL))) //Умножаем на множитель
+	Insert (3, _SUB_R_R (_RCX, _RDI)) //По сути тут декремент RCX, поскольку RCX умножена на REAL_ACCURACY
+	Insert (6, _JNZ (GetLabelAddress ("reppow", REQUEST_TYPE_J_COND)))
+	Insert (1, _POP_R (_RBP))
+	Insert (1, _RET)
+	/*  SQRT    */
+	SetLabelAddress ("sqrt");
+	Insert (1, _PUSH_R (_RBX))
+	Insert (3, _MOV_R_R (_RBP, _RSP))
+	Insert (7, _MOV_R_M (_RDX, GetLabelAddress ("num", REQUEST_TYPE_MOV))) //Адрес результата в памяти
+	Insert (4, _MOV_MR_N_R (_RDX, 0, _RAX)) //num = RAX
+	Insert (3, _FINIT)
+	Insert (2, _FILD_MR (_RDX)) //Регистр FPU = num
+	Insert (2, _FSQRT)
+	Insert (2, _FISTP_MR (_RDX)) //num = регистр FPU
+	Insert (3, _MOV_R_MR_N (_RAX, _RDX, 0)) //RAX = num
+	//ACCURACY
+	Insert (7, _MOV_R_N (_RDI, SQRT_REAL_ACCURACY))
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	Insert (5, _CALL (GetLabelAddress ("mymul", REQUEST_TYPE_CALL)))
+	Insert (3, _XCHG_R_R (_RBX, _RDI)) //Для вызова mymul
+	//ACCURACY
+	Insert (1, _POP_R (_RBP))
+	Insert (1, _RET)
+	/*  СЛУЖЕБНЫЕ ДАННЫЕ */
+	SetLabelAddress ("service_pos");
+	code [code_idx++] = '0';
+	code [code_idx++] = ',';
+	code [code_idx++] = '\n';
+	SetLabelAddress ("service_pos_len");
+	code [code_idx++] = 3;
+	SetLabelAddress ("service_neg");
+	code [code_idx++] = '-';
+	code [code_idx++] = '0';
+	code [code_idx++] = ',';
+	code [code_idx++] = '\n';
+	SetLabelAddress ("service_neg_len");
+	code [code_idx++] = 4;
+	SetLabelAddress ("output");
+	code_idx += 16;
+	SetLabelAddress ("input");
+	code_idx += 16;
+	SetLabelAddress ("num");
+	code_idx += 16;
 }
 
 void ELF::AddGlobals (FILE *writefile) {
@@ -701,30 +706,62 @@ void ELF::HandleLabels () {
 	for (int i = 0; i < label_reqs_idx; ++i) {
 		for (int j = 0; j < labels_idx; ++j) {
 			if (strcmp (label_reqs[i].name, labels[j].name) == 0) {
-				printf ("label %s found on the idx %x and pasted into %x - %x bytes\n", label_reqs[i].name, labels[j].code_ptr, label_reqs[i].code_idx_request, label_reqs[i].code_idx_request + 3);
-				code [label_reqs[i].code_idx_request + label_reqs[i].type] = \
-				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
-				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
-				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x000000FF);
-				code [label_reqs[i].code_idx_request + label_reqs[i].type + 1] = \
-				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
-				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
-				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x0000FF00) >> 8;
-				code [label_reqs[i].code_idx_request + label_reqs[i].type + 2] = \
-				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
-				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
-				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0x00FF0000) >> 16;
-				code [label_reqs[i].code_idx_request + label_reqs[i].type + 3] = \
-				((labels[j].code_ptr - label_reqs[i].code_idx_request - \
-				(label_reqs[i].type == REQUEST_TYPE_CALL ? _CALL_LEN : \
-				label_reqs[i].type == REQUEST_TYPE_JUMP ? _JUMP_LEN : _J_COND_LEN)) & 0xFF000000) >> 24;
-				break;
+				if (label_reqs[i].type == REQUEST_TYPE_CALL) {
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x000000FF);
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 1] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x0000FF00) >> 8;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 2] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0x00FF0000) >> 16;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 3] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _CALL_LEN) & 0xFF000000) >> 24;
+					break;
+				}
+				else if (label_reqs[i].type == REQUEST_TYPE_JUMP) {
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x000000FF);
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 1] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x0000FF00) >> 8;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 2] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0x00FF0000) >> 16;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 3] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _JUMP_LEN) & 0xFF000000) >> 24;
+					break;
+				}
+				else if (label_reqs[i].type == REQUEST_TYPE_J_COND) {
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x000000FF);
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 1] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x0000FF00) >> 8;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 2] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0x00FF0000) >> 16;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 3] = \
+					((labels[j].code_ptr - label_reqs[i].code_idx_request - _J_COND_LEN) & 0xFF000000) >> 24;
+					break;
+				}
+				else if (label_reqs[i].type == REQUEST_TYPE_MOV) {
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_MOV] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x000000FF);
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_MOV + 1] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x0000FF00) >> 8;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_MOV + 2] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x00FF0000) >> 16;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_MOV + 3] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0xFF000000) >> 24;
+					break;
+				}
+				else {
+					printf ("Label \"%s\ntype undefined", label_reqs[i].name);
+					break;
+				}
 			}
 			if (j == labels_idx - 1)
 				printf ("not found label %s\n", label_reqs[i].name);
 		}
+		/*
 		for (int k = label_reqs[i].code_idx_request; k <= label_reqs[i].code_idx_request + 4; ++k)
 			printf ("%x ", code[k]);
 		printf ("\n");
+		 */
 	}
 }

@@ -19,7 +19,7 @@ struct LABEL_t {
 	char name [ARRAY_SIZE] = {}; //Имя метки
 };
 
-enum LABEL_REQUEST_TYPE { REQUEST_TYPE_CALL = 1, REQUEST_TYPE_JUMP = 1, REQUEST_TYPE_J_COND = 2 };
+enum LABEL_REQUEST_TYPE { REQUEST_TYPE_CALL = 1, REQUEST_TYPE_JUMP = 1, REQUEST_TYPE_J_COND = 2, REQUEST_TYPE_MOV = 3 };
 
 struct LABEL_REQUEST_t {
 	size_t code_idx_request = 0; //Место в программе, где произошёл запрос к метке
