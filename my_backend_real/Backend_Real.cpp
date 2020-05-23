@@ -38,19 +38,22 @@ void ASM::GetVarIdx () {
 }
 
 void ASM::TreeToASM (Node *node) {
-	//TODO УБЕРИ ЭТО ПОЖАЛУЙСТА
-	//FILE *writefile = fopen ("../my_ast/temp.asm", "w");
-	FILE *writefile = fopen ("../my_programs/test/main.s", "w");
-	//TODO УБЕРИ ЭТО ПОЖАЛУЙСТА
+	FILE *writefile = fopen ("../my_programs/result/my_main.asm", "w");
+	if (!writefile) {
+		printf ("Error opening ASM File\n");
+		assert (writefile);
+		return;
+	}
 	ASM::GetVarIdx ();
 	Node *base = node;
-	while (node->left && node->left->type != TYPE_FUNC) {
-		node = node->right;
-	}
 	//Вход в программу
 	fprintf (writefile, "section .text\n"
 	                    "global _start\n"
 	                    "_start: ; entry point\n");
+	while (node->left && node->left->type != TYPE_FUNC) {
+		ASM::NodeToASM (writefile, node->left);
+		node = node->right;
+	}
 	fprintf (writefile, "call main ; start main function\n");
 	//Выход из программы
 	fprintf (writefile, "mov rax, 60 ; rax = exit\n"
@@ -94,7 +97,7 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 				break;
 			}
 			case OP_DIV: {
-				fprintf (writefile, "pop rbx ; div_start\npop rax\nxor rdx, rdx ; or divident will be dx_ax\n"
+				fprintf (writefile, "pop rbx ; div_start\npop rax\n"
 				//ACCURACY
 				"xor rdx, rdx ; or divident will be dx_ax\nmov rcx, rbx\nmov rbx, %dd\ncall mymul\nmov rbx, rcx\ncall mydiv\n"
 				//ACCURACY

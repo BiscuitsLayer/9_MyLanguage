@@ -2,3 +2,5 @@ CODE 1: WRONG SYNTAX
 CODE 2: ASSEMBLER ERROR
 CODE 3: WRONG CONDITION
 CODE 4: VARIABLE OR CONSTANT NOT FOUND
+
+//Все глобальные переменные должны инициализироваться в самом начале программы (до функций), иначе окажутся непроинициализированными

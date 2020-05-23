@@ -35,6 +35,8 @@ int ELF::GetLabelAddress (char name[ARRAY_SIZE], LABEL_REQUEST_TYPE type) {
 						return (labels[i].code_ptr - code_idx + 0xFFFFFFFF - _J_COND_LEN + flag) % (0xFFFFFFFF);
 					case REQUEST_TYPE_MOV:
 						return labels[i].code_ptr + START_ADDRESS;
+					case REQUEST_TYPE_GLOBAL_MOV:
+						return labels[i].code_ptr + START_ADDRESS;
 				}
 			}
 			else {
@@ -66,7 +68,7 @@ void ELF::SetLabelAddress (char name[ARRAY_SIZE]) {
 	labels[labels_idx++].code_ptr = code_idx;
 }
 
-void ELF::ELF_Header (FILE *writefile) {
+void ELF::ELF_Header () {
 	Insert (4, 0x7F, 0x45, 0x4C, 0x46) // EI_MAG = ELF
 	Insert (1, 0x02) // EI_CLASS = 64 BIT
 	Insert (1, 0x01) // EI_DATA = DATA2LSB (Little-Endian)
@@ -101,7 +103,7 @@ void ELF::ELF_Header (FILE *writefile) {
 	MultiInsert (2, 0x00)
 }
 
-void ELF::Program_Header (FILE *writefile) {
+void ELF::Program_Header () {
 	Insert (4, 0x01, 0x00, 0x00, 0x00) // P_TYPE = Loadable program segment
 	Insert (4, 0x07, 0x00, 0x00, 0x00) // P_FLAGS = Segment is readable, writable and executable
 	MultiInsert (8, 0x00) // P_OFFSET
@@ -124,16 +126,16 @@ void ELF::Program_Header (FILE *writefile) {
 }
 
 void ELF::CreateELF (Node *node) {
-	FILE *writefile = fopen ("../my_programs/a.out", "wb");
+	FILE *writefile = fopen ("../my_programs/result/my_main", "wb");
 	if (!writefile) {
 		printf ("Error opening ELF File\n");
 		assert (writefile);
 		return;
 	}
 
-	ELF::ELF_Header (writefile);
-	ELF::Program_Header (writefile);
-	ELF::TreeToELF (node, writefile);
+	ELF::ELF_Header ();
+	ELF::Program_Header ();
+	ELF::TreeToELF (node);
 
 	// Теперь заполним размер программы
 	size_t sz = code_idx; // Размер программы
@@ -141,16 +143,10 @@ void ELF::CreateELF (Node *node) {
 
 	// File size
 	code_idx = 0x40 + 0x20;
-	code[code_idx++] = (sz & 0x000000FF);
-	code[code_idx++] = (sz & 0x0000FF00) >> 8;
-	code[code_idx++] = (sz & 0x00FF0000) >> 16;
-	code[code_idx++] = (sz & 0xFF000000) >> 24;
+	InsertSize (sz)
 	// Memory size
 	code_idx = 0x40 + 0x28;
-	code[code_idx++] = (sz & 0x000000FF);
-	code[code_idx++] = (sz & 0x0000FF00) >> 8;
-	code[code_idx++] = (sz & 0x00FF0000) >> 16;
-	code[code_idx++] = (sz & 0xFF000000) >> 24;
+	InsertSize (sz)
 
 	fwrite (code, 1, sz, writefile);
 	fclose (writefile);
@@ -183,7 +179,7 @@ void ELF::GetVarIdx () {
 	// А в массиве temp будут лежать количества локальных переменных (разве что, со знаком минус)
 }
 
-void ELF::TreeToELF (Node *node, FILE *writefile) {
+void ELF::TreeToELF (Node *node) {
 	ELF::GetVarIdx ();
 	Node *base = node;
 	while (node->left && node->left->type != TYPE_FUNC) {
@@ -200,25 +196,28 @@ void ELF::TreeToELF (Node *node, FILE *writefile) {
 	Insert (7, _MOV_R_N (_RDI, 0))
 	Insert (2, _SYSCALL)
 	Insert (1, _RET)
-	ELF::NodeToELF (writefile, node);
-	ELF::ExtraFuncs (writefile);
-	// ELF::AddGlobals (writefile);
+	ELF::NodeToELF (node);
+	ELF::ExtraFuncs ();
+	ELF::AddGlobals ();
 	ELF::HandleLabels ();
 }
 
-void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
+void ELF::NodeToELF (Node *node, size_t IF_NUMBER) {
 	if (node->type == TYPE_NUM) {
 		Insert (5, _PUSH_N ((int) (REAL_ACCURACY * node->data)))
 	}
 	else if (node->type == TYPE_VAR) {
-		if (elf_vars[(int)node->data].is_global)
-			fprintf (writefile, "push qword [g%zu] ; push global variable\n", elf_vars[(int)node->data].shift);
+		if (elf_vars[(int)node->data].is_global) {
+			char g_num [ARRAY_SIZE];
+			sprintf (g_num, "g%zu", elf_vars[(int) node->data].shift);
+			Insert (7, _PUSH_M (GetLabelAddress (g_num, REQUEST_TYPE_MOV)))
+		}
 		else
 			Insert (3, _PUSH_MR_N (_RBP, elf_vars[(int)node->data].shift)) // Кладём в стек глобальные переменные
 	}
 	else if (node->type == TYPE_OP) {
-		ELF::NodeToELF (writefile, node->left);
-		ELF::NodeToELF (writefile, node->right);
+		ELF::NodeToELF (node->left);
+		ELF::NodeToELF (node->right);
 		switch ((int)node->data) {
 			case OP_SUM: {
 				Insert (1, _POP_R (_RCX))
@@ -342,14 +341,14 @@ void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
 			Insert (3, _MOV_R_R (_RBP, _RSP))
 			locals_num =  -1 * temp[(int) node->data]; // Количество локальных переменных * 8
 			Insert (7, _SUB_R_N (_RSP, 8 * locals_num)) // Выделяем место под локальные переменные
-			ELF::NodeToELF (writefile, node->right);
+			ELF::NodeToELF (node->right);
 		}
 		else { // Вызов функции
 			Node *base = node;
 			while (node->left && node->left->type == TYPE_SYS && node->left->data == COMMA)
 				node = node->left;
 			while (node != base) { // Передача параметров в обратном порядке
-				ELF::NodeToELF (writefile, node->right);
+				ELF::NodeToELF (node->right);
 				node = node->parent;
 			}
 			Insert (5, _CALL (GetLabelAddress (funcs[(int) node->data].name, REQUEST_TYPE_CALL)))
@@ -360,24 +359,31 @@ void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
 	else if (node->type == TYPE_SYS) {
 		switch ((int)node->data) {
 			case EQUAL: {
-				ELF::NodeToELF (writefile, node->right);
-				if (elf_vars[(int)node->left->data].is_global)
-					fprintf (writefile, "pop qword [g%zu] ; equal\n", elf_vars[(int)node->left->data].shift);
-				else
-					Insert (3, _POP_MR_N (_RBP, elf_vars[(int)node->left->data].shift))
+				ELF::NodeToELF (node->right);
+				if (elf_vars[(int)node->left->data].is_global) {
+					char g_num [ARRAY_SIZE];
+					sprintf (g_num, "g%zu", elf_vars[(int) node->left->data].shift);
+					Insert (7, _POP_M (GetLabelAddress (g_num, REQUEST_TYPE_MOV)))
+				}
+				else {
+					Insert (3, _POP_MR_N (_RBP, elf_vars[(int) node->left->data].shift))
+				}
 				break;
 			}
 			case RET: {
 				if (node->left->type == TYPE_NUM)
 				Insert (7, _MOV_R_N (_RAX, (int) (REAL_ACCURACY * node->left->data))) // Return value в RAX
 				else if (node->left->type == TYPE_VAR) {
-					if (elf_vars[(int)node->left->data].is_global)
-						fprintf (writefile, "mov rax, qword [g%zu] ; return value in rax\n", elf_vars[(int)node->left->data].shift);
+					if (elf_vars[(int)node->left->data].is_global) {
+						char g_num [ARRAY_SIZE];
+						sprintf (g_num, "g%zu", elf_vars[(int) node->left->data].shift);
+						Insert (7, _MOV_R_M (_RAX, GetLabelAddress (g_num, REQUEST_TYPE_MOV)))
+					}
 					else
 						Insert (4, _MOV_R_MR_N (_RAX, _RBP, elf_vars[(int)node->left->data].shift))
 				}
 				else {
-					ELF::NodeToELF (writefile, node->left);
+					ELF::NodeToELF (node->left);
 					if (node->left) {
 						Insert (1, _POP_R (_RAX)) // Return value в RAX
 					}
@@ -393,14 +399,17 @@ void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
 					Insert (1, _POP_R (_RAX))
 				}
 				else if (node->left->type == TYPE_VAR) {
-					if (elf_vars[(int)node->left->data].is_global)
-						fprintf (writefile, "mov rax, [g%zu]\n", elf_vars[(int)node->left->data].shift);
+					if (elf_vars[(int)node->left->data].is_global) {
+						char g_num [ARRAY_SIZE];
+						sprintf (g_num, "g%zu", elf_vars[(int) node->left->data].shift);
+						Insert (7, _MOV_R_M (_RAX, GetLabelAddress (g_num, REQUEST_TYPE_MOV)))
+					}
 					else {
 						Insert (4, _MOV_R_MR_N (_RAX, _RBP, elf_vars[(int) node->left->data].shift))
 					}
 				}
 				else {
-					ELF::NodeToELF (writefile, node->left);
+					ELF::NodeToELF (node->left);
 					Insert (1, _POP_R (_RAX)) // Выражение закончилось
 				}
 				Insert (5, _CALL (GetLabelAddress ("put", REQUEST_TYPE_CALL))) // Конец Put
@@ -408,8 +417,10 @@ void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
 			}
 			case GET: {
 				if (elf_vars[(int)node->left->data].is_global) {
-					fprintf (writefile, "call get ; get_start\nmov [g%zu], rax ; get_end\n",
-							elf_vars[(int) node->left->data].shift);
+					char g_num [ARRAY_SIZE];
+					sprintf (g_num, "g%zu", elf_vars[(int) node->left->data].shift);
+					Insert (5, _CALL (GetLabelAddress ("get", REQUEST_TYPE_CALL))) // Начало Get
+					Insert (8, _MOV_M_R (_RAX, GetLabelAddress (g_num, REQUEST_TYPE_GLOBAL_MOV))) //Конец Get
 				}
 				else {
 					Insert (5, _CALL (GetLabelAddress ("get", REQUEST_TYPE_CALL))) // Начало Get
@@ -423,31 +434,31 @@ void ELF::NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER) {
 				char str_num2 [ARRAY_SIZE];
 				sprintf (str_num1, "elseif_%d", num);
 				sprintf (str_num2, "endif_%d", num);
-				ELF::NodeToELF (writefile, node->left, num);
-				ELF::NodeToELF (writefile, node->right->left);
+				ELF::NodeToELF (node->left, num);
+				ELF::NodeToELF (node->right->left);
 				Insert (5, _JMP (GetLabelAddress (str_num2, REQUEST_TYPE_JUMP)))
 				SetLabelAddress (str_num1);
-				ELF::NodeToELF (writefile, node->right->right);
+				ELF::NodeToELF (node->right->right);
 				SetLabelAddress (str_num2);
 				break;
 			}
 			case SEMICOLON: {
-				ELF::NodeToELF (writefile, node->left);
+				ELF::NodeToELF (node->left);
 				if (node->right)
-					ELF::NodeToELF (writefile, node->right);
+					ELF::NodeToELF (node->right);
 				break;
 			}
 			case OP: {
-				ELF::NodeToELF (writefile, node->left);
+				ELF::NodeToELF (node->left);
 				if (node->right)
-					ELF::NodeToELF (writefile, node->right);
+					ELF::NodeToELF (node->right);
 				break;
 			}
 		}
 	}
 }
 
-void ELF::ExtraFuncs (FILE *writefile) {
+void ELF::ExtraFuncs () {
 	/*  MYMUL   */
 	SetLabelAddress ("mymul");
 	Insert (2, _PUSH_PROR (_R8)) // Сохраняем значение
@@ -469,6 +480,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	SetLabelAddress ("endmul");
 	Insert (2, _POP_PROR (_R8)) // Возвращаем сохранённое значение
 	Insert (1, _RET)
+
 	/*  MYDIV   */
 	SetLabelAddress ("mydiv");
 	Insert (2, _PUSH_PROR (_R8)) // Сохраняем значение
@@ -490,6 +502,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	SetLabelAddress ("enddiv");
 	Insert (2, _POP_PROR (_R8)) // Возвращаем сохранённое значение
 	Insert (1, _RET)
+
 	/*   PUT    */
 	SetLabelAddress ("put");
 	Insert (3, _XOR_PROR_PROR (_R8, _R8)) // Дополнительный символ '-' если число отрицательное
@@ -520,7 +533,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (3, _ADD_R_PROR (_RCX, _R8)) // +1 если число отрицательное
 	SetLabelAddress ("repput2");
 	Insert (1, _POP_R (_RBX))
-	Insert (2, _MOV_MR_MINIR (_RCX, _BL)) // TODO check "mov byte [rcx], bl"
+	Insert (2, _MOV_MR_MINIR (_RCX, _BL))
 	Insert (3, _INC_R (_RCX)) // Следующий символ
 	Insert (3, _DEC_R (_RSI)) // Уменьшаем счётчик символов
 	Insert (7, _CMP_R_N (_RSI, EXP_REAL_ACCURACY)) // Пора ли вставлять ','
@@ -568,6 +581,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (7, _MOV_R_N (_RBX, 1)) // Файловый дескриптор = stdout
 	Insert (2, _INT_0x80)
 	Insert (1, _RET)
+
 	/*   GET    */
 	SetLabelAddress ("get");
 	Insert (7, _MOV_R_N (_RAX, 3)) // sys_read
@@ -645,6 +659,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (3, _NEG_R (_RAX))
 	SetLabelAddress ("retget2");
 	Insert (1, _RET)
+
 	/*   POW    */
 	SetLabelAddress ("pow");
 	Insert (1, _PUSH_R (_RBP))
@@ -671,6 +686,7 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	Insert (6, _JNZ (GetLabelAddress ("reppow", REQUEST_TYPE_J_COND)))
 	Insert (1, _POP_R (_RBP))
 	Insert (1, _RET)
+
 	/*  SQRT    */
 	SetLabelAddress ("sqrt");
 	Insert (1, _PUSH_R (_RBP))
@@ -710,10 +726,13 @@ void ELF::ExtraFuncs (FILE *writefile) {
 	code_idx += 16;
 }
 
-void ELF::AddGlobals (FILE *writefile) {
+void ELF::AddGlobals () {
 	for (size_t i = 0; i < var_idx; ++i) {
 		if ((int) vars[i].val == GLOBAL) {
-			fprintf (writefile, "g%d dq 1\n", elf_vars[i].shift);
+			char g_num [ARRAY_SIZE];
+			sprintf (g_num, "g%zu", elf_vars[i].shift);
+			SetLabelAddress (g_num);
+			code_idx += 16;
 		}
 	}
 }
@@ -724,35 +743,47 @@ void ELF::HandleLabels () {
 			if (strcmp (label_reqs[i].name, labels[j].name) == 0) {
 				if (label_reqs[i].type == REQUEST_TYPE_CALL) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_CALL_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 1] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_CALL_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 2] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_CALL_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_CALL + 3] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _CALL_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_CALL_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_JUMP) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_JUMP_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 1] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_JUMP_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 2] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_JUMP_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_JUMP + 3] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _JUMP_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_JUMP_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_J_COND) {
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x000000FF);
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_J_COND_LEN) % 0xFFFFFFFF) & 0x000000FF);
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 1] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_J_COND_LEN) % 0xFFFFFFFF) & 0x0000FF00) >> 8;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 2] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_J_COND_LEN) % 0xFFFFFFFF) & 0x00FF0000) >> 16;
 					code [label_reqs[i].code_idx_request + REQUEST_TYPE_J_COND + 3] = \
-					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - _J_COND_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
+					(((labels[j].code_ptr - label_reqs[i].code_idx_request + 0xFFFFFFFF - \
+					_J_COND_LEN) % 0xFFFFFFFF) & 0xFF000000) >> 24;
 					break;
 				}
 				else if (label_reqs[i].type == REQUEST_TYPE_MOV) {
@@ -766,6 +797,17 @@ void ELF::HandleLabels () {
 					((labels[j].code_ptr + START_ADDRESS) & 0xFF000000) >> 24;
 					break;
 				}
+				else if (label_reqs[i].type == REQUEST_TYPE_GLOBAL_MOV) {
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_GLOBAL_MOV] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x000000FF);
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_GLOBAL_MOV + 1] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x0000FF00) >> 8;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_GLOBAL_MOV + 2] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0x00FF0000) >> 16;
+					code [label_reqs[i].code_idx_request + REQUEST_TYPE_GLOBAL_MOV + 3] = \
+					((labels[j].code_ptr + START_ADDRESS) & 0xFF000000) >> 24;
+					break;
+				}
 				else {
 					printf ("Label \"%s\ntype undefined", label_reqs[i].name);
 					break;
@@ -775,9 +817,4 @@ void ELF::HandleLabels () {
 				printf ("not found label %s\n", label_reqs[i].name);
 		}
 	}
-	/*
-	for (int k = 0; k < labels_idx; ++k)
-		printf ("label \"%s\" is on the address 0x%x\n", labels[k].name, labels[k].code_ptr + START_ADDRESS);
-	*/
-
 }

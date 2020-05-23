@@ -19,7 +19,7 @@ struct LABEL_t {
 	char name [ARRAY_SIZE] = {}; //Имя метки
 };
 
-enum LABEL_REQUEST_TYPE { REQUEST_TYPE_CALL = 1, REQUEST_TYPE_JUMP = 1, REQUEST_TYPE_J_COND = 2, REQUEST_TYPE_MOV = 3 };
+enum LABEL_REQUEST_TYPE { REQUEST_TYPE_CALL = 1, REQUEST_TYPE_JUMP = 1, REQUEST_TYPE_J_COND = 2, REQUEST_TYPE_MOV = 3, REQUEST_TYPE_GLOBAL_MOV = 4 };
 
 struct LABEL_REQUEST_t {
 	size_t code_idx_request = 0; //Место в программе, где произошёл запрос к метке
@@ -28,8 +28,11 @@ struct LABEL_REQUEST_t {
 };
 
 enum Hexadecimal { A = 10, B, C, D, E, F};
-#define h(a, b) a * 16 + b //TODO Надо бы убрать
-
+#define h(a, b) a * 16 + b
+#define InsertSize(sz) { code[code_idx++] = (sz & 0x000000FF); \
+code[code_idx++] = (sz & 0x0000FF00) >> 8; \
+code[code_idx++] = (sz & 0x00FF0000) >> 16; \
+code[code_idx++] = (sz & 0xFF000000) >> 24; }
 #define Insert(num, ...) { unsigned char bytes[] = {__VA_ARGS__};  \
 		for (size_t i = 0; i < num; ++i) code[code_idx++] = bytes[i]; }
 #define MultiInsert(num, byte) { for (size_t i = 0; i < num; ++i) \
@@ -40,14 +43,14 @@ extern ELF_VAR_t elf_vars [ARRAY_SIZE];
 namespace ELF {
 	int GetLabelAddress (char name[ARRAY_SIZE], LABEL_REQUEST_TYPE type);
 	void SetLabelAddress (char name[ARRAY_SIZE]);
-	void ELF_Header (FILE *writefile);
-	void Program_Header (FILE *writefile);
+	void ELF_Header ();
+	void Program_Header ();
 	void CreateELF (Node *node);
 	void GetVarIdx ();
-	void TreeToELF (Node *node, FILE *writefile);
-	void NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER = 0);
-	void ExtraFuncs (FILE *writefile);
-	void AddGlobals (FILE *writefile);
+	void TreeToELF (Node *node);
+	void NodeToELF (Node *node, size_t IF_NUMBER = 0);
+	void ExtraFuncs ();
+	void AddGlobals ();
 	void HandleLabels ();
 }
 

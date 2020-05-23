@@ -143,8 +143,8 @@ void UserInterfaceMain () {
 				else {
 					printf ("Turning on ASM...\n");
 					ASM::TreeToASM (root);
-					AssemblerMain ();
-					CPUMain ();
+					//AssemblerMain ();
+					//CPUMain ();
 					printf ("Turning off ASM...\nSuccess\n\n");
 				}
 				break;

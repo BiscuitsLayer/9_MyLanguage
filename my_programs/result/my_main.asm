@@ -418,7 +418,7 @@ cmp rsi, 2d ; it's point time
 je pointput
 cmp rsi, 0d
 jne repput2
-mov byte [rcx], 0ah ; \n symbol
+mov byte [rcx], 0ah ; \n symbol 
 jmp endput
 pointput:
 inc r9 ; pointput flag
@@ -481,7 +481,7 @@ cmp bl, 02dh ; 02dh <- '-'
 je signget
 ; sign
 ; end string
-cmp bl, 0ah ; 0ah <- end string char
+cmp bl, 0ah ; 0ah <- end string char 
 je endget
 ; end string
 ; point
@@ -507,7 +507,7 @@ inc rcx ; next char
 repget2:
 mov bl, byte [rcx] ; bl = next char
 ; end string
-cmp bl, 0ah ; 0ah <- end string char
+cmp bl, 0ah ; 0ah <- end string char 
 je endget2
 ; end string
 sub bl, '0' ; bl (ascii) -> bl (digit)

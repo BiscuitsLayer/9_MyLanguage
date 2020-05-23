@@ -19,7 +19,7 @@ int main () {
 /*
 	Node *root = nullptr;
 	char *filepath = (char *) calloc (STR_LEN, sizeof (char));
-	sprintf (filepath, "../my_programs/test.my_lang", filename);
+	sprintf (filepath, "../my_programs/globals.my_lang", filename);
 	FILE *readfile = fopen(filepath, "rb");
 	if (!readfile) {
 		printf("Error opening file\n");
