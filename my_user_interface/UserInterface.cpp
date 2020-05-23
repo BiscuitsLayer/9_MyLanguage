@@ -1,9 +1,6 @@
 #include "UserInterface.h"
 
-//TODO УБЕРИ ВОТ ЭТО ВОТ СРОЧНО
-//char filename[STR_LEN];
-char filename[STR_LEN] = "test";
-//TODO УБЕРИ ВОТ ЭТО ВОТ СРОЧНО
+char filename[STR_LEN];
 
 void Ask () {
 	printf ("Select mode:\n");
@@ -15,7 +12,8 @@ void Ask () {
 	        "5. Save in Ballet Language\n"
 	        "6. Save in AST Language\n"
 	        "7. Save as tree\n"
-	        "8. Send to ASM\n");
+	        "8. Send to ASM\n"
+		    "9. Create ELF\n");
 }
 
 void UserInterfaceMain () {
@@ -148,6 +146,18 @@ void UserInterfaceMain () {
 					AssemblerMain ();
 					CPUMain ();
 					printf ("Turning off ASM...\nSuccess\n\n");
+				}
+				break;
+			}
+			case 9: {
+				if (!is_loaded)
+					printf ("You can't create ELF until you load it\n");
+				else if (!is_handled)
+					printf ("You can't create ELF until you handle it\n");
+				else {
+					printf ("Turning on ELF Generator...\n");
+					ELF::CreateELF (root);
+					printf ("Turning off ELF Generator...\nSuccess\n\n");
 				}
 				break;
 			}

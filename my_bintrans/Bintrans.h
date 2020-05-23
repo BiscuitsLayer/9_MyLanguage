@@ -45,7 +45,7 @@ namespace ELF {
 	void CreateELF (Node *node);
 	void GetVarIdx ();
 	void TreeToELF (Node *node, FILE *writefile);
-	void NodeToELF (FILE *writefile, Node *node);
+	void NodeToELF (FILE *writefile, Node *node, size_t IF_NUMBER = 0);
 	void ExtraFuncs (FILE *writefile);
 	void AddGlobals (FILE *writefile);
 	void HandleLabels ();

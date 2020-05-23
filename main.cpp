@@ -14,8 +14,9 @@
 //TODO return со значением и без
 
 int main () {
-	//UserInterfaceMain ();
-
+	UserInterfaceMain ();
+/*  FOR DEBUG   */
+/*
 	Node *root = nullptr;
 	char *filepath = (char *) calloc (STR_LEN, sizeof (char));
 	sprintf (filepath, "../my_programs/test.my_lang", filename);
@@ -47,6 +48,6 @@ int main () {
 
 	free (filepath);
 	Tree::FreeNode (root);
-
+*/
     return 0;
 }

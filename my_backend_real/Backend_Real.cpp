@@ -217,7 +217,7 @@ void ASM::NodeToASM (FILE *writefile, Node *node) {
 			case IF: {
 				size_t num = NUM_IF++;
 				ASM::NodeToASM (writefile, node->left);
-				fprintf (writefile, "elseif_%d\n", num);
+				fprintf (writefile, "elseif_%d\n", num); //Прыжок с условием
 				ASM::NodeToASM (writefile, node->right->left);
 				fprintf (writefile, "jmp endif_%d\n", num);
 				fprintf (writefile, "elseif_%d:\n", num);

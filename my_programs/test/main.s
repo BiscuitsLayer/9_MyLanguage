@@ -80,8 +80,6 @@ call Discriminant
 add rsp, 24d ; clean space for arguments
 push qword rax ; push the value just returned
 pop qword [rbp-16] ; equal
-mov rax, [rbp-16]
-call put ; put_end
 push qword [rbp-16] ; push local variable
 push 0d ; push number
 pop rax ; jmp start
